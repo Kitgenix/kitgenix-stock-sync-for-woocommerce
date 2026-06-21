@@ -1,0 +1,274 @@
+/* ==========================================================================
+   Kitgenix Stock Sync for WooCommerce/kitgenix-stock-sync-for-woocommerce
+   ========================================================================== */
+/* ----------------------------------------------------------------
+  Page wrapper
+----------------------------------------------------------------- */
+.wrap.kitgenix-stock-sync-for-woocommerce-admin {
+  max-width: 1240px;
+}
+
+/* ----------------------------------------------------------------
+  Section cards (settings form groups)
+----------------------------------------------------------------- */
+.kitgenix-stock-sync-for-woocommerce-section-card {
+  background: var(--kitgenix-surface);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius);
+  box-shadow: var(--kitgenix-shadow);
+  padding: var(--kitgenix-pad-y) var(--kitgenix-pad-x);
+  margin-bottom: var(--kitgenix-gap);
+}
+
+.kitgenix-stock-sync-for-woocommerce-section-card > h2 {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--kitgenix-heading);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ----------------------------------------------------------------
+  Status table (widefat override)
+----------------------------------------------------------------- */
+.kitgenix-stock-sync-for-woocommerce-admin .widefat {
+  max-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.kitgenix-stock-sync-for-woocommerce-admin .widefat th {
+  width: 240px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--kitgenix-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-surface-alt);
+}
+
+.kitgenix-stock-sync-for-woocommerce-admin .widefat td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  color: var(--kitgenix-text-color);
+  vertical-align: middle;
+}
+
+.kitgenix-stock-sync-for-woocommerce-admin .widefat tr:last-child td,
+.kitgenix-stock-sync-for-woocommerce-admin .widefat tr:last-child th {
+  border-bottom: none;
+}
+
+/* ----------------------------------------------------------------
+  Stores table (CRUD)
+----------------------------------------------------------------- */
+.kitgenix-stock-sync-for-woocommerce-stores-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.kitgenix-stock-sync-for-woocommerce-stores-table thead th {
+  background: var(--kitgenix-surface-alt);
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--kitgenix-text-muted);
+}
+
+.kitgenix-stock-sync-for-woocommerce-stores-table tbody tr {
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  transition: background var(--kitgenix-transition-fast);
+}
+
+.kitgenix-stock-sync-for-woocommerce-stores-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.kitgenix-stock-sync-for-woocommerce-stores-table tbody tr:hover {
+  background: color-mix(in srgb, var(--kitgenix-brand) 4%, var(--kitgenix-surface));
+}
+
+.kitgenix-stock-sync-for-woocommerce-stores-table tbody td {
+  padding: 10px 14px;
+  vertical-align: middle;
+}
+
+/* ----------------------------------------------------------------
+  Event log
+----------------------------------------------------------------- */
+.kitgenix-stock-sync-for-woocommerce-log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+.kitgenix-stock-sync-for-woocommerce-log-table thead th {
+  background: var(--kitgenix-surface-alt);
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--kitgenix-text-muted);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.kitgenix-stock-sync-for-woocommerce-log-table tbody tr {
+  border-bottom: 1px solid var(--kitgenix-border-color);
+}
+
+.kitgenix-stock-sync-for-woocommerce-log-table tbody td {
+  padding: 7px 12px;
+  vertical-align: top;
+  color: var(--kitgenix-text-muted);
+  line-height: 1.4;
+}
+
+.kitgenix-stock-sync-for-woocommerce-log-table tbody td:first-child {
+  white-space: nowrap;
+  color: var(--kitgenix-text-subtle);
+}
+
+/* Log level indicators */
+.kitgenix-log-level-error { color: var(--kitgenix-error) !important; font-weight: 700; }
+.kitgenix-log-level-warn  { color: var(--kitgenix-warning) !important; font-weight: 700; }
+.kitgenix-log-level-ok    { color: var(--kitgenix-success) !important; }
+
+/* ----------------------------------------------------------------
+  Status card (connection health)
+----------------------------------------------------------------- */
+.kitgenix-stock-sync-for-woocommerce-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.kitgenix-stock-sync-for-woocommerce-status-item {
+  background: var(--kitgenix-surface-alt);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kitgenix-stock-sync-for-woocommerce-status-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--kitgenix-text-muted);
+}
+
+.kitgenix-stock-sync-for-woocommerce-status-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--kitgenix-heading);
+}
+
+/* ----------------------------------------------------------------
+  Tools panel
+----------------------------------------------------------------- */
+.kitgenix-stock-sync-for-woocommerce-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.kitgenix-stock-sync-for-woocommerce-tool-item {
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-sm);
+  padding: 16px 18px;
+  background: var(--kitgenix-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kitgenix-stock-sync-for-woocommerce-tool-item h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kitgenix-heading);
+}
+
+.kitgenix-stock-sync-for-woocommerce-tool-item p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+  line-height: 1.4;
+}
+
+/* ----------------------------------------------------------------
+  Form (Configuration tab)
+----------------------------------------------------------------- */
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table {
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table th {
+  width: 240px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kitgenix-heading);
+  vertical-align: middle;
+  padding-right: 16px;
+}
+
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table input[type="text"],
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table input[type="url"],
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table textarea,
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table select {
+  max-width: 480px;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid var(--kitgenix-border-color-strong);
+  border-radius: var(--kitgenix-radius-xs);
+  background: var(--kitgenix-surface);
+  color: var(--kitgenix-text-color);
+  transition: border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition);
+  box-sizing: border-box;
+}
+
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table input:focus-visible,
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table textarea:focus-visible,
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table select:focus-visible {
+  outline: none;
+  border-color: var(--kitgenix-brand);
+  box-shadow: var(--kitgenix-focus-ring);
+}
+
+.wrap.kitgenix-stock-sync-for-woocommerce-admin .form-table .description {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+  line-height: 1.45;
+}
+
+/* ----------------------------------------------------------------
+  Accessibility
+----------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .wrap.kitgenix-stock-sync-for-woocommerce-admin * {
+    transition: none !important;
+  }
+}

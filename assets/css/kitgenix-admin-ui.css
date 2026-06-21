@@ -1,0 +1,1708 @@
+/* Kitgenix Admin UI — Shared styles used across all Kitgenix plugins.
+   Designed to be clean, modern, and cohesive with the WordPress admin,
+   while also incorporating Kitgenix's brand colors.
+*/
+
+/* ═══════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces */
+  --kitgenix-bg-color: #ffffff;
+  --kitgenix-surface: #ffffff;
+  --kitgenix-surface-alt: #f6f7f7;
+  --kitgenix-surface-muted: #f0f0f1;
+  --kitgenix-border-color: #dcdcde;
+  --kitgenix-border-color-strong: #c3c4c7;
+
+  /* Text */
+  --kitgenix-text-color: #1d2327;
+  --kitgenix-text-muted: #50575e;
+  --kitgenix-text-subtle: #646970;
+  --kitgenix-heading: #1d2327;
+
+  /* Brand */
+  --kitgenix-brand: #4f2a9a;
+  --kitgenix-brand-hover: #42237f;
+  --kitgenix-brand-active: #351b66;
+  --kitgenix-brand-light: #6d3dc6;
+  --kitgenix-brand-dim: color-mix(in srgb, #4f2a9a 10%, transparent);
+  --kitgenix-brand-strong: #f364dd;
+  --kitgenix-brand-gradient: linear-gradient(135deg, #4f2a9a 0%, #7c3aed 55%, #c026d3 100%);
+  --kitgenix-brand-tint: color-mix(in srgb, var(--kitgenix-brand) 10%, #ffffff);
+  --kitgenix-brand-border: color-mix(in srgb, var(--kitgenix-brand) 58%, #ffffff);
+
+  /* Semantic */
+  --kitgenix-success: #065f46;
+  --kitgenix-success-bg: #ecfdf5;
+  --kitgenix-success-border: #a7f3d0;
+  --kitgenix-warning: #92400e;
+  --kitgenix-warning-bg: #fffbeb;
+  --kitgenix-warning-border: #fcd34d;
+  --kitgenix-error: #991b1b;
+  --kitgenix-error-bg: #fef2f2;
+  --kitgenix-error-border: #fca5a5;
+  --kitgenix-info: #1e40af;
+  --kitgenix-info-bg: #eff6ff;
+  --kitgenix-info-border: #bfdbfe;
+
+  /* Shape */
+  --kitgenix-radius: 4px;
+  --kitgenix-radius-sm: 4px;
+  --kitgenix-radius-xs: 4px;
+  --kitgenix-radius-pill: 999px;
+
+  /* Shadow */
+  --kitgenix-shadow-sm: 0 1px 1px rgba(0,0,0,0.04);
+  --kitgenix-shadow: 0 1px 1px rgba(0,0,0,0.04);
+  --kitgenix-shadow-md: 0 4px 14px rgba(0,0,0,0.08);
+  --kitgenix-shadow-lg: 0 10px 28px rgba(0,0,0,0.14);
+
+  /* Motion */
+  --kitgenix-transition: .18s ease;
+  --kitgenix-transition-fast: .10s ease;
+
+  /* Focus */
+  --kitgenix-focus-ring: 0 0 0 3px color-mix(in srgb, var(--kitgenix-brand) 28%, transparent);
+
+  /* Spacing */
+  --kitgenix-pad-x: 24px;
+  --kitgenix-pad-y: 20px;
+  --kitgenix-gap: 20px;
+  --kitgenix-page-shell-max: 1440px;
+  --kitgenix-admin-edge: 20px;
+  --kitgenix-sidebar-width: 320px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --kitgenix-bg-color: #0d0a14;
+    --kitgenix-surface: #14101f;
+    --kitgenix-surface-alt: #1c1730;
+    --kitgenix-surface-muted: #0f0c19;
+    --kitgenix-border-color: #2e2545;
+    --kitgenix-border-color-strong: #4a3d6b;
+
+    --kitgenix-text-color: #e8e0f5;
+    --kitgenix-text-muted: #a590c0;
+    --kitgenix-text-subtle: #7a6a92;
+    --kitgenix-heading: #f3eeff;
+
+    --kitgenix-brand: #9b7ae0;
+    --kitgenix-brand-hover: #8c6ad8;
+    --kitgenix-brand-active: #7a58c5;
+    --kitgenix-brand-light: #b899f0;
+    --kitgenix-brand-dim: color-mix(in srgb, #9b7ae0 14%, transparent);
+    --kitgenix-brand-strong: #e96fd6;
+    --kitgenix-brand-gradient: linear-gradient(135deg, #7c3aed 0%, #9b7ae0 55%, #e96fd6 100%);
+    --kitgenix-brand-tint: color-mix(in srgb, var(--kitgenix-brand) 16%, #14101f);
+    --kitgenix-brand-border: color-mix(in srgb, var(--kitgenix-brand) 62%, #14101f);
+
+    --kitgenix-success: #34d399;
+    --kitgenix-success-bg: rgba(16,185,129,.12);
+    --kitgenix-success-border: rgba(52,211,153,.3);
+    --kitgenix-warning: #fbbf24;
+    --kitgenix-warning-bg: rgba(251,191,36,.1);
+    --kitgenix-warning-border: rgba(251,191,36,.3);
+    --kitgenix-error: #f87171;
+    --kitgenix-error-bg: rgba(248,113,113,.1);
+    --kitgenix-error-border: rgba(248,113,113,.3);
+    --kitgenix-info: #93c5fd;
+    --kitgenix-info-bg: rgba(147,197,253,.1);
+    --kitgenix-info-border: rgba(147,197,253,.3);
+
+    --kitgenix-shadow-sm: 0 1px 4px rgba(0,0,0,.22);
+    --kitgenix-shadow: 0 4px 16px rgba(0,0,0,.28), 0 1px 4px rgba(0,0,0,.18);
+    --kitgenix-shadow-md: 0 8px 28px rgba(0,0,0,.38), 0 2px 8px rgba(0,0,0,.22);
+    --kitgenix-shadow-lg: 0 20px 60px rgba(0,0,0,.55), 0 6px 20px rgba(0,0,0,.28);
+  }
+}
+
+
+/* ═══════════════════════════════════════
+   APP CONTAINER
+═══════════════════════════════════════ */
+
+.kitgenix-admin-app {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0;
+  padding: 0;
+  color: var(--kitgenix-text-color);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ═══════════════════════════════════════
+   PAGE HEADER
+   Matches the shared Kitgenix hub header.
+═══════════════════════════════════════ */
+
+.kitgenix-settings-header {
+  margin: 20px auto 24px;
+  max-width: var(--kitgenix-page-shell-max);
+  padding: 24px 28px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid #dcdcde;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  display: grid;
+  gap: 24px;
+}
+
+.kitgenix-settings-header::before {
+  content: none;
+}
+
+.kitgenix-settings-header :is(h1, h2) {
+  margin: 0 0 8px;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #1d2327;
+}
+
+.kitgenix-settings-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #50575e;
+  line-height: 1.6;
+}
+
+.kitgenix-settings-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  min-width: 0;
+}
+
+.kitgenix-settings-logo {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  display: block;
+  border-radius: 4px;
+}
+
+.kitgenix-settings-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.kitgenix-settings-version {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f6f7f7;
+  color: #50575e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border: 1px solid #dcdcde;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+}
+
+.kitgenix-intro-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  justify-content: flex-end;
+}
+
+.kitgenix-intro-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d2327;
+  text-decoration: none;
+  border-radius: 4px;
+  border: 1px solid #dcdcde;
+  background: #ffffff;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, color 0.18s ease;
+  line-height: 1.4;
+}
+
+.kitgenix-intro-links a:hover,
+.kitgenix-intro-links a:focus-visible {
+  border-color: var(--kitgenix-brand);
+  box-shadow: 0 0 0 1px var(--kitgenix-brand);
+  color: #1d2327;
+  text-decoration: none;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+
+.kitgenix-social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  justify-content: flex-end;
+}
+
+.kitgenix-social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  gap: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d2327;
+  text-decoration: none;
+  border-radius: 4px;
+  border: 1px solid #dcdcde;
+  background: #ffffff;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, color 0.18s ease;
+  line-height: 1.4;
+}
+
+.kitgenix-social-links a:hover,
+.kitgenix-social-links a:focus-visible {
+  border-color: var(--kitgenix-brand);
+  box-shadow: 0 0 0 1px var(--kitgenix-brand);
+  color: #1d2327;
+  text-decoration: none;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.kitgenix-social-links img {
+  width: 14px;
+  height: 14px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.kitgenix-settings-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.kitgenix-settings-header-main {
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.kitgenix-settings-header-actions {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 12px;
+  align-self: center;
+}
+
+@media (max-width: 960px) {
+  .kitgenix-settings-header {
+    padding: 20px;
+  }
+
+  .kitgenix-settings-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .kitgenix-settings-header-actions {
+    align-items: flex-start;
+  }
+
+  .kitgenix-intro-links,
+  .kitgenix-social-links {
+    justify-content: flex-start;
+  }
+
+  .kitgenix-settings-logo {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+}
+
+.kitgenix-social-links.kitgenix-social-links--icons {
+  gap: 10px;
+}
+
+.kitgenix-social-links.kitgenix-social-links--icons a {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.kitgenix-social-links.kitgenix-social-links--icons img {
+  width: 14px;
+  height: 14px;
+}
+
+
+/* Content layout */
+.kitgenix-settings-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, var(--kitgenix-sidebar-width));
+  gap: var(--kitgenix-gap);
+  margin-top: var(--kitgenix-gap);
+  align-items: start;
+}
+
+.kitgenix-settings-content {
+  min-width: 0;
+}
+
+.kitgenix-settings-sidebar {
+  min-width: 0;
+  display: grid;
+  gap: var(--kitgenix-gap);
+  align-self: start;
+  position: sticky;
+  top: 32px;
+}
+
+.kitgenix-sidebar-card {
+  background: #ffffff;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.kitgenix-sidebar-card h2,
+.kitgenix-sidebar-card h3,
+.kitgenix-sidebar-card h4 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #1d2327;
+}
+
+.kitgenix-sidebar-card p {
+  margin: 0;
+  color: #50575e;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.kitgenix-sidebar-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.kitgenix-sidebar-actions .button {
+  width: 100%;
+  min-height: 38px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center !important;
+  text-align: center;
+  margin: 0;
+  float: none;
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result) {
+  border-color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand);
+  color: #ffffff;
+  box-shadow: 0 1px 1px rgba(17, 24, 39, 0.08);
+  transition:
+    background-color var(--kitgenix-transition),
+    border-color var(--kitgenix-transition),
+    box-shadow var(--kitgenix-transition),
+    color var(--kitgenix-transition),
+    transform var(--kitgenix-transition-fast);
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result):hover,
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result):focus-visible {
+  border-color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand-tint);
+  color: var(--kitgenix-brand);
+  box-shadow: var(--kitgenix-focus-ring);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result):active {
+  border-color: var(--kitgenix-brand-active);
+  background: var(--kitgenix-brand-active);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.16);
+  transform: translateY(0);
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-secondary,
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-link-delete {
+  border-color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand);
+  color: #ffffff;
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-secondary:hover,
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-secondary:focus-visible,
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-link-delete:hover,
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-link-delete:focus-visible {
+  border-color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand-tint);
+  color: var(--kitgenix-brand);
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result)[disabled],
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).disabled {
+  border-color: color-mix(in srgb, var(--kitgenix-brand) 20%, var(--kitgenix-border-color));
+  background: color-mix(in srgb, var(--kitgenix-brand) 22%, #ffffff);
+  color: color-mix(in srgb, #ffffff 72%, var(--kitgenix-brand));
+  box-shadow: none;
+  opacity: 0.7;
+  transform: none;
+}
+
+.kitgenix-sidebar-social-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.kitgenix-sidebar-social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  background: #ffffff;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.kitgenix-sidebar-social-link:hover,
+.kitgenix-sidebar-social-link:focus-visible {
+  border-color: var(--kitgenix-brand);
+  box-shadow: 0 0 0 1px var(--kitgenix-brand);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.kitgenix-sidebar-social-link img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+@media (max-width: 1199px) {
+  .kitgenix-settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .kitgenix-settings-sidebar {
+    position: static;
+  }
+}
+
+
+/* ═══════════════════════════════════════
+   NAV TABS
+   Clean underline style — modern & minimal,
+   like WooCommerce settings tabs.
+═══════════════════════════════════════ */
+
+.kitgenix-nav-tabs.nav-tab-wrapper {
+  margin: 0 0 22px;
+  padding: 0;
+  border-bottom: 2px solid var(--kitgenix-border-color) !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  background: none;
+}
+
+.kitgenix-nav-tabs .nav-tab {
+  position: relative;
+  margin: 0 0 -2px;
+  padding: 10px 15px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--kitgenix-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--kitgenix-transition), border-color var(--kitgenix-transition), background var(--kitgenix-transition);
+  line-height: 1.4;
+}
+
+.kitgenix-nav-tabs .nav-tab:hover,
+.kitgenix-nav-tabs .nav-tab:focus-visible {
+  outline: none;
+  color: var(--kitgenix-brand);
+  background: color-mix(in srgb, var(--kitgenix-brand) 5%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--kitgenix-brand) 35%, transparent);
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.kitgenix-nav-tabs .nav-tab.nav-tab-active {
+  background: transparent;
+  color: var(--kitgenix-brand);
+  border-bottom-color: var(--kitgenix-brand);
+  font-weight: 700;
+  box-shadow: none;
+}
+
+
+/* ═══════════════════════════════════════
+   CARDS
+   Inspired by ACF field-group cards:
+   clean white surface, subtle shadow,
+   with optional labelled header divider.
+═══════════════════════════════════════ */
+
+.kitgenix-card,
+.kitgenix-section-card {
+  background: #ffffff;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Card with a section divider header */
+.kitgenix-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dcdcde;
+}
+
+.kitgenix-card-header h2,
+.kitgenix-card-header h3,
+.kitgenix-card-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d2327;
+  line-height: 1.4;
+}
+
+.kitgenix-card-subheader {
+  font-size: 13px;
+  color: #50575e;
+  margin-top: 2px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+
+/* ═══════════════════════════════════════
+   BUTTONS
+   .kitgenix-btn-primary / secondary /
+   ghost / danger  +  -sm / -lg modifiers
+═══════════════════════════════════════ */
+
+.kitgenix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--kitgenix-radius-xs);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--kitgenix-transition);
+  border: 1px solid transparent;
+  line-height: 1.4;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.kitgenix-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--kitgenix-focus-ring);
+}
+
+.kitgenix-btn-primary {
+  background: var(--kitgenix-brand);
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border-color: var(--kitgenix-brand);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--kitgenix-brand) 35%, transparent);
+}
+
+.kitgenix-btn-primary:hover {
+  background: var(--kitgenix-brand-light);
+  border-color: var(--kitgenix-brand-light);
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-decoration: none;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--kitgenix-brand) 42%, transparent);
+  transform: translateY(-1px);
+}
+
+.kitgenix-btn-secondary {
+  background: var(--kitgenix-surface);
+  color: var(--kitgenix-brand) !important;
+  border-color: color-mix(in srgb, var(--kitgenix-brand) 35%, transparent);
+}
+
+.kitgenix-btn-secondary:hover {
+  background: color-mix(in srgb, var(--kitgenix-brand) 6%, transparent);
+  border-color: color-mix(in srgb, var(--kitgenix-brand) 55%, transparent);
+  color: var(--kitgenix-brand) !important;
+  text-decoration: none;
+}
+
+.kitgenix-btn-ghost {
+  background: transparent;
+  color: var(--kitgenix-text-muted) !important;
+  border-color: var(--kitgenix-border-color);
+}
+
+.kitgenix-btn-ghost:hover {
+  background: var(--kitgenix-surface-alt);
+  color: var(--kitgenix-text-color) !important;
+  border-color: var(--kitgenix-border-color-strong);
+  text-decoration: none;
+}
+
+.kitgenix-btn-danger {
+  background: var(--kitgenix-error-bg);
+  color: var(--kitgenix-error) !important;
+  border-color: var(--kitgenix-error-border);
+}
+
+.kitgenix-btn-danger:hover {
+  background: var(--kitgenix-error);
+  color: #fff !important;
+  border-color: var(--kitgenix-error);
+  text-decoration: none;
+}
+
+.kitgenix-btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.kitgenix-btn-lg {
+  padding: 11px 22px;
+  font-size: 14px;
+  border-radius: var(--kitgenix-radius-sm);
+}
+
+
+/* ═══════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════ */
+
+.kitgenix-form-group {
+  margin-bottom: 18px;
+}
+
+/* Back-compat: Some plugins render forms using `.kitgenix-field` + default WP inputs.
+   Keep these aligned with `.kitgenix-form-group` / `.kitgenix-input` styles. */
+.kitgenix-field {
+  margin-bottom: 18px;
+}
+
+.kitgenix-field > label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--kitgenix-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.kitgenix-field input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text),
+.kitgenix-field select,
+.kitgenix-field textarea {
+  width: 100%;
+  max-width: 480px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--kitgenix-text-color);
+  background: var(--kitgenix-surface);
+  border: 1px solid var(--kitgenix-border-color-strong);
+  border-radius: var(--kitgenix-radius-xs);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
+  transition: border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition);
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.kitgenix-field input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):hover,
+.kitgenix-field select:hover,
+.kitgenix-field textarea:hover {
+  border-color: color-mix(in srgb, var(--kitgenix-brand) 45%, var(--kitgenix-border-color-strong));
+}
+
+.kitgenix-field input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):focus,
+.kitgenix-field input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):focus-visible,
+.kitgenix-field select:focus,
+.kitgenix-field select:focus-visible,
+.kitgenix-field textarea:focus,
+.kitgenix-field textarea:focus-visible {
+  outline: none;
+  border-color: var(--kitgenix-brand);
+  box-shadow: var(--kitgenix-focus-ring);
+}
+
+.kitgenix-muted {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+  line-height: 1.45;
+}
+
+.kitgenix-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--kitgenix-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.kitgenix-input,
+.kitgenix-select,
+.kitgenix-textarea {
+  width: 100%;
+  max-width: 480px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--kitgenix-text-color);
+  background: var(--kitgenix-surface);
+  border: 1px solid var(--kitgenix-border-color-strong);
+  border-radius: var(--kitgenix-radius-xs);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
+  transition: border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition);
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.kitgenix-input:hover,
+.kitgenix-select:hover,
+.kitgenix-textarea:hover {
+  border-color: color-mix(in srgb, var(--kitgenix-brand) 45%, var(--kitgenix-border-color-strong));
+}
+
+.kitgenix-input:focus,
+.kitgenix-input:focus-visible,
+.kitgenix-select:focus,
+.kitgenix-select:focus-visible,
+.kitgenix-textarea:focus,
+.kitgenix-textarea:focus-visible {
+  outline: none;
+  border-color: var(--kitgenix-brand);
+  box-shadow: var(--kitgenix-focus-ring);
+}
+
+.kitgenix-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.kitgenix-field-desc {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+  line-height: 1.45;
+}
+
+/* WordPress settings tables (`.form-table`) are still used on some admin pages.
+   Keep inputs aligned with the Kitgenix form styles without requiring per-plugin overrides. */
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text),
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table select,
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea {
+  width: 100%;
+  max-width: 480px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--kitgenix-text-color);
+  background: var(--kitgenix-surface);
+  border: 1px solid var(--kitgenix-border-color-strong);
+  border-radius: var(--kitgenix-radius-xs);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
+  transition: border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition);
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):hover,
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table select:hover,
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea:hover {
+  border-color: color-mix(in srgb, var(--kitgenix-brand) 45%, var(--kitgenix-border-color-strong));
+}
+
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):focus,
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):focus-visible,
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table select:focus,
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table select:focus-visible,
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea:focus,
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea:focus-visible {
+  outline: none;
+  border-color: var(--kitgenix-brand);
+  box-shadow: var(--kitgenix-focus-ring);
+}
+
+:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+
+/* ═══════════════════════════════════════
+   TOGGLE SWITCH  (universal, shared)
+═══════════════════════════════════════ */
+
+.kitgenix-switch-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.kitgenix-switch {
+  -webkit-appearance: none;
+  appearance: none;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  border-radius: var(--kitgenix-radius-pill);
+  background: var(--kitgenix-border-color-strong);
+  cursor: pointer;
+  position: relative;
+  transition: background var(--kitgenix-transition);
+  vertical-align: middle;
+}
+
+.kitgenix-switch::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.22);
+  transition: transform var(--kitgenix-transition);
+}
+
+.kitgenix-switch:checked {
+  background: var(--kitgenix-brand);
+}
+
+.kitgenix-switch:checked::before {
+  transform: translateX(18px);
+}
+
+.kitgenix-switch:focus-visible {
+  outline: none;
+  box-shadow: var(--kitgenix-focus-ring);
+}
+
+.kitgenix-switch-label {
+  font-size: 13px;
+  color: var(--kitgenix-text-color);
+  user-select: none;
+  line-height: 1.4;
+}
+
+/* Hidden duplicate input used by Settings API toggle pattern */
+.kitgenix-switch-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ═══════════════════════════════════════
+   BADGES & STATUS PILLS
+═══════════════════════════════════════ */
+
+.kitgenix-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--kitgenix-radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.kitgenix-badge.ok,
+.kitgenix-badge.success {
+  background: var(--kitgenix-success-bg);
+  color: var(--kitgenix-success);
+  border-color: var(--kitgenix-success-border);
+}
+
+.kitgenix-badge.warn,
+.kitgenix-badge.warning {
+  background: var(--kitgenix-warning-bg);
+  color: var(--kitgenix-warning);
+  border-color: var(--kitgenix-warning-border);
+}
+
+.kitgenix-badge.error,
+.kitgenix-badge.danger {
+  background: var(--kitgenix-error-bg);
+  color: var(--kitgenix-error);
+  border-color: var(--kitgenix-error-border);
+}
+
+.kitgenix-badge.info {
+  background: var(--kitgenix-info-bg);
+  color: var(--kitgenix-info);
+  border-color: var(--kitgenix-info-border);
+}
+
+.kitgenix-badge.off,
+.kitgenix-badge.muted,
+.kitgenix-badge.neutral {
+  background: var(--kitgenix-surface-muted);
+  color: var(--kitgenix-text-muted);
+  border-color: var(--kitgenix-border-color);
+}
+
+.kitgenix-badge.brand {
+  background: var(--kitgenix-brand-dim);
+  color: var(--kitgenix-brand);
+  border-color: color-mix(in srgb, var(--kitgenix-brand) 28%, transparent);
+}
+
+
+/* ═══════════════════════════════════════
+   INLINE NOTICES / ALERTS
+═══════════════════════════════════════ */
+
+.kitgenix-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--kitgenix-radius-xs);
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  margin-bottom: 14px;
+}
+
+.kitgenix-notice-success {
+  background: var(--kitgenix-success-bg);
+  color: var(--kitgenix-success);
+  border-color: var(--kitgenix-success-border);
+}
+
+.kitgenix-notice-warning {
+  background: var(--kitgenix-warning-bg);
+  color: var(--kitgenix-warning);
+  border-color: var(--kitgenix-warning-border);
+}
+
+.kitgenix-notice-error {
+  background: var(--kitgenix-error-bg);
+  color: var(--kitgenix-error);
+  border-color: var(--kitgenix-error-border);
+}
+
+.kitgenix-notice-info {
+  background: var(--kitgenix-info-bg);
+  color: var(--kitgenix-info);
+  border-color: var(--kitgenix-info-border);
+}
+
+
+/* ═══════════════════════════════════════
+   CODE / MONO SNIPPETS
+═══════════════════════════════════════ */
+
+.kitgenix-code {
+  font-family: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  font-size: 12px;
+  background: var(--kitgenix-surface-alt);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: var(--kitgenix-brand);
+  word-break: break-all;
+}
+
+
+/* ═══════════════════════════════════════
+   DATA TABLES
+═══════════════════════════════════════ */
+
+.kitgenix-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--kitgenix-radius);
+  border: 1px solid var(--kitgenix-border-color);
+  box-shadow: var(--kitgenix-shadow-sm);
+}
+
+.kitgenix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.kitgenix-table thead th {
+  background: var(--kitgenix-surface-alt);
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--kitgenix-text-muted);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.kitgenix-table tbody tr {
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  transition: background var(--kitgenix-transition-fast);
+}
+
+.kitgenix-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.kitgenix-table tbody tr:hover {
+  background: color-mix(in srgb, var(--kitgenix-brand) 4%, var(--kitgenix-surface));
+}
+
+.kitgenix-table tbody td {
+  padding: 10px 14px;
+  vertical-align: middle;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-col-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* Widefat tables used by WP core (normalize to Kitgenix styling) */
+.kitgenix-admin-app table.widefat {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  background: var(--kitgenix-surface);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius);
+  box-shadow: var(--kitgenix-shadow-sm);
+  overflow: hidden;
+}
+
+.kitgenix-admin-app table.widefat thead th,
+.kitgenix-admin-app table.widefat tfoot th {
+  background: var(--kitgenix-surface-alt);
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--kitgenix-text-muted);
+}
+
+.kitgenix-admin-app table.widefat tbody td {
+  padding: 10px 14px;
+  vertical-align: middle;
+  color: var(--kitgenix-text-color);
+  border-bottom: 1px solid var(--kitgenix-border-color);
+}
+
+.kitgenix-admin-app table.widefat tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Remove WP zebra stripes inside Kitgenix app */
+.kitgenix-admin-app table.widefat.striped > tbody > :nth-child(odd),
+.kitgenix-admin-app table.widefat.striped > tbody > :nth-child(even) {
+  background: transparent;
+}
+
+.kitgenix-admin-app table.widefat tbody tr:hover {
+  background: color-mix(in srgb, var(--kitgenix-brand) 4%, var(--kitgenix-surface));
+}
+
+
+.kitgenix-admin-app > .kitgenix-settings-header {
+  margin: 20px 0 24px !important;
+  max-width: 100%;
+  padding: 24px 28px;
+  border-radius: 4px;
+  border-left: 1px solid #dcdcde;
+  border-right: 1px solid #dcdcde;
+}
+
+.kitgenix-settings-sidebar .button + .button,
+.kitgenix-settings-sidebar .button + a.button,
+.kitgenix-settings-sidebar a.button + .button,
+.kitgenix-settings-sidebar a.button + a.button {
+  margin-left: 0 !important;
+}
+
+.kitgenix-actions a + a {
+  margin-left: 10px;
+}
+
+
+/* ═══════════════════════════════════════
+   MODAL
+   Backdrop blur, ACF-style header, WC-style
+   footer actions.
+═══════════════════════════════════════ */
+
+.kitgenix-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+}
+
+.kitgenix-modal.is-open {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.kitgenix-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,6,20,.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.kitgenix-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 680px;
+  background: var(--kitgenix-surface);
+  color: var(--kitgenix-text-color);
+  -webkit-text-fill-color: currentColor;
+  font-size: 13px;
+  line-height: 1.5;
+  border-radius: var(--kitgenix-radius);
+  box-shadow: var(--kitgenix-shadow-lg);
+  border: 1px solid var(--kitgenix-border-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 96px);
+}
+
+.kitgenix-modal__dialog label,
+.kitgenix-modal__dialog :where(p, span, a, li, h1, h2, h3, h4, h5, h6) {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+.kitgenix-modal--wide .kitgenix-modal__dialog {
+  max-width: 920px;
+}
+
+.kitgenix-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-surface-alt);
+  flex: 0 0 auto;
+}
+
+.kitgenix-modal__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--kitgenix-heading);
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+
+.kitgenix-modal__close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--kitgenix-text-muted);
+  padding: 4px 6px;
+  border-radius: var(--kitgenix-radius-xs);
+  line-height: 1;
+  transition: color var(--kitgenix-transition), background var(--kitgenix-transition);
+}
+
+.kitgenix-modal__close:hover {
+  color: var(--kitgenix-text-color);
+  background: var(--kitgenix-surface-muted);
+}
+
+.kitgenix-modal__body {
+  padding: 20px;
+  overflow: auto;
+  flex: 1 1 auto;
+}
+
+.kitgenix-modal__actions {
+  padding: 14px 20px;
+  border-top: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-surface-alt);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 0 0 auto;
+}
+
+
+/* ═══════════════════════════════════════
+   SUPPORT TAB
+═══════════════════════════════════════ */
+
+.kitgenix-support-page .kitgenix-support-heading {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--kitgenix-heading);
+  letter-spacing: 0;
+}
+
+.kitgenix-support-page .kitgenix-support-intro {
+  margin: 0;
+  max-width: 72ch;
+  color: var(--kitgenix-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.kitgenix-support-page .kitgenix-support-subheading {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--kitgenix-heading);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+#wpbody-content {
+  width: 100%;
+  float: left;
+  overflow: visible;
+}
+
+.kitgenix-support-page {
+  --kitgenix-support-accent: var(--kitgenix-brand);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.kitgenix-support-page.kitgenix-card,
+.kitgenix-support-page.kitgenix-section-card,
+.kitgenix-support-page[class*="-card"],
+.kitgenix-support-page[class*="-section-card"],
+.kitgenix-support-page[class*="-panel"] {
+  padding: 0;
+  margin-bottom: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.kitgenix-support-shell {
+  display: grid;
+  gap: 20px;
+}
+
+.kitgenix-support-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+  gap: 20px;
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #dcdcde;
+  background: #ffffff;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+}
+
+.kitgenix-support-hero__copy {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.kitgenix-support-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--kitgenix-surface-alt);
+  border: 1px solid var(--kitgenix-border-color);
+  color: var(--kitgenix-support-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.kitgenix-support-hero__aside {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.kitgenix-support-kicker {
+  margin: 0;
+  color: var(--kitgenix-heading);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kitgenix-support-note,
+.kitgenix-support-footnote,
+.kitgenix-support-footer-note {
+  margin: 0;
+  color: var(--kitgenix-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.kitgenix-support-section {
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #dcdcde;
+  background: #ffffff;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+}
+
+.kitgenix-support-section--feature {
+  background: #ffffff;
+}
+
+.kitgenix-support-section--soft {
+  background: #ffffff;
+}
+
+.kitgenix-support-section--full {
+  grid-column: 1 / -1;
+}
+
+.kitgenix-support-section__header {
+  display: grid;
+  gap: 8px;
+}
+
+.kitgenix-support-section .description {
+  margin: 0 0 12px;
+}
+
+.kitgenix-support-section .description:last-child {
+  margin-bottom: 0;
+}
+
+.kitgenix-support-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.kitgenix-support-stat {
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #dcdcde;
+  background: #ffffff;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+}
+
+.kitgenix-support-stat__label {
+  display: block;
+  color: var(--kitgenix-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kitgenix-support-stat__value {
+  display: block;
+  margin-top: 8px;
+  color: var(--kitgenix-heading);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.kitgenix-support-stat__meta {
+  display: block;
+  margin-top: 6px;
+  color: var(--kitgenix-text-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.kitgenix-support-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.kitgenix-support-page .kitgenix-support-list {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.kitgenix-support-page .kitgenix-support-list li {
+  margin: 0 0 10px;
+  padding-left: 0;
+  color: var(--kitgenix-text-color);
+  line-height: 1.6;
+}
+
+.kitgenix-support-page .kitgenix-support-list li:last-child {
+  margin-bottom: 0;
+}
+
+.kitgenix-support-chip-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.kitgenix-support-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid var(--kitgenix-brand);
+  background: var(--kitgenix-brand);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  box-shadow: 0 1px 1px rgba(17, 24, 39, 0.08);
+  transition: background-color var(--kitgenix-transition), border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition), color var(--kitgenix-transition), transform var(--kitgenix-transition-fast);
+}
+
+.kitgenix-support-chip:hover,
+.kitgenix-support-chip:focus,
+.kitgenix-support-chip:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand-tint);
+  box-shadow: var(--kitgenix-focus-ring);
+  color: var(--kitgenix-brand);
+  outline: none;
+}
+
+.kitgenix-support-page .kitgenix-support-actions {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.kitgenix-support-page .kitgenix-support-actions .button {
+  margin: 0;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border-radius: 4px;
+  width: 100%;
+  font-weight: 600;
+}
+
+@media (max-width: 960px) {
+  .kitgenix-support-hero,
+  .kitgenix-support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kitgenix-support-section--full {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .kitgenix-support-hero,
+  .kitgenix-support-section {
+    padding: 18px;
+  }
+
+  .kitgenix-support-hero__aside {
+    padding: 16px;
+  }
+
+  .kitgenix-support-stat {
+    padding: 14px 16px;
+  }
+
+  .kitgenix-support-chip,
+  .kitgenix-support-page .kitgenix-support-actions .button {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+
+/* ═══════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════ */
+
+.kitgenix-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.kitgenix-empty-state-icon {
+  font-size: 36px;
+  opacity: 0.35;
+  line-height: 1;
+}
+
+.kitgenix-empty-state-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--kitgenix-heading);
+  margin: 0;
+}
+
+.kitgenix-empty-state-desc {
+  font-size: 13px;
+  color: var(--kitgenix-text-muted);
+  max-width: 360px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+
+/* ═══════════════════════════════════════
+   SPINNER / LOADING
+═══════════════════════════════════════ */
+
+.kitgenix-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--kitgenix-border-color);
+  border-top-color: var(--kitgenix-brand);
+  border-radius: 50%;
+  animation: kitgenix-spin .7s linear infinite;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+@keyframes kitgenix-spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* ═══════════════════════════════════════
+   METABOX HELPER
+═══════════════════════════════════════ */
+
+.kitgenix-metabox .kitgenix-field-row {
+  margin: 10px 0;
+}
+
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+
+@media (max-width: 782px) {
+  .kitgenix-nav-tabs.nav-tab-wrapper {
+    gap: 0;
+  }
+
+  .kitgenix-nav-tabs .nav-tab {
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+
+  .kitgenix-settings-header {
+    padding: 18px;
+  }
+
+  .kitgenix-admin-app > .kitgenix-settings-header {
+    margin: 20px 0 24px !important;
+    padding: 18px;
+  }
+
+  .kitgenix-modal.is-open {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .kitgenix-modal__dialog {
+    max-height: 92vh;
+    border-radius: var(--kitgenix-radius) var(--kitgenix-radius) 0 0;
+  }
+}
