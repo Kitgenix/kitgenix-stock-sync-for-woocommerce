@@ -48,19 +48,67 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_REST {
 		]);
 	}
 
+	/**
+	 * Authenticate an inbound request. Uses a generic, non-enumerable error for
+	 * every rejection reason (unknown sender, missing secret, bad signature) –
+	 * see Security::verify_request() docblock – and throttles/locks out on
+	 * repeated failures before spending any HMAC compute on them.
+	 *
+	 * Throttling keys on BOTH the remote IP and the claimed store_id (not
+	 * store_id alone): keying only on the attacker-supplied store_id header
+	 * would let an attacker bypass the lockout entirely by rotating that
+	 * header on every request.
+	 */
 	private function authenticate(\WP_REST_Request $request): bool|\WP_Error {
 		$sender_id = (string) $request->get_header('x_kitgenix_store_id');
+		$ip        = $this->security->remote_identity();
+		$identities = $sender_id !== '' ? [$ip, $sender_id] : [$ip];
+		$generic   = static fn() => new \WP_Error('kss_auth_failed', 'Authentication failed', ['status' => 401]);
 
-		if (!$this->security->is_sender_allowed($sender_id)) {
-			return new \WP_Error('kss_auth_sender', 'Sender not configured', ['status' => 401]);
+		foreach ($identities as $identity) {
+			if ($this->security->is_locked_out($identity)) {
+				$this->settings->add_event_log('error', 'Rejected inbound request: sender temporarily locked out.', ['store_id' => $sender_id], 'kss_rate_limited');
+				return new \WP_Error('kss_rate_limited', 'Too many failed attempts', ['status' => 429]);
+			}
 		}
 
-		$secret = $this->security->secret_for_sender($sender_id);
-		if ($secret === '') {
-			return new \WP_Error('kss_auth_secret', 'Missing secret', ['status' => 401]);
+		$body = $request->get_body();
+		if ($this->security->body_too_large((string) $body)) {
+			$this->settings->add_event_log('error', 'Rejected inbound request: body too large.', ['store_id' => $sender_id, 'bytes' => strlen((string) $body)], 'kss_payload_too_large');
+			return new \WP_Error('kss_payload_too_large', 'Request body too large', ['status' => 413]);
 		}
 
-		return $this->security->verify_request($request, $secret);
+		$candidates = $sender_id !== '' ? $this->security->candidate_secrets_for_sender($sender_id) : [];
+		if (empty($candidates)) {
+			$this->settings->add_event_log('error', 'Rejected inbound request: sender store not configured.', ['store_id' => $sender_id], 'kss_auth_sender');
+			foreach ($identities as $identity) $this->security->record_auth_failure($identity);
+			return $generic();
+		}
+
+		$result = $this->security->verify_request($request, $candidates);
+		if (is_wp_error($result)) {
+			foreach ($identities as $identity) $this->security->record_auth_failure($identity);
+			return $result;
+		}
+
+		foreach ($identities as $identity) $this->security->clear_auth_failures($identity);
+		return true;
+	}
+
+	/** Decode a JSON body, returning a clean 400 WP_Error on malformed JSON instead of a silent empty array. */
+	private function decode_json_body(\WP_REST_Request $request): array|\WP_Error {
+		$body = (string) $request->get_body();
+		$decoded = json_decode($body, true);
+
+		if ($body !== '' && json_last_error() !== JSON_ERROR_NONE) {
+			return new \WP_Error('kss_bad_json', 'Invalid JSON: ' . json_last_error_msg(), ['status' => 400]);
+		}
+
+		if (!is_array($decoded)) {
+			return new \WP_Error('kss_bad_json', 'Invalid JSON payload', ['status' => 400]);
+		}
+
+		return $decoded;
 	}
 
 	public function ping(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
@@ -73,6 +121,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_REST {
 			'store_name' => $this->settings->this_store_name(),
 			'role' => $this->settings->role(),
 			'time' => time(),
+			'wc_version' => defined('WC_VERSION') ? WC_VERSION : '',
+			'plugin_version' => defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '',
 		], 200);
 	}
 
@@ -81,11 +131,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_REST {
 		if (is_wp_error($auth)) return $auth;
 
 		$sender_id = (string) $request->get_header('x_kitgenix_store_id');
-		$payload   = json_decode($request->get_body(), true);
-
-		if (!is_array($payload)) {
-			return new \WP_Error('kss_bad_json', 'Invalid JSON', ['status' => 400]);
-		}
+		$payload   = $this->decode_json_body($request);
+		if (is_wp_error($payload)) return $payload;
 
 		$queued = $this->sync->enqueue_incoming_event($sender_id, $payload);
 		if (is_wp_error($queued)) return $queued;
@@ -101,8 +148,9 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_REST {
 			return new \WP_Error('kss_not_master', 'Stock query is only supported on master', ['status' => 403]);
 		}
 
-		$payload = json_decode($request->get_body(), true);
-		if (!is_array($payload) || !isset($payload['items']) || !is_array($payload['items'])) {
+		$payload = $this->decode_json_body($request);
+		if (is_wp_error($payload)) return $payload;
+		if (!isset($payload['items']) || !is_array($payload['items'])) {
 			return new \WP_Error('kss_bad_payload', 'Missing items', ['status' => 400]);
 		}
 
@@ -115,8 +163,9 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_REST {
 		$auth = $this->authenticate($request);
 		if (is_wp_error($auth)) return $auth;
 
-		$payload = json_decode($request->get_body(), true);
-		if (!is_array($payload) || !isset($payload['items']) || !is_array($payload['items'])) {
+		$payload = $this->decode_json_body($request);
+		if (is_wp_error($payload)) return $payload;
+		if (!isset($payload['items']) || !is_array($payload['items'])) {
 			return new \WP_Error('kss_bad_payload', 'Missing items', ['status' => 400]);
 		}
 

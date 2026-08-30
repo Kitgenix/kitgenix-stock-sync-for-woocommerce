@@ -2,21 +2,20 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Kitgenix Stock Sync for WooCommerce 1.0.2\n"
+"Project-Id-Version: Kitgenix Stock Sync for WooCommerce 2.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kitgenix-stock-sync-for-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-18T14:33:49+00:00\n"
+"POT-Creation-Date: 2026-08-30T16:13:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: kitgenix-stock-sync-for-woocommerce\n"
 
 #. Plugin Name of the plugin
 #: kitgenix-stock-sync-for-woocommerce.php
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:432
 msgid "Kitgenix Stock Sync for WooCommerce"
 msgstr ""
 
@@ -27,16 +26,16 @@ msgstr ""
 
 #. Description of the plugin
 #: kitgenix-stock-sync-for-woocommerce.php
-#: kitgenix-stock-sync-for-woocommerce.php:382
+#: kitgenix-stock-sync-for-woocommerce.php:406
 msgid "Sync WooCommerce stock between stores with secure master-child inventory updates and signed REST requests."
 msgstr ""
 
 #. Author of the plugin
 #: kitgenix-stock-sync-for-woocommerce.php
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:431
-#: kitgenix-stock-sync-for-woocommerce.php:57
-#: kitgenix-stock-sync-for-woocommerce.php:58
-#: kitgenix-stock-sync-for-woocommerce.php:427
+#: kitgenix-stock-sync-for-woocommerce.php:81
+#: kitgenix-stock-sync-for-woocommerce.php:82
+#: kitgenix-stock-sync-for-woocommerce.php:467
+#: kitgenix-stock-sync-for-woocommerce.php:471
 msgid "Kitgenix"
 msgstr ""
 
@@ -45,707 +44,1343 @@ msgstr ""
 msgid "https://kitgenix.com/"
 msgstr ""
 
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:434
-msgid "Securely sync WooCommerce product stock between multiple stores using a master + child setup."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:443
-msgid "Documentation"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:444
-msgid "Review Plugin"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:445
-msgid "Support Request"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:446
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:929
-msgid "Support Kitgenix"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:469
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:492
-msgid "Status"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:470
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:534
-msgid "Configuration"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:471
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:571
-msgid "Stores"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:472
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:703
-msgid "Tools"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:473
-msgid "Logs"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:474
-msgid "Support"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:496
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:542
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:581
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:877
-msgid "Role"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:500
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:577
-msgid "This Store ID"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:504
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:902
-msgid "Last inbound event"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:508
-msgid "Last outbound success"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:512
-msgid "Last outbound error"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:524
-msgid "Action Scheduler"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:525
-msgid "Open Scheduled Actions"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:538
-msgid "This Store Name"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:544
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:766
-msgid "Master"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:545
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:767
-msgid "Child"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:549
-msgid "Strict checkout validation (Child)"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:553
-msgid "Check Master stock at checkout to reduce oversells (fail-open if Master unreachable)."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:555
-msgid "Master connection details are configured under the Stores tab."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:560
-msgid "Exclusions"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:561
-msgid "SKUs to exclude from syncing (comma or new line separated)."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:565
-msgid "Save Settings"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:572
-msgid "Use this tab to connect the Child store to the Master, or to manage Child stores on the Master."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:589
-msgid "Master Connection (Child)"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:594
-msgid "Master URL"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:598
-msgid "Master Store ID"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:602
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:631
-msgid "Shared Secret"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:607
-msgid "Save Master Connection"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:612
-msgid "Child Stores (Master)"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:613
-msgid "Add each child store and share a secret. The same secret must be configured on the Child under “Master Connection”."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:619
-msgid "Child Name"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:623
-msgid "Child URL"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:627
-msgid "Child Store ID"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:628
-msgid "paste the Child's This Store ID"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:632
-msgid "leave blank to auto-generate"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:635
-msgid "Add Child Store"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:642
-msgid "Configured Children"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:646
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:690
-msgid "Enabled"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:647
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:687
-msgid "Name"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:648
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:688
-msgid "URL"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:649
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:830
-msgid "Store ID"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:650
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:689
-msgid "Secret"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:651
-msgid "Actions"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:678
-msgid "Remove this child store?"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:678
-msgid "Remove"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:691
-msgid "Save"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:706
-msgid "Test Connection"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:713
-msgid "Reconcile (Master)"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:714
-msgid "Reconcile pushes authoritative stock state to all children in batches and establishes stable GIDs (needed for SKU rename sync)."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:716
-msgid "Batch size:"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:721
-msgid "Start Reconcile"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:723
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:725
-msgid "Status:"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:723
-msgid "Running"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:723
-msgid "last page"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:725
-msgid "Idle"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:729
-msgid "Manual SKU Sync (Master)"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:730
-msgid "Paste SKUs (comma or new-line separated) to push stock state to all children."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:732
-msgid "Push SKUs"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:734
-msgid "Audit Children (Master)"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:735
-msgid "Paste SKUs (comma or new-line separated). This will query each child’s local stock fields and compare to Master."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:737
-msgid "Run Audit"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:743
-msgid "Audit Results"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:748
-msgid "Mismatched SKUs:"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:753
-msgid "Error:"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:759
-msgid "No mismatches found for audited SKUs."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:764
-msgid "SKU"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:765
-msgid "Field"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:789
-msgid "Event Log (Plugin)"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:792
-msgid "Clear Event Log"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:793
-msgid "Clear Backlog"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:797
-msgid "No events logged yet."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:802
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:828
-msgid "Time"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:803
-msgid "Level"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:804
-msgid "Message"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:805
-msgid "Context"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:821
-msgid "Backlog (Failures)"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:823
-msgid "No backlog items."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:829
-msgid "Type"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:831
-msgid "Attempt"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:832
-msgid "Error"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:833
-msgid "Payload"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:859
-msgid "Copy plugin link:"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:861
-msgid "£5.00 per month"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:862
-msgid "£10.00 per month"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:863
-msgid "£30.00 per month"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:864
-msgid "£50.00 per month"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:865
-msgid "£100.00 per month"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:866
-msgid "£250.00 per month"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:874
-msgid "On"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:874
-msgid "Off"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:879
-msgid "Whether this store is acting as the master or a connected child."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:882
-msgid "Child stores"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:882
-msgid "Master connected"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:883
-msgid "Yes"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:883
-msgid "No"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:884
-msgid "Connected child stores currently configured to receive updates."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:884
-msgid "Whether this child store has a valid upstream master configuration."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:887
-msgid "Events in logs"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:889
-msgid "Recorded synchronization events currently visible in the log view."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:892
-msgid "Backlog items"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:894
-msgid "Queued inventory updates still waiting to be processed."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:897
-msgid "Strict checkout"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:899
-msgid "Whether checkout validation is actively protecting against stale stock."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:904
-msgid "The latest inbound sync timestamp seen by this store."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:908
-msgid "Your store is already participating in a live stock-sync role, either as a master or connected child."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:909
-msgid "Event and backlog data show whether synchronization is actively flowing or needs attention."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:910
-msgid "Validation and inbound-event status help show how safely inventory changes are being handled."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:913
-msgid "Compatibility updates for new WordPress / WooCommerce releases"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:914
-msgid "Bug fixes, edge-case testing, and better multi-store coverage"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:915
-msgid "Security hardening and ongoing performance improvements"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:916
-msgid "Documentation upgrades and faster, clearer support responses"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:919
-msgid "No paid features locked behind donations"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:920
-msgid "No tracking or invasive upsells"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:921
-msgid "Support is always optional, and genuinely appreciated."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:928
-msgid "Help keep Kitgenix independent"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:930
-msgid "We try to keep Kitgenix plugins lightweight, privacy-friendly, and free for everyone. If Stock Sync saves you admin time or helps prevent oversells across multiple stores, please consider supporting Kitgenix. Your support directly funds ongoing development, testing, and maintenance so we can keep features open and updates frequent."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:933
-msgid "Support this plugin"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:935
-msgid "Donate once"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:936
-msgid "Support monthly"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:938
-msgid "Secure checkout. Powered by Stripe. Cancel anytime."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:944
-msgid "Your site impact"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:945
-msgid "These stats show how Stock Sync for WooCommerce is currently working on your site:"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:960
-msgid "Support options & how it helps"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:961
-msgid "One-off donation: A quick way to say thanks and help fund the next round of improvements."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:962
-msgid "Monthly support helps keep development consistent if Stock Sync is part of your day-to-day multi-store workflow."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:971
-msgid "What this means"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:980
-msgid "What your support helps with"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:989
-msgid "Not in a position to donate?"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:990
-msgid "No worries - you can still massively help:"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:991
-msgid "Reviews help others discover the plugin and keep the project sustainable. Sharing the plugin with merchants managing stock across multiple WooCommerce stores, and sending clear issue reports, both help improve reliability faster."
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:993
-msgid "Leave a WordPress.org review"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:994
-msgid "Copy plugin link"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:995
-msgid "Open support / feature request"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1000
-msgid "A small note on trust & privacy"
-msgstr ""
-
-#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1006
-msgid "Thank you for supporting Kitgenix."
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:326
-msgid "Sorry, you are not allowed to access this page."
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:338
-msgid "CAPTCHA for Cloudflare Turnstile"
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:342
-msgid "Add Cloudflare Turnstile CAPTCHA to WordPress, WooCommerce, Elementor, and popular form plugins."
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:346
-msgid "Custom Tabs for WooCommerce"
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:350
-msgid "Add custom WooCommerce product tabs with per-product content, global tabs, and lightweight controls."
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:354
-msgid "Document Manager"
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:358
-msgid "Manage document downloads with stable links, version history, and private file access."
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:362
-msgid "Order Tracking for WooCommerce"
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:366
-msgid "Add WooCommerce order tracking, multi-shipment support, email tracking links, and a public customer tracking page."
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:370
-msgid "PDF Invoicing for WooCommerce"
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:374
-msgid "Generate WooCommerce PDF invoices, receipts, packing slips, and credit notes with secure downloads and configurable email attachments."
-msgstr ""
-
-#: kitgenix-stock-sync-for-woocommerce.php:378
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:574
+#: kitgenix-stock-sync-for-woocommerce.php:402
 msgid "Stock Sync for WooCommerce"
 msgstr ""
 
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:579
+msgid "Navigation"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:582
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:753
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1686
+msgid "Status"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:583
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:790
+msgid "Configuration"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:584
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:897
+msgid "Stores"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:585
+msgid "Tools"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:586
+msgid "Conflicts"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:587
+msgid "Logs"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:588
+msgid "Support"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:604
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:607
+msgid "Search settings"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:607
+msgid "Search settings…"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:609
+msgid "Clear search"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:612
+msgid "Toggle color theme"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:616
+msgid "Kitgenix Hub"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:617
+msgid "Toggle navigation"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:638
+msgid "Store status"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:639
+msgid "Live connection and sync health for this store."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:647
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:809
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:914
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:62
+msgid "Role"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:653
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:69
+msgid "Last inbound event"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:659
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:755
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:70
+msgid "Last outbound success"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:665
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:71
+msgid "Last outbound error"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:681
+msgid "Last outbound error message"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:694
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:906
+msgid "This Store ID"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:695
+msgid "The unique identifier for this store, used when pairing with other stores."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:703
+msgid "Action Scheduler"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:704
+msgid "Review queued and completed background sync tasks."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:707
+msgid "Open Scheduled Actions"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:717
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:813
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1414
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1510
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:142
+msgid "Master"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:735
+msgid "Connection health"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:736
+msgid "Per-store inbound/outbound activity, remote versions, and status."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:744
+msgid "No counterpart stores configured yet"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:745
+msgid "Configure the Master connection or add Child stores on the Stores tab."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:752
+msgid "Store"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:754
+msgid "Last inbound"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:756
+msgid "Last error"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:757
+msgid "Remote WC"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:758
+msgid "Remote plugin"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:764
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:68
+msgid "Disabled"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:791
+msgid "Core settings that define how this store participates in stock sync."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:799
+msgid "This Store Name"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:800
+msgid "A friendly label for this store, shown in logs and audits."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:810
+msgid "Master pushes stock to children; Child receives stock from a master."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:814
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1415
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1509
+msgid "Child"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:820
+msgid "Strict checkout validation (Child)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:821
+msgid "Check Master stock at checkout to reduce oversells (fail-open if Master unreachable). Master connection details are configured under the Stores tab."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:827
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1051
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1130
+msgid "Enabled"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:835
+msgid "If Master cannot be verified at checkout"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:836
+msgid "Only applies when Master is unreachable, times out, or fails to respond – a definite \"out of stock\" from a reachable Master always blocks checkout, in every mode."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:840
+msgid "Fail open – allow checkout (default)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:841
+msgid "Fail closed – block checkout"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:842
+msgid "Use last-known stock (if fresh enough)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:848
+msgid "Last-known stock max age (minutes)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:849
+msgid "Only used in \"Use last-known stock\" mode above."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:864
+msgid "Exclusions"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:865
+msgid "SKUs to exclude from syncing (comma or new line separated)."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:873
+msgid "Excluded SKUs"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:874
+msgid "These SKUs will be ignored by inbound and outbound stock sync."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:885
+msgid "Save Settings"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:898
+msgid "Use this tab to connect the Child store to the Master, or to manage Child stores on the Master."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:930
+msgid "Master Connection (Child)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:931
+msgid "Credentials used to reach the Master store."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:941
+msgid "Master URL"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:949
+msgid "Master Store ID"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:957
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1012
+msgid "Shared Secret"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:965
+msgid "Save Master Connection"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:966
+msgid "Generate a new secret? The old one keeps working for a short overlap window so you can update the Master too."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:966
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1142
+msgid "Rotate Secret"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:977
+msgid "Add Child Store (Master)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:978
+msgid "Add each child store and share a secret. The same secret must be configured on the Child under “Master Connection”."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:988
+msgid "Child Name"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:996
+msgid "Child URL"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1004
+msgid "Child Store ID"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1007
+msgid "paste the Child's This Store ID"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1015
+msgid "leave blank to auto-generate"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1020
+msgid "Add Child Store"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1034
+msgid "Configured Children"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1035
+msgid "Child stores currently receiving stock updates from this Master."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1043
+msgid "No child stores yet"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1044
+msgid "Add a child store above to start pushing stock updates to it."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1052
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1118
+msgid "Name"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1053
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1122
+msgid "URL"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1054
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1685
+msgid "Store ID"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1055
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1126
+msgid "Secret"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1056
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1690
+msgid "Actions"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1088
+msgid "Edit"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1089
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1165
+msgid "Remove"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1112
+msgid "Edit child store"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1113
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1155
+msgid "Close"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1141
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1161
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1292
+msgid "Cancel"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1142
+msgid "Generate a new secret for this child? The old one keeps working for a short overlap window so you can update the Child too."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1144
+msgid "Save"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1154
+msgid "Remove this child store?"
+msgstr ""
+
+#. translators: %s: child store name
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1158
+#, php-format
+msgid "“%s” will stop receiving stock updates from this Master."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1184
+msgid "Connection"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1185
+msgid "Ping the counterpart store to confirm your credentials work."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1191
+msgid "Test Connection"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1203
+msgid "Reconcile (Master)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1204
+msgid "Pushes authoritative stock state to all children in batches and establishes stable GIDs (needed for SKU rename sync)."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1209
+msgid "Running"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1209
+msgid "page"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1211
+msgid "Idle"
+msgstr ""
+
+#. translators: 1: processed count, 2: total estimate, 3: differences found, 4: items pushed
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1223
+#, php-format
+msgid "Last run: processed %1$d of ~%2$d, %3$d difference(s) found, %4$d item(s) pushed."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1240
+msgid "Scope"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1243
+msgid "All products"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1244
+msgid "Selected SKUs (below)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1249
+msgid "Selected SKUs"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1257
+msgid "Batch size"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1265
+msgid "Dry run"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1266
+msgid "Compare only – never pushes to children. Populates the Conflicts tab."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1277
+msgid "Push differences only"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1278
+msgid "When not a dry run: only push to a child when its state actually differs from Master."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1289
+msgid "Start Reconcile"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1291
+msgid "Resume"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1304
+msgid "Manual SKU Sync (Master)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1305
+msgid "Paste SKUs (comma or new-line separated) to push stock state to all children."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1315
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1345
+msgid "SKUs"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1323
+msgid "Push SKUs"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1334
+msgid "Audit Children (Master)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1335
+msgid "Paste SKUs (comma or new-line separated). This will query each child’s local stock fields and compare to Master."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1353
+msgid "Run Audit"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1369
+msgid "Audit Results"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1370
+msgid "Mismatched SKUs:"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1393
+msgid "Error"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1404
+msgid "No mismatches found for audited SKUs."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1412
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1508
+msgid "SKU"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1413
+msgid "Field"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1451
+msgid "Conflict Dashboard"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1452
+msgid "Missing products, duplicate/mismatched SKUs, GID mismatches, quantity/backorder/status mismatches, offline children, and auth errors – collected from Audit, Reconcile (dry-run/differences), and duplicate-SKU scans."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1459
+msgid "Scan Duplicate SKUs"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1464
+msgid "Clear Report"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1472
+msgid "No conflicts recorded"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1473
+msgid "Run Audit or Reconcile (dry-run/differences) on the Tools tab, or Scan Duplicate SKUs above, to populate this report."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1478
+msgid "Missing product"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1479
+msgid "Duplicate SKU"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1480
+msgid "GID mismatch"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1481
+msgid "Quantity mismatch"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1482
+msgid "Backorder mismatch"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1483
+msgid "Stock-status mismatch"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1484
+msgid "Child offline"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1485
+msgid "Authentication error"
+msgstr ""
+
+#. translators: %s: date/time the report was generated
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1494
+#, php-format
+msgid "Report generated: %s"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1500
+msgid "Search conflicts…"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1507
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1684
+msgid "Type"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1511
+msgid "Child value"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1512
+msgid "Detail"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1529
+msgid "No matching conflicts"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1552
+msgid "Event Log (Plugin)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1553
+msgid "The most recent synchronization events recorded by this store."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1559
+msgid "Clear Event Log"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1560
+msgid "Clear Backlog"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1569
+msgid "No events logged yet"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1570
+msgid "Sync activity will appear here as it happens."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1576
+msgid "Search events…"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1583
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1683
+msgid "Time"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1584
+msgid "Level"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1585
+msgid "Code"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1586
+msgid "Message"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1587
+msgid "Context"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1603
+msgid "No matching events"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1613
+msgid "Diagnostic code reference"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1614
+msgid "What each Code in the Event Log above means, and whether it needs action."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1622
+msgid "Category"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1623
+msgid "What it means"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1624
+msgid "Action needed?"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1630
+msgid "Check the sending store's connection settings – make sure it is a paired Kitgenix Stock Sync store."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1631
+msgid "Usually a broken or tampered request. If it comes from a known store, check for a proxy altering headers."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1632
+msgid "Check that both servers have automatic time sync (NTP) enabled. Not necessarily a problem on its own."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1633
+msgid "None, unless it repeats constantly from the same store – then check for a webhook retry loop."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1634
+msgid "Re-check and re-save the shared secret on both stores so they match exactly."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1635
+msgid "Go to Stores and fill in the secret for this store pairing."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1636
+msgid "Check the Stores tab – confirm the store ID matches exactly on both ends."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1637
+msgid "None – this will retry automatically. Investigate only if it happens repeatedly."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1638
+msgid "None – this will retry automatically. If persistent, confirm the remote store is online and reachable."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1639
+msgid "None – this will retry automatically. Check the remote store if it continues for a while."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1640
+msgid "Check the WooCommerce/Kitgenix Logs on the remote store for the exact rejection reason."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1641
+msgid "Go to Configuration/Stores and complete the missing fields, or check the Event Log above for the item that failed."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1661
+msgid "Backlog (Failures)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1662
+msgid "Sync operations that failed and are waiting to be retried or reviewed."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1669
+msgid "No backlog items"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1670
+msgid "Everything is syncing cleanly."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1676
+msgid "Search backlog…"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1687
+msgid "Attempt"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1688
+msgid "Next retry"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1689
+msgid "Reason"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1714
+msgid "Retry now"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1714
+msgid "Retry"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1716
+msgid "Discard this backlog item permanently? It will not be retried again."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1719
+msgid "Discard"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1723
+msgid "Original payload was too large to retain for retry."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1723
+msgid "No payload"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1731
+msgid "No matching backlog items"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1745
+msgid "Copy plugin link:"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1751
+msgid "Support Kitgenix"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1752
+msgid "Help us keep building"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1753
+msgid "Every sync this plugin runs is a check against your real stock levels, so customers never order something you no longer have in the warehouse. Keeping that check accurate across every new WooCommerce and WordPress release is ongoing, unpaid work, and donations are what keep it going."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1756
+msgid "Donate with PayPal"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1760
+msgid "Donations are entirely optional. Kitgenix plugins keep working whether you donate or not."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1767
+msgid "Leave a review"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1771
+msgid "Read the docs"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1775
+msgid "Copy plugin link"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1801
+msgid "Help and links"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1804
+msgid "Need Help?"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1805
+msgid "Open the documentation for setup guidance or send us a support request if you need help configuring the plugin."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1807
+msgid "Documentation"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1808
+msgid "Request Support"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1815
+msgid "Visit Our Official Facebook Group"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1816
+msgid "Join the Kitgenix community to ask questions, share feedback, and keep up with product updates."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1818
+msgid "Join Group"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1825
+msgid "Follow Us"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-admin.php:1826
+msgid "Keep up with new releases, tutorials, and product news across our channels."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:522
+msgid "Missing signature headers"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:523
+msgid "The request had no store ID, timestamp, nonce, or signature – it is not a properly signed Kitgenix Stock Sync request."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:526
+msgid "Malformed timestamp"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:527
+msgid "The timestamp header was not a valid number, so the request could not be checked for freshness."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:530
+msgid "Clock drift between stores"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:531
+msgid "The two stores' clocks are more than 5 minutes apart, so the timestamp fell outside the allowed window. Usually clock drift, not an attack."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:534
+msgid "Duplicate request (replay)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:535
+msgid "The same nonce was already used. Usually a duplicate webhook delivery or a retried request, not an attack."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:538
+msgid "Signature mismatch"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:539
+msgid "The request signature did not match. The shared secret configured for this store pairing likely does not match on both ends."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:542
+msgid "Secret not configured"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:543
+msgid "This store has no secret stored for that sender, so the request could not be verified."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:546
+msgid "Unknown sender store"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:547
+msgid "The sending store ID is not recognised as a configured Master or Child on this store."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:550
+msgid "Connection timed out"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:551
+msgid "The remote store took too long to respond. Usually a transient network or server-load issue."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:554
+msgid "Connection failed"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:555
+msgid "This store could not reach the remote store at all (DNS, SSL, or network failure). Often a temporary blip."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:558
+msgid "Remote server error"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:559
+msgid "The remote store responded with a server error (5xx). Usually temporary – maintenance, a PHP error, or high load on the other store."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:562
+msgid "Request rejected"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:563
+msgid "The remote store rejected the request with a 4xx response that was not an authentication failure."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:566
+msgid "Configuration problem"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:567
+msgid "This store is missing required configuration (Master/Child URL, store ID, or secret), or failed to apply an incoming update locally."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:570
+msgid "Malformed request body"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:571
+msgid "The request body was not valid JSON, so it could not be processed."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:574
+msgid "Request too large"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:575
+msgid "The request body exceeded the maximum accepted size and was rejected before processing."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:578
+msgid "Too many failed attempts"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:579
+msgid "Repeated authentication failures from this sender triggered a temporary lockout. If this was not expected, check for a misconfigured secret or an unexpected caller."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:582
+msgid "Superseded update (ignored)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:583
+msgid "An incoming stock update was older than the state already applied locally (a delayed, duplicate, or replayed event) and was safely ignored."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:586
+msgid "Insecure URL rejected"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:587
+msgid "A Master/Child URL must use HTTPS. HTTP URLs are rejected to prevent credentials and stock data travelling in plain text."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:596
+msgid "Unclassified"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-settings.php:597
+msgid "This event was not tagged with a recognised diagnostic code."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:25
+msgid "Never"
+msgstr ""
+
+#. translators: %s: human-readable time difference, e.g. "3 hours"
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:28
+#, php-format
+msgid "%s ago"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:50
+msgid "N/A (Master role)"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:54
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:75
+msgid "Yes"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:55
+msgid "No – incomplete"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:59
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:106
+msgid "Kitgenix Stock Sync"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:60
+msgid "Diagnostic information for the Kitgenix Stock Sync for WooCommerce plugin. No shared secrets are included."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:63
+msgid "This store ID"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:64
+msgid "Plugin version"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:65
+msgid "Settings schema version"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:66
+msgid "Master configured"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:67
+msgid "Configured Child stores"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:67
+msgid "enabled"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:68
+msgid "Strict checkout validation"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:72
+msgid "Last reconcile completed"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:73
+msgid "Backlog items"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:74
+msgid "Backlog items needing manual attention"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:75
+msgid "Action Scheduler available"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:75
+msgid "No"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:84
+msgid "Kitgenix Stock Sync: role configured"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:88
+msgid "Kitgenix Stock Sync: connection health"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:92
+msgid "Kitgenix Stock Sync: backlog"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:96
+msgid "Kitgenix Stock Sync: Action Scheduler"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:114
+msgid "Kitgenix Stock Sync role is configured"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:120
+msgid "Kitgenix Stock Sync: Child store has no Master configured"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:121
+msgid "This store is set to Child role but its Master URL, Store ID, or Secret is missing. Stock will not sync until this is completed."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:129
+msgid "Kitgenix Stock Sync: Master has no enabled Child stores"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:130
+msgid "This store is set to Master role but has no enabled Child stores configured, so there is nowhere to sync stock to."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:137
+msgid "Kitgenix Stock Sync connections are healthy"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:156
+msgid "Kitgenix Stock Sync: a connection is reporting errors"
+msgstr ""
+
+#. translators: %s: comma-separated list of store names
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:159
+#, php-format
+msgid "These stores last reported a connection error: %s. Check the Logs tab."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:168
+msgid "Kitgenix Stock Sync backlog is clear"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:175
+msgid "Kitgenix Stock Sync: backlog has items needing attention"
+msgstr ""
+
+#. translators: %d: number of exhausted backlog items
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:178
+#, php-format
+msgid "%d backlog item(s) exhausted their automatic retry budget and need a manual retry or discard on the Logs tab."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:183
+msgid "Kitgenix Stock Sync: backlog is growing"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:184
+msgid "There are a number of items in the backlog. Review the Logs tab to see whether a store is persistently unreachable."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:191
+msgid "Kitgenix Stock Sync: Action Scheduler is available"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:195
+msgid "Kitgenix Stock Sync: Action Scheduler is unavailable"
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php:196
+msgid "Action Scheduler (bundled with WooCommerce) was not found. Retries, reconcile batching, and async pushes will not run."
+msgstr ""
+
+#: includes/class-kitgenix-stock-sync-for-woocommerce-sync.php:1149
+msgid "Stock could not be verified right now. Please try again shortly."
+msgstr ""
+
+#. translators: %s: product SKU
+#: includes/class-kitgenix-stock-sync-for-woocommerce-sync.php:1173
+#, php-format
+msgid "\"%s\" is out of stock."
+msgstr ""
+
+#. translators: 1: product SKU, 2: quantity available
+#: includes/class-kitgenix-stock-sync-for-woocommerce-sync.php:1182
+#, php-format
+msgid "Insufficient stock for \"%1$s\". Available: %2$d."
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:350
+msgid "Sorry, you are not allowed to access this page."
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:362
+msgid "CAPTCHA for Cloudflare Turnstile"
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:366
+msgid "Add Cloudflare Turnstile CAPTCHA to WordPress, WooCommerce, Elementor, and popular form plugins."
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:370
+msgid "Custom Tabs for WooCommerce"
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:374
+msgid "Add custom WooCommerce product tabs with per-product content, global tabs, and lightweight controls."
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:378
+msgid "Document Manager"
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:382
+msgid "Manage document downloads with stable links, version history, and private file access."
+msgstr ""
+
 #: kitgenix-stock-sync-for-woocommerce.php:386
-msgid "Affiliate Link Manager"
+msgid "Order Tracking for WooCommerce"
 msgstr ""
 
 #: kitgenix-stock-sync-for-woocommerce.php:390
-msgid "Manage affiliate short links, branded redirects, and click tracking from one WordPress dashboard."
+msgid "Add WooCommerce order tracking, multi-shipment support, email tracking links, and a public customer tracking page."
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:429
-msgid "Discover and manage every Kitgenix plugin from one screen."
+#: kitgenix-stock-sync-for-woocommerce.php:394
+msgid "PDF Invoicing for WooCommerce"
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:398
+msgid "Generate WooCommerce PDF invoices, receipts, packing slips, and credit notes with secure downloads and configurable email attachments."
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:410
+msgid "Image Optimizer"
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:414
+msgid "Optimize, compress, and resize images in your WordPress media library with automatic on-upload processing and bulk optimization tools."
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:418
+msgid "MultiStore for WooCommerce"
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:422
+msgid "Sync WooCommerce products, prices, media, and metadata between multiple stores with a secure master-child architecture."
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:426
+msgid "Affiliate Link Manager"
 msgstr ""
 
 #: kitgenix-stock-sync-for-woocommerce.php:430
+msgid "Manage affiliate short links, branded redirects, and click tracking from one WordPress dashboard."
+msgstr ""
+
+#: kitgenix-stock-sync-for-woocommerce.php:472
 msgid "Install, activate, open, and review Kitgenix plugins."
 msgstr ""
 
 #. translators: %s is the number of active installs and may include a thousands separator, e.g. "1,234". The "+" suffix is literal.
-#: kitgenix-stock-sync-for-woocommerce.php:467
+#: kitgenix-stock-sync-for-woocommerce.php:511
 #, php-format
 msgid "%s+ installs"
 msgstr ""
 
 #. translators: %s is the average rating out of 5 with one decimal place, e.g. "4.5". The star symbol (★) precedes the number.
-#: kitgenix-stock-sync-for-woocommerce.php:477
+#: kitgenix-stock-sync-for-woocommerce.php:521
 #, php-format
 msgid "★ %s/5"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:482
+#: kitgenix-stock-sync-for-woocommerce.php:526
 msgid "Not installed"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:484
+#: kitgenix-stock-sync-for-woocommerce.php:528
 msgid "Active"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:486
+#: kitgenix-stock-sync-for-woocommerce.php:530
 msgid "Installed (Inactive)"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:503
-#: kitgenix-stock-sync-for-woocommerce.php:505
+#: kitgenix-stock-sync-for-woocommerce.php:547
+#: kitgenix-stock-sync-for-woocommerce.php:549
 msgid "Install"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:514
+#: kitgenix-stock-sync-for-woocommerce.php:558
 msgid "Activate"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:516
+#: kitgenix-stock-sync-for-woocommerce.php:560
 msgid "You do not have permission to activate plugins."
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:521
+#: kitgenix-stock-sync-for-woocommerce.php:565
 msgid "Open"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:526
+#: kitgenix-stock-sync-for-woocommerce.php:570
 msgid "Details"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:530
+#: kitgenix-stock-sync-for-woocommerce.php:574
 msgid "Review"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:531
+#: kitgenix-stock-sync-for-woocommerce.php:575
 msgid "Support Forum"
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:635
+#: kitgenix-stock-sync-for-woocommerce.php:683
 msgid "Kitgenix Stock Sync for WooCommerce requires WooCommerce to be installed and active. The plugin has been deactivated."
 msgstr ""
 
-#: kitgenix-stock-sync-for-woocommerce.php:671
+#: kitgenix-stock-sync-for-woocommerce.php:719
 msgid "Settings"
 msgstr ""

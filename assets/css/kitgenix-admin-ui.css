@@ -1,460 +1,715 @@
-/* Kitgenix Admin UI — Shared styles used across all Kitgenix plugins.
-   Designed to be clean, modern, and cohesive with the WordPress admin,
-   while also incorporating Kitgenix's brand colors.
-*/
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Kitgenix Admin UI – Shared Design System
+   Keep this file identical between plugins to ensure consistent UI/UX.
+   Tokens below follow the Kitgenix Brand Kit (Primary Blue #214BFF, Electric Blue
+   #42B3FF, Midnight #071B3A, Slate #64748B, Manrope/Inter type, 8/12/16/20/28
+   radius scale, 4/8/12/16/24/32/48/64 spacing scale).
+═══════════════════════════════════════════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════
-   DESIGN TOKENS
-═══════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  color-scheme: light dark;
+  /* Brand colors */
+  --kitgenix-brand: #214BFF;
+  --kitgenix-brand-dark: #0F2C5C;
+  --kitgenix-brand-electric: #42B3FF;
+  --kitgenix-brand-light: #E8EEFF;
+  --kitgenix-brand-subtle: #F5F9FF;
+  --kitgenix-midnight: #071B3A;
+  --kitgenix-border-color: #E1E7F5;
+  --kitgenix-border-subtle: #EEF2FB;
+  --kitgenix-text-color: #071B3A;
+  --kitgenix-text-muted: #64748B;
+  --kitgenix-bg-light: #F5F9FF;
+  --kitgenix-bg-white: #ffffff;
+  --kitgenix-success: #22C55E;
+  --kitgenix-success-light: #EAFBF1;
+  --kitgenix-success-border: #B8ECC8;
+  --kitgenix-danger: #EF4444;
+  --kitgenix-danger-light: #FDEDED;
+  --kitgenix-danger-border: #F7C6C6;
+  --kitgenix-warning: #F59E0B;
+  --kitgenix-warning-light: #FFF6E7;
+  --kitgenix-warning-border: #FBDFA3;
+  --kitgenix-info: #0EA5E9;
+  --kitgenix-info-light: #E8F7FE;
+  --kitgenix-info-border: #B9E7FA;
 
-  /* Surfaces */
-  --kitgenix-bg-color: #ffffff;
-  --kitgenix-surface: #ffffff;
-  --kitgenix-surface-alt: #f6f7f7;
-  --kitgenix-surface-muted: #f0f0f1;
-  --kitgenix-border-color: #dcdcde;
-  --kitgenix-border-color-strong: #c3c4c7;
-
-  /* Text */
-  --kitgenix-text-color: #1d2327;
-  --kitgenix-text-muted: #50575e;
-  --kitgenix-text-subtle: #646970;
-  --kitgenix-heading: #1d2327;
-
-  /* Brand */
-  --kitgenix-brand: #4f2a9a;
-  --kitgenix-brand-hover: #42237f;
-  --kitgenix-brand-active: #351b66;
-  --kitgenix-brand-light: #6d3dc6;
-  --kitgenix-brand-dim: color-mix(in srgb, #4f2a9a 10%, transparent);
-  --kitgenix-brand-strong: #f364dd;
-  --kitgenix-brand-gradient: linear-gradient(135deg, #4f2a9a 0%, #7c3aed 55%, #c026d3 100%);
-  --kitgenix-brand-tint: color-mix(in srgb, var(--kitgenix-brand) 10%, #ffffff);
-  --kitgenix-brand-border: color-mix(in srgb, var(--kitgenix-brand) 58%, #ffffff);
-
-  /* Semantic */
-  --kitgenix-success: #065f46;
-  --kitgenix-success-bg: #ecfdf5;
-  --kitgenix-success-border: #a7f3d0;
-  --kitgenix-warning: #92400e;
-  --kitgenix-warning-bg: #fffbeb;
-  --kitgenix-warning-border: #fcd34d;
-  --kitgenix-error: #991b1b;
-  --kitgenix-error-bg: #fef2f2;
-  --kitgenix-error-border: #fca5a5;
-  --kitgenix-info: #1e40af;
-  --kitgenix-info-bg: #eff6ff;
-  --kitgenix-info-border: #bfdbfe;
-
-  /* Shape */
-  --kitgenix-radius: 4px;
-  --kitgenix-radius-sm: 4px;
-  --kitgenix-radius-xs: 4px;
+  /* Radius scale – Small / Buttons / Inputs / Cards / App Icons */
+  --kitgenix-radius-sm: 8px;
+  --kitgenix-radius-md: 12px;
+  --kitgenix-radius-lg: 16px;
+  --kitgenix-radius-xl: 20px;
+  --kitgenix-radius-2xl: 28px;
   --kitgenix-radius-pill: 999px;
 
-  /* Shadow */
-  --kitgenix-shadow-sm: 0 1px 1px rgba(0,0,0,0.04);
-  --kitgenix-shadow: 0 1px 1px rgba(0,0,0,0.04);
-  --kitgenix-shadow-md: 0 4px 14px rgba(0,0,0,0.08);
-  --kitgenix-shadow-lg: 0 10px 28px rgba(0,0,0,0.14);
+  /* Shadows – rgba(7, 27, 58, ...) per brand kit */
+  --kitgenix-shadow-sm: 0 2px 8px rgba(7, 27, 58, 0.06);
+  --kitgenix-shadow-md: 0 8px 30px rgba(7, 27, 58, 0.08);
+  --kitgenix-shadow-lg: 0 16px 48px rgba(7, 27, 58, 0.12);
 
-  /* Motion */
-  --kitgenix-transition: .18s ease;
-  --kitgenix-transition-fast: .10s ease;
+  /* Spacing scale */
+  --kitgenix-space-1: 4px;
+  --kitgenix-space-2: 8px;
+  --kitgenix-space-3: 12px;
+  --kitgenix-space-4: 16px;
+  --kitgenix-space-6: 24px;
+  --kitgenix-space-8: 32px;
+  --kitgenix-space-12: 48px;
+  --kitgenix-space-16: 64px;
 
-  /* Focus */
-  --kitgenix-focus-ring: 0 0 0 3px color-mix(in srgb, var(--kitgenix-brand) 28%, transparent);
+  /* Typography – Manrope for headings, Inter for UI/body */
+  --kitgenix-font-heading: 'Manrope', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --kitgenix-font-body: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
-  /* Spacing */
-  --kitgenix-pad-x: 24px;
-  --kitgenix-pad-y: 20px;
-  --kitgenix-gap: 20px;
-  --kitgenix-page-shell-max: 1440px;
-  --kitgenix-admin-edge: 20px;
-  --kitgenix-sidebar-width: 320px;
+  --kitgenix-transition: 0.15s ease-in-out;
+  --kitgenix-page-shell-max: 1240px;
+  --kitgenix-focus-ring: 0 0 0 3px var(--kitgenix-brand-light);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --kitgenix-bg-color: #0d0a14;
-    --kitgenix-surface: #14101f;
-    --kitgenix-surface-alt: #1c1730;
-    --kitgenix-surface-muted: #0f0c19;
-    --kitgenix-border-color: #2e2545;
-    --kitgenix-border-color-strong: #4a3d6b;
+/* Dark theme overrides – activated by toggling [data-kitgenix-theme="dark"] on
+   .kitgenix-admin-app (see kitgenix-admin-tabs.js). Because every component below
+   consumes the --kitgenix-* custom properties, re-pointing them here re-themes the
+   whole admin screen, not just the topbar. Built on Midnight (#071B3A), the brand
+   kit's dark base, rather than a generic gray. */
+.kitgenix-admin-app[data-kitgenix-theme="dark"] {
+  --kitgenix-brand: #42B3FF;
+  --kitgenix-brand-dark: #214BFF;
+  --kitgenix-brand-electric: #6EC6FF;
+  --kitgenix-brand-light: #132A4D;
+  --kitgenix-brand-subtle: #0F2242;
+  --kitgenix-border-color: #1E3358;
+  --kitgenix-border-subtle: #162743;
+  --kitgenix-text-color: #EAF0FB;
+  --kitgenix-text-muted: #93A2C2;
+  --kitgenix-bg-light: #0A1830;
+  --kitgenix-bg-white: #0F2242;
+  --kitgenix-success-light: #0F2B1D;
+  --kitgenix-success-border: #1E7A45;
+  --kitgenix-danger-light: #2B1414;
+  --kitgenix-danger-border: #7A2020;
+  --kitgenix-warning-light: #2B2010;
+  --kitgenix-warning-border: #92650B;
+  --kitgenix-info-light: #12293A;
+  --kitgenix-info-border: #0E6FA3;
+  --kitgenix-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --kitgenix-shadow-md: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --kitgenix-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
 
-    --kitgenix-text-color: #e8e0f5;
-    --kitgenix-text-muted: #a590c0;
-    --kitgenix-text-subtle: #7a6a92;
-    --kitgenix-heading: #f3eeff;
+/* ═══════════════════════════════════════
+   FULL BLEED ADMIN CANVAS
+   Stretches across the whole WP admin canvas.
+═══════════════════════════════════════ */
 
-    --kitgenix-brand: #9b7ae0;
-    --kitgenix-brand-hover: #8c6ad8;
-    --kitgenix-brand-active: #7a58c5;
-    --kitgenix-brand-light: #b899f0;
-    --kitgenix-brand-dim: color-mix(in srgb, #9b7ae0 14%, transparent);
-    --kitgenix-brand-strong: #e96fd6;
-    --kitgenix-brand-gradient: linear-gradient(135deg, #7c3aed 0%, #9b7ae0 55%, #e96fd6 100%);
-    --kitgenix-brand-tint: color-mix(in srgb, var(--kitgenix-brand) 16%, #14101f);
-    --kitgenix-brand-border: color-mix(in srgb, var(--kitgenix-brand) 62%, #14101f);
+/* Drop WP core's #wpcontent gutter so our canvas sits flush against the
+   admin sidebar – same technique FluentCRM uses, rather than guessing
+   negative margins to counteract .wrap's default inset (which overshoots:
+   width:auto + negative margins on both sides makes the browser compute a
+   width wider than the container, causing horizontal overflow). */
+#wpcontent {
+  padding-left: 0 !important;
+}
 
-    --kitgenix-success: #34d399;
-    --kitgenix-success-bg: rgba(16,185,129,.12);
-    --kitgenix-success-border: rgba(52,211,153,.3);
-    --kitgenix-warning: #fbbf24;
-    --kitgenix-warning-bg: rgba(251,191,36,.1);
-    --kitgenix-warning-border: rgba(251,191,36,.3);
-    --kitgenix-error: #f87171;
-    --kitgenix-error-bg: rgba(248,113,113,.1);
-    --kitgenix-error-border: rgba(248,113,113,.3);
-    --kitgenix-info: #93c5fd;
-    --kitgenix-info-bg: rgba(147,197,253,.1);
-    --kitgenix-info-border: rgba(147,197,253,.3);
+html #wpbody-content > .wrap.kitgenix-admin-app,
+.wrap.kitgenix-admin-app {
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  /* WordPress core's own admin content background (body.wp-admin) – set it
+     explicitly rather than leaving it to inherit, so the canvas behind the
+     sidebar/cards always reads as "default WordPress", not whatever a
+     theme, admin color scheme, or another plugin's page styles left behind. */
+  background: #f0f0f1;
+  color: var(--kitgenix-text-color);
+  font-family: var(--kitgenix-font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.2s ease;
+}
 
-    --kitgenix-shadow-sm: 0 1px 4px rgba(0,0,0,.22);
-    --kitgenix-shadow: 0 4px 16px rgba(0,0,0,.28), 0 1px 4px rgba(0,0,0,.18);
-    --kitgenix-shadow-md: 0 8px 28px rgba(0,0,0,.38), 0 2px 8px rgba(0,0,0,.22);
-    --kitgenix-shadow-lg: 0 20px 60px rgba(0,0,0,.55), 0 6px 20px rgba(0,0,0,.28);
+.kitgenix-admin-app[data-kitgenix-theme="dark"] {
+  background: var(--kitgenix-midnight);
+}
+
+@media screen and (max-width: 782px) {
+  #wpcontent {
+    padding-left: 0 !important;
+  }
+  html #wpbody-content > .wrap.kitgenix-admin-app,
+  .wrap.kitgenix-admin-app {
+    margin: 0 !important;
   }
 }
 
-
 /* ═══════════════════════════════════════
-   APP CONTAINER
+   KITGENIX TOPBAR (Full Width Sticky Header)
 ═══════════════════════════════════════ */
 
-.kitgenix-admin-app {
+.kitgenix-topbar {
+  position: sticky;
+  top: 32px;
+  z-index: 1000;
   width: 100%;
-  max-width: 1240px;
-  margin: 0;
-  padding: 0;
-  color: var(--kitgenix-text-color);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-
-/* ═══════════════════════════════════════
-   PAGE HEADER
-   Matches the shared Kitgenix hub header.
-═══════════════════════════════════════ */
-
-.kitgenix-settings-header {
-  margin: 20px auto 24px;
-  max-width: var(--kitgenix-page-shell-max);
-  padding: 24px 28px;
-  border-radius: 4px;
-  background: #ffffff;
-  border: 1px solid #dcdcde;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-  display: grid;
-  gap: 24px;
-}
-
-.kitgenix-settings-header::before {
-  content: none;
-}
-
-.kitgenix-settings-header :is(h1, h2) {
-  margin: 0 0 8px;
-  font-size: 24px;
-  line-height: 1.25;
-  font-weight: 600;
-  color: #1d2327;
-}
-
-.kitgenix-settings-header p {
-  margin: 0;
-  font-size: 14px;
-  color: #50575e;
-  line-height: 1.6;
-}
-
-.kitgenix-settings-brand {
+  box-sizing: border-box;
+  margin: 0 0 24px 0 !important;
+  padding: 8px 24px;
+  background: var(--kitgenix-bg-white);
+  border-bottom: 1px solid var(--kitgenix-border-color);
+  box-shadow: var(--kitgenix-shadow-sm);
   display: flex;
-  align-items: flex-start;
-  gap: 18px;
-  min-width: 0;
-}
-
-.kitgenix-settings-logo {
-  width: 56px;
-  height: 56px;
-  flex: 0 0 56px;
-  display: block;
-  border-radius: 4px;
-}
-
-.kitgenix-settings-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: top 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
-.kitgenix-settings-version {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #f6f7f7;
-  color: #50575e;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border: 1px solid #dcdcde;
-  border-radius: 999px;
-  letter-spacing: 0.03em;
+@media screen and (max-width: 782px) {
+  .kitgenix-topbar {
+    top: 46px;
+    padding: 8px 16px;
+  }
 }
 
-.kitgenix-intro-links {
+/* Topbar Left: Brand & Info */
+.kitgenix-topbar-left {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
-  margin: 0;
-  justify-content: flex-end;
-}
-
-.kitgenix-intro-links a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 36px;
-  padding: 0 12px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #1d2327;
-  text-decoration: none;
-  border-radius: 4px;
-  border: 1px solid #dcdcde;
-  background: #ffffff;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, color 0.18s ease;
-  line-height: 1.4;
-}
-
-.kitgenix-intro-links a:hover,
-.kitgenix-intro-links a:focus-visible {
-  border-color: var(--kitgenix-brand);
-  box-shadow: 0 0 0 1px var(--kitgenix-brand);
-  color: #1d2327;
-  text-decoration: none;
-  outline: none;
-  transform: translateY(-1px);
-}
-
-
-.kitgenix-social-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0;
-  justify-content: flex-end;
-}
-
-.kitgenix-social-links a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 36px;
-  padding: 0 12px;
-  gap: 0;
-  font-size: 13px;
-  font-weight: 500;
-  color: #1d2327;
-  text-decoration: none;
-  border-radius: 4px;
-  border: 1px solid #dcdcde;
-  background: #ffffff;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, color 0.18s ease;
-  line-height: 1.4;
-}
-
-.kitgenix-social-links a:hover,
-.kitgenix-social-links a:focus-visible {
-  border-color: var(--kitgenix-brand);
-  box-shadow: 0 0 0 1px var(--kitgenix-brand);
-  color: #1d2327;
-  text-decoration: none;
-  outline: none;
-  transform: translateY(-1px);
-}
-
-.kitgenix-social-links img {
-  width: 14px;
-  height: 14px;
-  display: block;
   flex-shrink: 0;
 }
 
-.kitgenix-settings-header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
+.kitgenix-topbar-brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  line-height: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.kitgenix-settings-header-main {
-  flex: 1 1 0;
-  min-width: 0;
-  display: grid;
+.kitgenix-topbar-brand:hover {
+  opacity: 0.85;
+  transform: scale(1.04);
+}
+
+.kitgenix-topbar-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--kitgenix-radius-sm);
+  display: block;
+}
+
+.kitgenix-topbar-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--kitgenix-border-color);
+  display: inline-block;
+}
+
+.kitgenix-topbar-plugin-info {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.kitgenix-settings-header-actions {
-  flex: 1 1 0;
+.kitgenix-topbar-title {
+  font-family: var(--kitgenix-font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.kitgenix-topbar-version {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--kitgenix-text-muted);
+  background: var(--kitgenix-bg-light);
+  padding: 2px 7px;
+  border-radius: 999px;
+  line-height: 1.3;
+  border: 1px solid var(--kitgenix-border-color);
+}
+
+/* Topbar Center: Modern Navigation Menu */
+.kitgenix-topbar-center {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  justify-content: flex-start;
   min-width: 0;
+  margin: 0 8px;
+}
+
+.kitgenix-topbar-menu {
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+  flex-wrap: wrap !important;
+  border: none !important;
+  border-bottom: none !important;
+  background: transparent !important;
+}
+
+.kitgenix-topbar-menu .kitgenix-menu-item {
+  position: relative;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.kitgenix-topbar-menu .kitgenix-menu-link,
+.kitgenix-topbar-menu .kitgenix-menu-toggle,
+.kitgenix-topbar-menu a {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 7px 14px !important;
+  margin: 0 !important;
+  font-family: var(--kitgenix-font-body) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--kitgenix-text-muted) !important;
+  text-decoration: none !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: none !important;
+  border-radius: var(--kitgenix-radius-sm) !important;
+  transition: all 0.15s ease !important;
+  line-height: 1.4 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  float: none !important;
+}
+
+.kitgenix-topbar-menu .kitgenix-menu-link:hover,
+.kitgenix-topbar-menu a:hover,
+.kitgenix-topbar-menu .kitgenix-menu-link:focus-visible,
+.kitgenix-topbar-menu a:focus-visible,
+.kitgenix-topbar-menu .kitgenix-menu-toggle:hover,
+.kitgenix-topbar-menu .kitgenix-menu-toggle:focus-visible {
+  color: var(--kitgenix-text-color) !important;
+  background: var(--kitgenix-bg-light) !important;
+  outline: none !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.kitgenix-topbar-menu .kitgenix-menu-item.kitgenix-active .kitgenix-menu-link,
+.kitgenix-topbar-menu .kitgenix-menu-link.kitgenix-active,
+.kitgenix-topbar-menu .kitgenix-menu-link.nav-tab-active,
+.kitgenix-topbar-menu a.nav-tab-active,
+.kitgenix-topbar-menu a[aria-current="page"],
+.kitgenix-topbar-menu .kitgenix-menu-item.kitgenix-active .kitgenix-menu-toggle,
+.kitgenix-topbar-menu .kitgenix-menu-toggle.kitgenix-active {
+  color: var(--kitgenix-brand, #214BFF) !important;
+  font-weight: 600 !important;
+  background: var(--kitgenix-brand-light) !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.kitgenix-menu-toggle {
+  border: none;
+  background: transparent;
+}
+
+.kitgenix-menu-caret {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  color: var(--kitgenix-text-muted) !important;
+  transition: transform 0.15s ease;
+}
+
+.kitgenix-menu-item.kitgenix-dropdown-open .kitgenix-menu-caret,
+.kitgenix-menu-toggle[aria-expanded="true"] .kitgenix-menu-caret {
+  transform: rotate(180deg);
+  color: var(--kitgenix-brand, #214BFF) !important;
+}
+
+/* Mega-menu dropdown panel (used by menu items that group several tabs) */
+.kitgenix-submenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1100;
+  min-width: 300px;
+  max-width: 360px;
+  padding: 8px;
+  background: var(--kitgenix-bg-white);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-xl);
+  box-shadow: var(--kitgenix-shadow-lg);
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kitgenix-menu-item.kitgenix-has-dropdown.kitgenix-dropdown-open .kitgenix-submenu {
+  display: flex;
+}
+
+.kitgenix-submenu-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  padding: 10px !important;
+  border-radius: var(--kitgenix-radius-md) !important;
+  color: inherit !important;
+  text-decoration: none !important;
+  font-weight: 400 !important;
+}
+
+.kitgenix-submenu-item:hover,
+.kitgenix-submenu-item:focus-visible {
+  background: var(--kitgenix-bg-light) !important;
+}
+
+.kitgenix-submenu-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--kitgenix-radius-sm);
+  background: var(--kitgenix-brand-light);
+  color: var(--kitgenix-brand, #214BFF);
+}
+
+.kitgenix-submenu-text {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 12px;
-  align-self: center;
-}
-
-@media (max-width: 960px) {
-  .kitgenix-settings-header {
-    padding: 20px;
-  }
-
-  .kitgenix-settings-header-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .kitgenix-settings-header-actions {
-    align-items: flex-start;
-  }
-
-  .kitgenix-intro-links,
-  .kitgenix-social-links {
-    justify-content: flex-start;
-  }
-
-  .kitgenix-settings-logo {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
-  }
-}
-
-.kitgenix-social-links.kitgenix-social-links--icons {
-  gap: 10px;
-}
-
-.kitgenix-social-links.kitgenix-social-links--icons a {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-}
-
-.kitgenix-social-links.kitgenix-social-links--icons img {
-  width: 14px;
-  height: 14px;
-}
-
-
-/* Content layout */
-.kitgenix-settings-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, var(--kitgenix-sidebar-width));
-  gap: var(--kitgenix-gap);
-  margin-top: var(--kitgenix-gap);
-  align-items: start;
-}
-
-.kitgenix-settings-content {
+  gap: 2px;
   min-width: 0;
 }
 
-.kitgenix-settings-sidebar {
-  min-width: 0;
-  display: grid;
-  gap: var(--kitgenix-gap);
-  align-self: start;
-  position: sticky;
-  top: 32px;
-}
-
-.kitgenix-sidebar-card {
-  background: #ffffff;
-  border: 1px solid #dcdcde;
-  border-radius: 4px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
-  padding: 20px;
-  display: grid;
-  gap: 14px;
-}
-
-.kitgenix-sidebar-card h2,
-.kitgenix-sidebar-card h3,
-.kitgenix-sidebar-card h4 {
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.4;
-  color: #1d2327;
-}
-
-.kitgenix-sidebar-card p {
-  margin: 0;
-  color: #50575e;
+.kitgenix-submenu-title {
+  font-family: var(--kitgenix-font-heading);
   font-size: 13px;
-  line-height: 1.6;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
+  white-space: normal;
 }
 
-.kitgenix-sidebar-actions {
-  display: grid;
-  gap: 10px;
+.kitgenix-submenu-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--kitgenix-text-muted);
+  white-space: normal;
+  line-height: 1.4;
 }
 
-.kitgenix-sidebar-actions .button {
-  width: 100%;
-  min-height: 38px;
-  display: flex !important;
+/* Topbar Right: Search, theme toggle, hub link & actions */
+.kitgenix-topbar-right {
+  display: flex;
   align-items: center;
-  justify-content: center !important;
-  text-align: center;
-  margin: 0;
-  float: none;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
+
+.kitgenix-topbar-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kitgenix-topbar-search.kitgenix-search-open .kitgenix-search-toggle {
+  color: var(--kitgenix-brand, #214BFF);
+  border-color: var(--kitgenix-brand-light);
+  background: var(--kitgenix-brand-light);
+}
+
+.kitgenix-search-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  width: 260px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  background: var(--kitgenix-bg-white);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-xl);
+  box-shadow: var(--kitgenix-shadow-lg);
+  padding: 4px;
+}
+
+.kitgenix-topbar-search.kitgenix-search-open .kitgenix-search-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.kitgenix-search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--kitgenix-text-muted);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.kitgenix-topbar-search-input {
+  width: 100%;
+  height: 34px;
+  padding: 4px 34px 4px 34px !important;
+  font-family: var(--kitgenix-font-body) !important;
+  font-size: 12px !important;
+  color: var(--kitgenix-text-color) !important;
+  background: var(--kitgenix-bg-light) !important;
+  border: 1px solid var(--kitgenix-border-color) !important;
+  border-radius: var(--kitgenix-radius-md) !important;
+  transition: all 0.15s ease !important;
+  box-shadow: none !important;
+}
+
+.kitgenix-topbar-search-input:focus {
+  background: var(--kitgenix-bg-white) !important;
+  border-color: var(--kitgenix-brand, #214BFF) !important;
+  box-shadow: 0 0 0 2px var(--kitgenix-brand-light) !important;
+  outline: none !important;
+}
+
+.kitgenix-search-kbd {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--kitgenix-text-muted);
+  background: var(--kitgenix-bg-white);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-sm);
+  pointer-events: none;
+  line-height: 1;
+  font-family: inherit;
+  box-shadow: var(--kitgenix-shadow-sm);
+}
+
+.kitgenix-topbar-search-input:focus ~ .kitgenix-search-kbd {
+  display: none;
+}
+
+.kitgenix-search-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--kitgenix-text-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  display: none;
+}
+
+.kitgenix-search-clear:hover {
+  color: var(--kitgenix-danger, #ef4444);
+}
+
+.kitgenix-topbar-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--kitgenix-radius-md);
+  border: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-bg-white);
+  color: var(--kitgenix-text-muted);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.kitgenix-topbar-icon-btn:hover,
+.kitgenix-topbar-icon-btn:focus-visible {
+  color: var(--kitgenix-brand, #214BFF);
+  border-color: var(--kitgenix-brand-light);
+  background: var(--kitgenix-brand-light);
+  outline: none;
+}
+
+/* Theme toggle: swaps sun/moon icon based on the app's data-kitgenix-theme state */
+.kitgenix-theme-toggle .kitgenix-theme-icon-dark {
+  display: none;
+}
+
+.kitgenix-admin-app[data-kitgenix-theme="dark"] .kitgenix-theme-toggle .kitgenix-theme-icon-light {
+  display: none;
+}
+
+.kitgenix-admin-app[data-kitgenix-theme="dark"] .kitgenix-theme-toggle .kitgenix-theme-icon-dark {
+  display: inline-flex;
+}
+
+.kitgenix-topbar-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--kitgenix-radius-md);
+  border: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-bg-white);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.kitgenix-topbar-hamburger span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  background: var(--kitgenix-text-muted);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 991px) {
+  .kitgenix-topbar {
+    flex-wrap: wrap;
+  }
+  .kitgenix-topbar-hamburger {
+    display: flex;
+  }
+  .kitgenix-topbar-center {
+    display: none;
+    order: 4;
+    width: 100%;
+    margin: 8px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--kitgenix-border-color);
+  }
+  .kitgenix-topbar.kitgenix-menu-open .kitgenix-topbar-center {
+    display: block;
+  }
+  .kitgenix-topbar-menu {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+  .kitgenix-topbar-menu .kitgenix-menu-item {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  .kitgenix-topbar-menu .kitgenix-menu-link,
+  .kitgenix-topbar-menu .kitgenix-menu-toggle,
+  .kitgenix-topbar-menu a {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 8px 12px !important;
+    justify-content: space-between !important;
+  }
+  .kitgenix-submenu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    padding: 4px 0 4px 12px;
+    max-width: none;
+    width: 100%;
+  }
+  .kitgenix-search-panel {
+    position: fixed;
+    top: auto;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
 
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result) {
-  border-color: var(--kitgenix-brand);
-  background: var(--kitgenix-brand);
-  color: #ffffff;
-  box-shadow: 0 1px 1px rgba(17, 24, 39, 0.08);
-  transition:
-    background-color var(--kitgenix-transition),
-    border-color var(--kitgenix-transition),
-    box-shadow var(--kitgenix-transition),
-    color var(--kitgenix-transition),
-    transform var(--kitgenix-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: var(--kitgenix-radius-md);
+  font-family: var(--kitgenix-font-body);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  border: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-bg-white);
+  color: var(--kitgenix-text-color);
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: var(--kitgenix-shadow-sm);
+  transition: all var(--kitgenix-transition);
 }
 
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result):hover,
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result):focus-visible {
   border-color: var(--kitgenix-brand);
-  background: var(--kitgenix-brand-tint);
+  background: var(--kitgenix-bg-light);
   color: var(--kitgenix-brand);
-  box-shadow: var(--kitgenix-focus-ring);
   outline: none;
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px var(--kitgenix-brand);
+  text-decoration: none;
 }
 
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result):active {
-  border-color: var(--kitgenix-brand-active);
-  background: var(--kitgenix-brand-active);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.16);
-  transform: translateY(0);
+  transform: translateY(1px);
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-primary {
+  background: var(--kitgenix-brand);
+  border-color: var(--kitgenix-brand);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(33, 75, 255, 0.25);
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-primary:hover,
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-primary:focus-visible {
+  background: var(--kitgenix-brand-dark);
+  border-color: var(--kitgenix-brand-dark);
+  color: #ffffff;
+  box-shadow: 0 0 0 1px var(--kitgenix-brand-dark);
 }
 
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-secondary,
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-link-delete {
-  border-color: var(--kitgenix-brand);
-  background: var(--kitgenix-brand);
-  color: #ffffff;
+  background: var(--kitgenix-bg-white);
+  border-color: var(--kitgenix-border-color);
+  color: var(--kitgenix-text-color);
 }
 
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-secondary:hover,
@@ -462,617 +717,709 @@
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-link-delete:hover,
 .kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-link-delete:focus-visible {
   border-color: var(--kitgenix-brand);
-  background: var(--kitgenix-brand-tint);
   color: var(--kitgenix-brand);
+  background: var(--kitgenix-bg-white);
 }
 
-.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result)[disabled],
-.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).disabled {
-  border-color: color-mix(in srgb, var(--kitgenix-brand) 20%, var(--kitgenix-border-color));
-  background: color-mix(in srgb, var(--kitgenix-brand) 22%, #ffffff);
-  color: color-mix(in srgb, #ffffff 72%, var(--kitgenix-brand));
-  box-shadow: none;
-  opacity: 0.7;
-  transform: none;
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-link-delete {
+  color: var(--kitgenix-danger);
+}
+
+.kitgenix-admin-app :is(button.button, a.button, input.button, input[type="submit"].button, input[type="button"].button):not(.button-link):not(.wp-color-result).button-link-delete:hover {
+  border-color: var(--kitgenix-danger);
+  color: var(--kitgenix-danger);
+}
+
+/* ═══════════════════════════════════════
+   LAYOUT & GRID
+═══════════════════════════════════════ */
+
+.kitgenix-settings-layout {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0 24px 40px;
+  box-sizing: border-box;
+}
+
+/* Two-column shell – main content plus a real sidebar column – only when a
+   sidebar is actually present (some screens are content-only). Below this
+   width there isn't room for a fixed 320px rail without crushing the
+   content, so both stack in normal flow instead. */
+@media screen and (min-width: 1100px) {
+  .kitgenix-settings-layout:has(.kitgenix-settings-sidebar) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: start;
+    gap: var(--kitgenix-space-6);
+  }
+}
+
+@media screen and (max-width: 782px) {
+  .kitgenix-settings-layout {
+    padding: 0 16px 32px;
+  }
+}
+
+.kitgenix-settings-content {
+  min-width: 0;
+  width: 100%;
+}
+
+.kitgenix-settings-content:focus {
+  outline: none;
+}
+
+/* Sidebar sticks in its column while the main content scrolls past it.
+   --kitgenix-sticky-offset is measured at runtime by kitgenix-admin-tabs.js
+   from the topbar's real height (it's sticky itself, above this), so the
+   sidebar always sits flush beneath it – the 96px fallback covers the
+   common single-line desktop topbar before JS runs. */
+@media screen and (min-width: 1100px) {
+  .kitgenix-settings-sidebar {
+    position: sticky;
+    top: var(--kitgenix-sticky-offset, 96px);
+    max-height: calc(100vh - var(--kitgenix-sticky-offset, 96px) - var(--kitgenix-space-6));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    min-width: 0;
+  }
+}
+
+.kitgenix-settings-sidebar {
+  display: grid;
+  gap: var(--kitgenix-space-4);
+  align-content: start;
+}
+
+/* Sidebar cards use the plain .kitgenix-card + .kitgenix-card-body markup –
+   no modifier class needed. Living inside .kitgenix-settings-sidebar is
+   enough context to get the tighter heading/copy sizing a 320px rail
+   needs versus a full-width content card. */
+.kitgenix-settings-sidebar .kitgenix-card {
+  margin-bottom: 0;
+}
+
+.kitgenix-settings-sidebar .kitgenix-card-body h2 {
+  margin: 0 0 var(--kitgenix-space-2);
+  font-family: var(--kitgenix-font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-settings-sidebar .kitgenix-card-body p {
+  margin: 0 0 var(--kitgenix-space-3);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--kitgenix-text-muted);
 }
 
 .kitgenix-sidebar-social-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kitgenix-space-2);
 }
 
 .kitgenix-sidebar-social-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  border: 1px solid #dcdcde;
-  border-radius: 4px;
-  background: #ffffff;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--kitgenix-radius-md);
+  border: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-bg-light);
+  transition: all var(--kitgenix-transition);
 }
 
 .kitgenix-sidebar-social-link:hover,
 .kitgenix-sidebar-social-link:focus-visible {
   border-color: var(--kitgenix-brand);
-  box-shadow: 0 0 0 1px var(--kitgenix-brand);
+  background: var(--kitgenix-brand-light);
   outline: none;
-  transform: translateY(-1px);
 }
 
 .kitgenix-sidebar-social-link img {
-  width: 16px;
-  height: 16px;
-  display: block;
+  width: 15px;
+  height: 15px;
+  opacity: 0.75;
 }
 
-@media (max-width: 1199px) {
-  .kitgenix-settings-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .kitgenix-settings-sidebar {
-    position: static;
-  }
+/* These are flat black SVGs with no fill override, so they'd be nearly
+   invisible against a dark sidebar card – invert them in dark mode. */
+.kitgenix-admin-app[data-kitgenix-theme="dark"] .kitgenix-sidebar-social-link img {
+  filter: invert(1);
 }
-
 
 /* ═══════════════════════════════════════
-   NAV TABS
-   Clean underline style — modern & minimal,
-   like WooCommerce settings tabs.
+   CARDS & SECTIONS
 ═══════════════════════════════════════ */
 
-.kitgenix-nav-tabs.nav-tab-wrapper {
-  margin: 0 0 22px;
-  padding: 0;
-  border-bottom: 2px solid var(--kitgenix-border-color) !important;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  background: none;
+.kitgenix-card {
+  background: var(--kitgenix-bg-white);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-xl);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--kitgenix-shadow-md);
 }
 
-.kitgenix-nav-tabs .nav-tab {
-  position: relative;
-  margin: 0 0 -2px;
-  padding: 10px 15px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  background: transparent;
-  color: var(--kitgenix-text-muted);
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color var(--kitgenix-transition), border-color var(--kitgenix-transition), background var(--kitgenix-transition);
-  line-height: 1.4;
-}
-
-.kitgenix-nav-tabs .nav-tab:hover,
-.kitgenix-nav-tabs .nav-tab:focus-visible {
-  outline: none;
-  color: var(--kitgenix-brand);
-  background: color-mix(in srgb, var(--kitgenix-brand) 5%, transparent);
-  border-bottom-color: color-mix(in srgb, var(--kitgenix-brand) 35%, transparent);
-  text-decoration: none;
-  box-shadow: none;
-}
-
-.kitgenix-nav-tabs .nav-tab.nav-tab-active {
-  background: transparent;
-  color: var(--kitgenix-brand);
-  border-bottom-color: var(--kitgenix-brand);
-  font-weight: 700;
-  box-shadow: none;
-}
-
-
-/* ═══════════════════════════════════════
-   CARDS
-   Inspired by ACF field-group cards:
-   clean white surface, subtle shadow,
-   with optional labelled header divider.
-═══════════════════════════════════════ */
-
-.kitgenix-card,
-.kitgenix-section-card {
-  background: #ffffff;
-  border: 1px solid #dcdcde;
-  border-radius: 4px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-/* Card with a section divider header */
-.kitgenix-card-header {
+.kitgenix-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #dcdcde;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--kitgenix-border-subtle);
 }
 
-.kitgenix-card-header h2,
-.kitgenix-card-header h3,
-.kitgenix-card-header h4 {
+.kitgenix-card-head :is(h2, h3) {
+  font-family: var(--kitgenix-font-heading);
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
-  color: #1d2327;
-  line-height: 1.4;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
 }
 
-.kitgenix-card-subheader {
+.kitgenix-card-head p {
+  margin: 4px 0 0;
   font-size: 13px;
-  color: #50575e;
-  margin-top: 2px;
-  font-weight: 400;
-  line-height: 1.5;
+  color: var(--kitgenix-text-muted);
 }
 
+/* Form Tables inside cards */
+.kitgenix-card .form-table {
+  margin: 0;
+  width: 100%;
+}
 
-/* ═══════════════════════════════════════
-   BUTTONS
-   .kitgenix-btn-primary / secondary /
-   ghost / danger  +  -sm / -lg modifiers
-═══════════════════════════════════════ */
-
-.kitgenix-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: var(--kitgenix-radius-xs);
+.kitgenix-card .form-table th {
+  padding: 16px 12px 16px 0;
   font-size: 13px;
   font-weight: 600;
-  padding: 8px 16px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all var(--kitgenix-transition);
-  border: 1px solid transparent;
-  line-height: 1.4;
-  white-space: nowrap;
-  box-sizing: border-box;
+  color: var(--kitgenix-text-color);
+  width: 220px;
 }
 
-.kitgenix-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--kitgenix-focus-ring);
+.kitgenix-card .form-table td {
+  padding: 16px 0;
 }
 
-.kitgenix-btn-primary {
-  background: var(--kitgenix-brand);
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  border-color: var(--kitgenix-brand);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--kitgenix-brand) 35%, transparent);
+.kitgenix-card .form-table tr:not(:last-child) {
+  border-bottom: 1px solid var(--kitgenix-border-subtle);
 }
 
-.kitgenix-btn-primary:hover {
-  background: var(--kitgenix-brand-light);
-  border-color: var(--kitgenix-brand-light);
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  text-decoration: none;
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--kitgenix-brand) 42%, transparent);
-  transform: translateY(-1px);
-}
-
-.kitgenix-btn-secondary {
-  background: var(--kitgenix-surface);
-  color: var(--kitgenix-brand) !important;
-  border-color: color-mix(in srgb, var(--kitgenix-brand) 35%, transparent);
-}
-
-.kitgenix-btn-secondary:hover {
-  background: color-mix(in srgb, var(--kitgenix-brand) 6%, transparent);
-  border-color: color-mix(in srgb, var(--kitgenix-brand) 55%, transparent);
-  color: var(--kitgenix-brand) !important;
-  text-decoration: none;
-}
-
-.kitgenix-btn-ghost {
-  background: transparent;
-  color: var(--kitgenix-text-muted) !important;
-  border-color: var(--kitgenix-border-color);
-}
-
-.kitgenix-btn-ghost:hover {
-  background: var(--kitgenix-surface-alt);
-  color: var(--kitgenix-text-color) !important;
-  border-color: var(--kitgenix-border-color-strong);
-  text-decoration: none;
-}
-
-.kitgenix-btn-danger {
-  background: var(--kitgenix-error-bg);
-  color: var(--kitgenix-error) !important;
-  border-color: var(--kitgenix-error-border);
-}
-
-.kitgenix-btn-danger:hover {
-  background: var(--kitgenix-error);
-  color: #fff !important;
-  border-color: var(--kitgenix-error);
-  text-decoration: none;
-}
-
-.kitgenix-btn-sm {
-  padding: 5px 10px;
-  font-size: 12px;
-}
-
-.kitgenix-btn-lg {
-  padding: 11px 22px;
-  font-size: 14px;
-  border-radius: var(--kitgenix-radius-sm);
-}
-
-
-/* ═══════════════════════════════════════
-   FORM ELEMENTS
-═══════════════════════════════════════ */
-
-.kitgenix-form-group {
-  margin-bottom: 18px;
-}
-
-/* Back-compat: Some plugins render forms using `.kitgenix-field` + default WP inputs.
-   Keep these aligned with `.kitgenix-form-group` / `.kitgenix-input` styles. */
-.kitgenix-field {
-  margin-bottom: 18px;
-}
-
-.kitgenix-field > label {
-  display: block;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--kitgenix-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-}
-
-.kitgenix-field input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text),
-.kitgenix-field select,
-.kitgenix-field textarea {
+/* Input fields – fill whatever container they're placed in (a form-table
+   cell, a .kitgenix-setting-row-control, a .kitgenix-field-grid column) so
+   width is always controlled by the layout wrapper, never the browser's
+   intrinsic input size. */
+.kitgenix-admin-app :is(input[type="text"], input[type="search"], input[type="number"], input[type="url"], input[type="email"], input[type="password"], input[type="date"], input[type="datetime-local"], select, textarea):not(.kitgenix-topbar-search-input):not([data-default-color]) {
   width: 100%;
-  max-width: 480px;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-lg);
   padding: 8px 12px;
+  font-family: var(--kitgenix-font-body);
   font-size: 13px;
   color: var(--kitgenix-text-color);
-  background: var(--kitgenix-surface);
-  border: 1px solid var(--kitgenix-border-color-strong);
-  border-radius: var(--kitgenix-radius-xs);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
+  background: var(--kitgenix-bg-white);
+  box-shadow: none;
   transition: border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition);
-  line-height: 1.45;
-  box-sizing: border-box;
 }
 
-.kitgenix-field input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):hover,
-.kitgenix-field select:hover,
-.kitgenix-field textarea:hover {
-  border-color: color-mix(in srgb, var(--kitgenix-brand) 45%, var(--kitgenix-border-color-strong));
-}
-
-.kitgenix-field input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):focus,
-.kitgenix-field input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):focus-visible,
-.kitgenix-field select:focus,
-.kitgenix-field select:focus-visible,
-.kitgenix-field textarea:focus,
-.kitgenix-field textarea:focus-visible {
-  outline: none;
+.kitgenix-admin-app :is(input[type="text"], input[type="search"], input[type="number"], input[type="url"], input[type="email"], input[type="password"], input[type="date"], input[type="datetime-local"], select, textarea):not(.kitgenix-topbar-search-input):focus {
   border-color: var(--kitgenix-brand);
-  box-shadow: var(--kitgenix-focus-ring);
-}
-
-.kitgenix-muted {
-  margin-top: 5px;
-  font-size: 12px;
-  color: var(--kitgenix-text-muted);
-  line-height: 1.45;
-}
-
-.kitgenix-label {
-  display: block;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--kitgenix-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-}
-
-.kitgenix-input,
-.kitgenix-select,
-.kitgenix-textarea {
-  width: 100%;
-  max-width: 480px;
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--kitgenix-text-color);
-  background: var(--kitgenix-surface);
-  border: 1px solid var(--kitgenix-border-color-strong);
-  border-radius: var(--kitgenix-radius-xs);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
-  transition: border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition);
-  line-height: 1.45;
-  box-sizing: border-box;
-}
-
-.kitgenix-input:hover,
-.kitgenix-select:hover,
-.kitgenix-textarea:hover {
-  border-color: color-mix(in srgb, var(--kitgenix-brand) 45%, var(--kitgenix-border-color-strong));
-}
-
-.kitgenix-input:focus,
-.kitgenix-input:focus-visible,
-.kitgenix-select:focus,
-.kitgenix-select:focus-visible,
-.kitgenix-textarea:focus,
-.kitgenix-textarea:focus-visible {
+  box-shadow: 0 0 0 3px var(--kitgenix-brand-light);
   outline: none;
-  border-color: var(--kitgenix-brand);
-  box-shadow: var(--kitgenix-focus-ring);
 }
 
-.kitgenix-textarea {
-  resize: vertical;
-  min-height: 80px;
+/* WordPress's own short-field helpers (.small-text / .tiny-text – a
+   percentage, a pixel dimension) still win over the 100% default above;
+   a field an author opted into one of those is meant to stay that narrow.
+   .regular-text is NOT included here on purpose – every "label above a
+   single text field" row in this app uses .regular-text, and it should
+   fill the row like every other field rather than stopping at a fixed
+   25em partway across. Matches the same :is(...) selector list as the
+   rule above so specificity ties and source order decides. */
+.kitgenix-admin-app :is(input[type="text"], input[type="search"], input[type="number"], input[type="url"], input[type="email"], input[type="password"], input[type="date"], input[type="datetime-local"], select, textarea):not(.kitgenix-topbar-search-input).small-text {
+  width: 90px;
+  max-width: 100%;
 }
 
-.kitgenix-field-desc {
-  margin-top: 5px;
-  font-size: 12px;
-  color: var(--kitgenix-text-muted);
-  line-height: 1.45;
+.kitgenix-admin-app :is(input[type="text"], input[type="search"], input[type="number"], input[type="url"], input[type="email"], input[type="password"], input[type="date"], input[type="datetime-local"], select, textarea):not(.kitgenix-topbar-search-input).tiny-text {
+  width: 50px;
+  max-width: 100%;
 }
 
-/* WordPress settings tables (`.form-table`) are still used on some admin pages.
-   Keep inputs aligned with the Kitgenix form styles without requiring per-plugin overrides. */
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text),
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table select,
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea {
-  width: 100%;
-  max-width: 480px;
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--kitgenix-text-color);
-  background: var(--kitgenix-surface);
-  border: 1px solid var(--kitgenix-border-color-strong);
-  border-radius: var(--kitgenix-radius-xs);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04) inset;
-  transition: border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition);
-  line-height: 1.45;
-  box-sizing: border-box;
-}
-
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):hover,
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table select:hover,
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea:hover {
-  border-color: color-mix(in srgb, var(--kitgenix-brand) 45%, var(--kitgenix-border-color-strong));
-}
-
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):focus,
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table input:is([type="date"],[type="datetime-local"],[type="datetime"],[type="email"],[type="month"],[type="number"],[type="password"],[type="search"],[type="tel"],[type="text"],[type="time"],[type="url"],[type="week"],.regular-text):focus-visible,
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table select:focus,
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table select:focus-visible,
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea:focus,
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea:focus-visible {
-  outline: none;
-  border-color: var(--kitgenix-brand);
-  box-shadow: var(--kitgenix-focus-ring);
-}
-
-:is(.kitgenix-admin-app, .wrap[class*="kitgenix-"]) .form-table textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-
-/* ═══════════════════════════════════════
-   TOGGLE SWITCH  (universal, shared)
-═══════════════════════════════════════ */
-
-.kitgenix-switch-wrap {
+/* Badges */
+.kitgenix-badge {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.kitgenix-switch {
-  -webkit-appearance: none;
-  appearance: none;
-  flex-shrink: 0;
-  width: 40px;
-  height: 22px;
-  border-radius: var(--kitgenix-radius-pill);
-  background: var(--kitgenix-border-color-strong);
-  cursor: pointer;
-  position: relative;
-  transition: background var(--kitgenix-transition);
-  vertical-align: middle;
-}
-
-.kitgenix-switch::before {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,.22);
-  transition: transform var(--kitgenix-transition);
-}
-
-.kitgenix-switch:checked {
-  background: var(--kitgenix-brand);
-}
-
-.kitgenix-switch:checked::before {
-  transform: translateX(18px);
-}
-
-.kitgenix-switch:focus-visible {
-  outline: none;
-  box-shadow: var(--kitgenix-focus-ring);
-}
-
-.kitgenix-switch-label {
-  font-size: 13px;
-  color: var(--kitgenix-text-color);
-  user-select: none;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 999px;
   line-height: 1.4;
 }
 
-/* Hidden duplicate input used by Settings API toggle pattern */
-.kitgenix-switch-hidden {
+.kitgenix-badge.muted {
+  background: var(--kitgenix-bg-light);
+  color: var(--kitgenix-text-muted);
+}
+
+.kitgenix-badge.success {
+  background: var(--kitgenix-success-light);
+  color: var(--kitgenix-success);
+}
+
+
+/* ═══════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════ */
+
+/* Visually hides an element while keeping it in the accessibility tree and
+   keyboard-focusable – used to hide the real <input type="checkbox"> /
+   <input type="file"> behind styled controls (toggle switch, dropzone)
+   without breaking name= / $_POST handling or tab order. */
+.kitgenix-sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
 }
 
-
 /* ═══════════════════════════════════════
-   BADGES & STATUS PILLS
+   BADGES – EXTENDED VARIANTS
+   Extends the base .kitgenix-badge (see BADGES section above) with the
+   remaining semantic colors plus a dot-style status pill.
 ═══════════════════════════════════════ */
 
-.kitgenix-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: var(--kitgenix-radius-pill);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  border: 1px solid transparent;
-}
-
-.kitgenix-badge.ok,
-.kitgenix-badge.success {
-  background: var(--kitgenix-success-bg);
-  color: var(--kitgenix-success);
-  border-color: var(--kitgenix-success-border);
-}
-
-.kitgenix-badge.warn,
-.kitgenix-badge.warning {
-  background: var(--kitgenix-warning-bg);
-  color: var(--kitgenix-warning);
-  border-color: var(--kitgenix-warning-border);
-}
-
-.kitgenix-badge.error,
-.kitgenix-badge.danger {
-  background: var(--kitgenix-error-bg);
-  color: var(--kitgenix-error);
-  border-color: var(--kitgenix-error-border);
+.kitgenix-badge.brand {
+  background: var(--kitgenix-brand-light);
+  color: var(--kitgenix-brand);
 }
 
 .kitgenix-badge.info {
-  background: var(--kitgenix-info-bg);
+  background: var(--kitgenix-info-light);
   color: var(--kitgenix-info);
-  border-color: var(--kitgenix-info-border);
 }
 
-.kitgenix-badge.off,
-.kitgenix-badge.muted,
-.kitgenix-badge.neutral {
-  background: var(--kitgenix-surface-muted);
-  color: var(--kitgenix-text-muted);
-  border-color: var(--kitgenix-border-color);
-}
-
-.kitgenix-badge.brand {
-  background: var(--kitgenix-brand-dim);
-  color: var(--kitgenix-brand);
-  border-color: color-mix(in srgb, var(--kitgenix-brand) 28%, transparent);
-}
-
-
-/* ═══════════════════════════════════════
-   INLINE NOTICES / ALERTS
-═══════════════════════════════════════ */
-
-.kitgenix-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 16px;
-  border-radius: var(--kitgenix-radius-xs);
-  font-size: 13px;
-  line-height: 1.5;
-  border: 1px solid transparent;
-  margin-bottom: 14px;
-}
-
-.kitgenix-notice-success {
-  background: var(--kitgenix-success-bg);
-  color: var(--kitgenix-success);
-  border-color: var(--kitgenix-success-border);
-}
-
-.kitgenix-notice-warning {
-  background: var(--kitgenix-warning-bg);
+.kitgenix-badge.warning {
+  background: var(--kitgenix-warning-light);
   color: var(--kitgenix-warning);
-  border-color: var(--kitgenix-warning-border);
 }
 
-.kitgenix-notice-error {
-  background: var(--kitgenix-error-bg);
-  color: var(--kitgenix-error);
-  border-color: var(--kitgenix-error-border);
+.kitgenix-badge.danger {
+  background: var(--kitgenix-danger-light);
+  color: var(--kitgenix-danger);
 }
 
-.kitgenix-notice-info {
-  background: var(--kitgenix-info-bg);
-  color: var(--kitgenix-info);
-  border-color: var(--kitgenix-info-border);
+.kitgenix-badge.neutral {
+  background: var(--kitgenix-bg-light);
+  color: var(--kitgenix-text-muted);
+  border: 1px solid var(--kitgenix-border-color);
 }
 
+/* Status pill with a leading colored dot, e.g. "● Connected". Pair with a
+   color modifier above: <span class="kitgenix-badge success kitgenix-badge-dot">. */
+.kitgenix-badge-dot::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
 
 /* ═══════════════════════════════════════
-   CODE / MONO SNIPPETS
+   CARDS – ICON HEADERS, BODY & COLLAPSIBLE
+   Builds on the existing .kitgenix-card / .kitgenix-card-head from the
+   CARDS & SECTIONS section above.
 ═══════════════════════════════════════ */
 
-.kitgenix-code {
-  font-family: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
-  font-size: 12px;
-  background: var(--kitgenix-surface-alt);
-  border: 1px solid var(--kitgenix-border-color);
-  border-radius: 4px;
-  padding: 2px 7px;
-  color: var(--kitgenix-brand);
-  word-break: break-all;
+.kitgenix-card-head-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
+.kitgenix-card-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.kitgenix-card-head-text :is(h2, h3) {
+  font-family: var(--kitgenix-font-heading);
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-card-head-text p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--kitgenix-text-muted);
+}
+
+.kitgenix-card-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.kitgenix-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--kitgenix-radius-md);
+  background: var(--kitgenix-brand-light);
+  color: var(--kitgenix-brand);
+}
+
+.kitgenix-card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Plain content wrapper for anything placed inside a .kitgenix-card after
+   the optional .kitgenix-card-head – gives consistent vertical rhythm for
+   paragraphs, lists and controls. */
+.kitgenix-card-body {
+  font-size: 13px;
+  color: var(--kitgenix-text-color);
+  line-height: 1.6;
+}
+
+.kitgenix-card-body > *:first-child {
+  margin-top: 0;
+}
+
+.kitgenix-card-body > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Collapsible / accordion card. Wrapper carries [data-kitgenix-collapsible];
+   see kitgenix-admin-components.js for the toggle behavior. */
+.kitgenix-collapsible-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.kitgenix-collapsible-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--kitgenix-focus-ring);
+  border-radius: var(--kitgenix-radius-sm);
+}
+
+.kitgenix-collapsible-title {
+  display: block;
+  font-family: var(--kitgenix-font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-collapsible-desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--kitgenix-text-muted);
+}
+
+.kitgenix-collapsible-chevron {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--kitgenix-text-muted);
+  transition: transform 0.15s ease;
+}
+
+[data-kitgenix-collapsible].kitgenix-collapsible-open .kitgenix-collapsible-chevron {
+  transform: rotate(180deg);
+  color: var(--kitgenix-brand);
+}
+
+.kitgenix-collapsible-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--kitgenix-border-subtle);
+}
+
+.kitgenix-collapsible-panel[hidden] {
+  display: none;
+}
 
 /* ═══════════════════════════════════════
-   DATA TABLES
+   SETTINGS ROWS
+   Modern replacement for WordPress's default .form-table two-column
+   layout. Use inside a .kitgenix-card-body (or any container).
+═══════════════════════════════════════ */
+
+.kitgenix-settings-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.kitgenix-setting-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--kitgenix-border-subtle);
+}
+
+.kitgenix-settings-group > .kitgenix-setting-row:first-child {
+  padding-top: 0;
+}
+
+.kitgenix-settings-group > .kitgenix-setting-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.kitgenix-setting-row-label {
+  flex: none;
+  min-width: 0;
+}
+
+.kitgenix-setting-row-label label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-setting-row-desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--kitgenix-text-muted);
+  max-width: 46ch;
+}
+
+.kitgenix-setting-row-control {
+  flex: none;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* Kept as a no-op alias – every row stacks label-above-control by default
+   now, so this modifier no longer changes anything, but existing markup
+   that still applies it keeps working. */
+.kitgenix-setting-row.kitgenix-setting-row-stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+@media screen and (max-width: 782px) {
+  .kitgenix-setting-row {
+    gap: 8px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   FIELD GRID
+   Splits a .kitgenix-setting-row-control (or any container) into evenly
+   sized columns for related fields – e.g. width/height, min/max, from/to.
+   A single field left in its container already fills it at 100% (see
+   INPUT FIELDS above); wrap two in .kitgenix-field-grid-2 for 50%/50%,
+   three in .kitgenix-field-grid-3 for 33%/33%/33%, and so on.
+═══════════════════════════════════════ */
+
+.kitgenix-field-grid {
+  display: grid;
+  gap: var(--kitgenix-space-4);
+  width: 100%;
+}
+
+.kitgenix-field-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kitgenix-field-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kitgenix-field-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.kitgenix-field-grid > * {
+  min-width: 0;
+}
+
+@media screen and (max-width: 782px) {
+  .kitgenix-field-grid-2,
+  .kitgenix-field-grid-3,
+  .kitgenix-field-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════
+   TOGGLE SWITCH
+   Restyles a real <input type="checkbox"> so existing name= attributes and
+   $_POST handling keep working – the input stays in the DOM, focusable and
+   functional, just visually hidden behind the track/thumb.
+═══════════════════════════════════════ */
+
+.kitgenix-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.kitgenix-toggle-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.kitgenix-checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 14px 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.kitgenix-toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kitgenix-toggle-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--kitgenix-border-color);
+  transition: background var(--kitgenix-transition);
+}
+
+.kitgenix-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: var(--kitgenix-shadow-sm);
+  transition: transform var(--kitgenix-transition);
+}
+
+.kitgenix-toggle-input:checked + .kitgenix-toggle-track {
+  background: var(--kitgenix-brand);
+}
+
+.kitgenix-toggle-input:checked + .kitgenix-toggle-track .kitgenix-toggle-thumb {
+  transform: translateX(18px);
+}
+
+.kitgenix-toggle-input:focus-visible + .kitgenix-toggle-track {
+  box-shadow: var(--kitgenix-focus-ring);
+}
+
+.kitgenix-toggle-input:disabled + .kitgenix-toggle-track {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kitgenix-toggle-input:disabled ~ .kitgenix-toggle-label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kitgenix-toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kitgenix-text-color);
+}
+
+/* ═══════════════════════════════════════
+   DATA TABLE
+   Modern list/table styling for documents, links, logs, orders, stores…
 ═══════════════════════════════════════ */
 
 .kitgenix-table-wrap {
+  width: 100%;
   overflow-x: auto;
-  border-radius: var(--kitgenix-radius);
+  background: var(--kitgenix-bg-white);
   border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-lg);
   box-shadow: var(--kitgenix-shadow-sm);
+}
+
+/* Groups a labelled .kitgenix-table-wrap under a heading – e.g. each
+   category ("Environment", "Storage"...) in the System Status report. */
+.kitgenix-status-section {
+  margin-bottom: 20px;
+}
+
+.kitgenix-status-section:last-child {
+  margin-bottom: 0;
+}
+
+.kitgenix-status-section-title {
+  margin: 0 0 8px;
+  font-family: var(--kitgenix-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--kitgenix-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Key/value report (System Status): keep the table full-width like every
+   other .kitgenix-table, but use a fixed label column so label + value sit
+   together on the left instead of each <table> resizing its own columns to
+   fit its own longest label (which pushed values to a different x per
+   section) or spreading the value out to a percentage-based column. */
+.kitgenix-status-table {
+  table-layout: fixed;
+}
+
+.kitgenix-status-table th {
+  width: 240px;
 }
 
 .kitgenix-table {
@@ -1082,530 +1429,140 @@
 }
 
 .kitgenix-table thead th {
-  background: var(--kitgenix-surface-alt);
-  border-bottom: 1px solid var(--kitgenix-border-color);
-  padding: 10px 14px;
   text-align: left;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  padding: 12px 16px;
+  font-family: var(--kitgenix-font-body);
+  font-size: 12px;
+  font-weight: 600;
   color: var(--kitgenix-text-muted);
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.kitgenix-table tbody tr {
+  background: var(--kitgenix-bg-light);
   border-bottom: 1px solid var(--kitgenix-border-color);
-  transition: background var(--kitgenix-transition-fast);
+  white-space: nowrap;
 }
 
-.kitgenix-table tbody tr:last-child {
-  border-bottom: none;
+.kitgenix-table thead th:first-child {
+  border-top-left-radius: var(--kitgenix-radius-lg);
 }
 
-.kitgenix-table tbody tr:hover {
-  background: color-mix(in srgb, var(--kitgenix-brand) 4%, var(--kitgenix-surface));
+.kitgenix-table thead th:last-child {
+  border-top-right-radius: var(--kitgenix-radius-lg);
 }
 
 .kitgenix-table tbody td {
-  padding: 10px 14px;
-  vertical-align: middle;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--kitgenix-border-subtle);
   color: var(--kitgenix-text-color);
+  vertical-align: middle;
 }
 
-.kitgenix-col-actions {
-  white-space: nowrap;
-  text-align: right;
-}
-
-/* Widefat tables used by WP core (normalize to Kitgenix styling) */
-.kitgenix-admin-app table.widefat {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+/* Row-header cells (<th scope="row">) – e.g. the System Status report – would
+   otherwise fall back to the browser's bold/centered default th styling.
+   No default width here: .kitgenix-status-table th sets a fixed width for
+   that report, and (being a single-class selector) would lose a specificity
+   fight against a width declared on this two-element selector. */
+.kitgenix-table tbody th {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--kitgenix-border-subtle);
+  font-family: var(--kitgenix-font-body);
   font-size: 13px;
-  background: var(--kitgenix-surface);
-  border: 1px solid var(--kitgenix-border-color);
-  border-radius: var(--kitgenix-radius);
-  box-shadow: var(--kitgenix-shadow-sm);
-  overflow: hidden;
-}
-
-.kitgenix-admin-app table.widefat thead th,
-.kitgenix-admin-app table.widefat tfoot th {
-  background: var(--kitgenix-surface-alt);
-  border-bottom: 1px solid var(--kitgenix-border-color);
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--kitgenix-text-muted);
-}
-
-.kitgenix-admin-app table.widefat tbody td {
-  padding: 10px 14px;
-  vertical-align: middle;
+  font-weight: 600;
   color: var(--kitgenix-text-color);
-  border-bottom: 1px solid var(--kitgenix-border-color);
+  text-align: left;
+  vertical-align: middle;
 }
 
-.kitgenix-admin-app table.widefat tbody tr:last-child td {
+.kitgenix-table tbody tr:last-child :is(th, td) {
   border-bottom: none;
 }
 
-/* Remove WP zebra stripes inside Kitgenix app */
-.kitgenix-admin-app table.widefat.striped > tbody > :nth-child(odd),
-.kitgenix-admin-app table.widefat.striped > tbody > :nth-child(even) {
-  background: transparent;
+.kitgenix-table tbody tr:hover :is(th, td) {
+  background: var(--kitgenix-bg-light);
 }
 
-.kitgenix-admin-app table.widefat tbody tr:hover {
-  background: color-mix(in srgb, var(--kitgenix-brand) 4%, var(--kitgenix-surface));
+.kitgenix-table tbody tr.kitgenix-table-row-muted td {
+  opacity: 0.55;
 }
 
-
-.kitgenix-admin-app > .kitgenix-settings-header {
-  margin: 20px 0 24px !important;
-  max-width: 100%;
-  padding: 24px 28px;
-  border-radius: 4px;
-  border-left: 1px solid #dcdcde;
-  border-right: 1px solid #dcdcde;
-}
-
-.kitgenix-settings-sidebar .button + .button,
-.kitgenix-settings-sidebar .button + a.button,
-.kitgenix-settings-sidebar a.button + .button,
-.kitgenix-settings-sidebar a.button + a.button {
-  margin-left: 0 !important;
-}
-
-.kitgenix-actions a + a {
-  margin-left: 10px;
-}
-
-
-/* ═══════════════════════════════════════
-   MODAL
-   Backdrop blur, ACF-style header, WC-style
-   footer actions.
-═══════════════════════════════════════ */
-
-.kitgenix-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 100000;
-}
-
-.kitgenix-modal.is-open {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 48px 16px;
-}
-
-.kitgenix-modal__backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(10,6,20,.55);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-}
-
-.kitgenix-modal__dialog {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 680px;
-  background: var(--kitgenix-surface);
-  color: var(--kitgenix-text-color);
-  -webkit-text-fill-color: currentColor;
-  font-size: 13px;
-  line-height: 1.5;
-  border-radius: var(--kitgenix-radius);
-  box-shadow: var(--kitgenix-shadow-lg);
-  border: 1px solid var(--kitgenix-border-color);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100vh - 96px);
-}
-
-.kitgenix-modal__dialog label,
-.kitgenix-modal__dialog :where(p, span, a, li, h1, h2, h3, h4, h5, h6) {
-  color: inherit;
-  -webkit-text-fill-color: currentColor;
-}
-
-.kitgenix-modal--wide .kitgenix-modal__dialog {
-  max-width: 920px;
-}
-
-.kitgenix-modal__header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--kitgenix-border-color);
-  background: var(--kitgenix-surface-alt);
-  flex: 0 0 auto;
-}
-
-.kitgenix-modal__title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--kitgenix-heading);
-  flex: 1;
-  letter-spacing: -0.01em;
-}
-
-.kitgenix-modal__close {
-  margin-left: auto;
-  background: none;
-  border: none;
+/* Sortable column header affordance */
+.kitgenix-table th.kitgenix-table-sortable {
   cursor: pointer;
-  color: var(--kitgenix-text-muted);
-  padding: 4px 6px;
-  border-radius: var(--kitgenix-radius-xs);
-  line-height: 1;
-  transition: color var(--kitgenix-transition), background var(--kitgenix-transition);
+  user-select: none;
 }
 
-.kitgenix-modal__close:hover {
-  color: var(--kitgenix-text-color);
-  background: var(--kitgenix-surface-muted);
-}
-
-.kitgenix-modal__body {
-  padding: 20px;
-  overflow: auto;
-  flex: 1 1 auto;
-}
-
-.kitgenix-modal__actions {
-  padding: 14px 20px;
-  border-top: 1px solid var(--kitgenix-border-color);
-  background: var(--kitgenix-surface-alt);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-wrap: wrap;
-  flex: 0 0 auto;
-}
-
-
-/* ═══════════════════════════════════════
-   SUPPORT TAB
-═══════════════════════════════════════ */
-
-.kitgenix-support-page .kitgenix-support-heading {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--kitgenix-heading);
-  letter-spacing: 0;
-}
-
-.kitgenix-support-page .kitgenix-support-intro {
-  margin: 0;
-  max-width: 72ch;
-  color: var(--kitgenix-text-muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.kitgenix-support-page .kitgenix-support-subheading {
-  margin: 0 0 12px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--kitgenix-heading);
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-#wpbody-content {
-  width: 100%;
-  float: left;
-  overflow: visible;
-}
-
-.kitgenix-support-page {
-  --kitgenix-support-accent: var(--kitgenix-brand);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.kitgenix-support-page.kitgenix-card,
-.kitgenix-support-page.kitgenix-section-card,
-.kitgenix-support-page[class*="-card"],
-.kitgenix-support-page[class*="-section-card"],
-.kitgenix-support-page[class*="-panel"] {
-  padding: 0;
-  margin-bottom: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.kitgenix-support-shell {
-  display: grid;
-  gap: 20px;
-}
-
-.kitgenix-support-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
-  gap: 20px;
-  padding: 20px;
-  border-radius: 4px;
-  border: 1px solid #dcdcde;
-  background: #ffffff;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
-}
-
-.kitgenix-support-hero__copy {
-  display: grid;
-  gap: 14px;
-  align-content: start;
-}
-
-.kitgenix-support-eyebrow {
+.kitgenix-table th.kitgenix-table-sortable span {
   display: inline-flex;
   align-items: center;
-  width: fit-content;
-  padding: 4px 10px;
-  border-radius: 4px;
-  background: var(--kitgenix-surface-alt);
-  border: 1px solid var(--kitgenix-border-color);
-  color: var(--kitgenix-support-accent);
+  gap: 6px;
+}
+
+.kitgenix-table th.kitgenix-table-sortable span::after {
+  content: '\2195';
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.kitgenix-support-hero__aside {
-  display: grid;
-  gap: 14px;
-  align-content: start;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.kitgenix-support-kicker {
-  margin: 0;
-  color: var(--kitgenix-heading);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.kitgenix-support-note,
-.kitgenix-support-footnote,
-.kitgenix-support-footer-note {
-  margin: 0;
   color: var(--kitgenix-text-muted);
-  font-size: 13px;
-  line-height: 1.6;
+  opacity: 0.5;
 }
 
-.kitgenix-support-section {
-  padding: 20px;
-  border-radius: 4px;
-  border: 1px solid #dcdcde;
-  background: #ffffff;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+.kitgenix-table th.kitgenix-table-sortable:hover span::after {
+  opacity: 1;
 }
 
-.kitgenix-support-section--feature {
-  background: #ffffff;
+.kitgenix-table th.kitgenix-table-sortable.kitgenix-sort-asc span::after {
+  content: '\2191';
+  opacity: 1;
+  color: var(--kitgenix-brand);
 }
 
-.kitgenix-support-section--soft {
-  background: #ffffff;
+.kitgenix-table th.kitgenix-table-sortable.kitgenix-sort-desc span::after {
+  content: '\2193';
+  opacity: 1;
+  color: var(--kitgenix-brand);
 }
 
-.kitgenix-support-section--full {
-  grid-column: 1 / -1;
+.kitgenix-table-actions-col {
+  text-align: right !important;
 }
 
-.kitgenix-support-section__header {
-  display: grid;
-  gap: 8px;
+.kitgenix-table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
-.kitgenix-support-section .description {
-  margin: 0 0 12px;
-}
-
-.kitgenix-support-section .description:last-child {
-  margin-bottom: 0;
-}
-
-.kitgenix-support-metric-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.kitgenix-support-stat {
-  padding: 20px;
-  border-radius: 4px;
-  border: 1px solid #dcdcde;
-  background: #ffffff;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.04);
-}
-
-.kitgenix-support-stat__label {
-  display: block;
-  color: var(--kitgenix-text-muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.kitgenix-support-stat__value {
-  display: block;
-  margin-top: 8px;
-  color: var(--kitgenix-heading);
-  font-size: 28px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-}
-
-.kitgenix-support-stat__meta {
-  display: block;
-  margin-top: 6px;
-  color: var(--kitgenix-text-muted);
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.kitgenix-support-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.kitgenix-support-page .kitgenix-support-list {
-  margin: 0;
-  padding-left: 18px;
-  list-style: disc;
-}
-
-.kitgenix-support-page .kitgenix-support-list li {
-  margin: 0 0 10px;
-  padding-left: 0;
-  color: var(--kitgenix-text-color);
-  line-height: 1.6;
-}
-
-.kitgenix-support-page .kitgenix-support-list li:last-child {
-  margin-bottom: 0;
-}
-
-.kitgenix-support-chip-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.kitgenix-support-chip {
+.kitgenix-table-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  width: 100%;
-  border-radius: 4px;
-  border: 1px solid var(--kitgenix-brand);
-  background: var(--kitgenix-brand);
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 13px;
-  text-decoration: none;
-  box-shadow: 0 1px 1px rgba(17, 24, 39, 0.08);
-  transition: background-color var(--kitgenix-transition), border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition), color var(--kitgenix-transition), transform var(--kitgenix-transition-fast);
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: var(--kitgenix-radius-sm);
+  border: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-bg-white);
+  color: var(--kitgenix-text-muted);
+  cursor: pointer;
+  transition: all var(--kitgenix-transition);
 }
 
-.kitgenix-support-chip:hover,
-.kitgenix-support-chip:focus,
-.kitgenix-support-chip:focus-visible {
-  transform: translateY(-1px);
+.kitgenix-table-action-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.kitgenix-table-action-btn:hover,
+.kitgenix-table-action-btn:focus-visible {
   border-color: var(--kitgenix-brand);
-  background: var(--kitgenix-brand-tint);
-  box-shadow: var(--kitgenix-focus-ring);
   color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand-light);
   outline: none;
 }
 
-.kitgenix-support-page .kitgenix-support-actions {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: stretch;
+.kitgenix-table-action-btn.kitgenix-table-action-danger:hover,
+.kitgenix-table-action-btn.kitgenix-table-action-danger:focus-visible {
+  border-color: var(--kitgenix-danger);
+  color: var(--kitgenix-danger);
+  background: var(--kitgenix-danger-light);
 }
-
-.kitgenix-support-page .kitgenix-support-actions .button {
-  margin: 0;
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  border-radius: 4px;
-  width: 100%;
-  font-weight: 600;
-}
-
-@media (max-width: 960px) {
-  .kitgenix-support-hero,
-  .kitgenix-support-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .kitgenix-support-section--full {
-    grid-column: auto;
-  }
-}
-
-@media (max-width: 600px) {
-  .kitgenix-support-hero,
-  .kitgenix-support-section {
-    padding: 18px;
-  }
-
-  .kitgenix-support-hero__aside {
-    padding: 16px;
-  }
-
-  .kitgenix-support-stat {
-    padding: 14px 16px;
-  }
-
-  .kitgenix-support-chip,
-  .kitgenix-support-page .kitgenix-support-actions .button {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
 
 /* ═══════════════════════════════════════
    EMPTY STATE
@@ -1615,94 +1572,1102 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 48px 24px;
   text-align: center;
+  padding: 48px 24px;
 }
 
 .kitgenix-empty-state-icon {
-  font-size: 36px;
-  opacity: 0.35;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
+  border-radius: 999px;
+  background: var(--kitgenix-brand-light);
+  color: var(--kitgenix-brand);
+}
+
+.kitgenix-empty-state-icon svg {
+  width: 26px;
+  height: 26px;
 }
 
 .kitgenix-empty-state-title {
+  margin: 0;
+  font-family: var(--kitgenix-font-heading);
   font-size: 15px;
   font-weight: 700;
-  color: var(--kitgenix-heading);
-  margin: 0;
+  color: var(--kitgenix-text-color);
 }
 
 .kitgenix-empty-state-desc {
-  font-size: 13px;
-  color: var(--kitgenix-text-muted);
+  margin: 6px 0 0;
   max-width: 360px;
-  line-height: 1.55;
-  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--kitgenix-text-muted);
 }
 
+.kitgenix-empty-state-actions {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Client-side table pagination – injected after a .kitgenix-table-wrap by
+   bindTablePagination() in kitgenix-admin-components.js when that wrap
+   carries data-kitgenix-table-paginate. Hidden by the script itself when
+   the row count doesn't exceed one page. */
+.kitgenix-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.kitgenix-pagination-status {
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.kitgenix-pagination-prev,
+.kitgenix-pagination-next {
+  min-width: 32px;
+  padding: 4px 10px !important;
+  line-height: 1.4 !important;
+}
+
+.kitgenix-pagination-prev:disabled,
+.kitgenix-pagination-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 /* ═══════════════════════════════════════
-   SPINNER / LOADING
+   NOTICE / ALERT BANNERS
 ═══════════════════════════════════════ */
 
-.kitgenix-spinner {
-  display: inline-block;
+.kitgenix-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-lg);
+  background: var(--kitgenix-bg-light);
+}
+
+.kitgenix-notice-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+}
+
+.kitgenix-notice-icon svg {
   width: 18px;
   height: 18px;
-  border: 2px solid var(--kitgenix-border-color);
-  border-top-color: var(--kitgenix-brand);
-  border-radius: 50%;
-  animation: kitgenix-spin .7s linear infinite;
+}
+
+.kitgenix-notice-body {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.kitgenix-notice-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-notice-text {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-notice-text:only-child {
+  margin-top: 0;
+}
+
+.kitgenix-notice-close {
   flex-shrink: 0;
-  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: -2px -4px 0 0;
+  border: none;
+  background: transparent;
+  color: var(--kitgenix-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--kitgenix-radius-sm);
 }
 
-@keyframes kitgenix-spin {
-  to { transform: rotate(360deg); }
+.kitgenix-notice-close:hover,
+.kitgenix-notice-close:focus-visible {
+  color: var(--kitgenix-text-color);
+  background: rgba(7, 27, 58, 0.06);
+  outline: none;
 }
 
+.kitgenix-notice-info {
+  background: var(--kitgenix-info-light);
+  border-color: var(--kitgenix-info-border);
+}
+
+.kitgenix-notice-info .kitgenix-notice-icon {
+  color: var(--kitgenix-info);
+}
+
+.kitgenix-notice-success {
+  background: var(--kitgenix-success-light);
+  border-color: var(--kitgenix-success-border);
+}
+
+.kitgenix-notice-success .kitgenix-notice-icon {
+  color: var(--kitgenix-success);
+}
+
+.kitgenix-notice-warning {
+  background: var(--kitgenix-warning-light);
+  border-color: var(--kitgenix-warning-border);
+}
+
+.kitgenix-notice-warning .kitgenix-notice-icon {
+  color: var(--kitgenix-warning);
+}
+
+.kitgenix-notice-error {
+  background: var(--kitgenix-danger-light);
+  border-color: var(--kitgenix-danger-border);
+}
+
+.kitgenix-notice-error .kitgenix-notice-icon {
+  color: var(--kitgenix-danger);
+}
+
+.kitgenix-notice-neutral {
+  background: var(--kitgenix-bg-light);
+  border-color: var(--kitgenix-border-color);
+}
+
+.kitgenix-notice-neutral .kitgenix-notice-icon {
+  color: var(--kitgenix-text-muted);
+}
 
 /* ═══════════════════════════════════════
-   METABOX HELPER
+   STAT / METRIC TILE
 ═══════════════════════════════════════ */
 
-.kitgenix-metabox .kitgenix-field-row {
-  margin: 10px 0;
+.kitgenix-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
+.kitgenix-stat-tile {
+  background: var(--kitgenix-bg-white);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-lg);
+  box-shadow: var(--kitgenix-shadow-sm);
+  padding: 20px;
+}
+
+.kitgenix-stat-tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.kitgenix-stat-tile-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--kitgenix-text-muted);
+}
+
+.kitgenix-stat-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--kitgenix-radius-sm);
+  background: var(--kitgenix-brand-light);
+  color: var(--kitgenix-brand);
+}
+
+.kitgenix-stat-tile-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.kitgenix-stat-tile-value {
+  font-family: var(--kitgenix-font-heading);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-stat-tile-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.kitgenix-stat-tile-trend svg {
+  width: 13px;
+  height: 13px;
+}
+
+.kitgenix-trend-up {
+  color: var(--kitgenix-success);
+}
+
+.kitgenix-trend-down {
+  color: var(--kitgenix-danger);
+}
+
+.kitgenix-trend-neutral {
+  color: var(--kitgenix-text-muted);
+}
 
 /* ═══════════════════════════════════════
-   RESPONSIVE
+   MODAL / DIALOG
+   Toggled via data-kitgenix-modal-target / data-kitgenix-modal-close – see
+   kitgenix-admin-components.js.
 ═══════════════════════════════════════ */
 
-@media (max-width: 782px) {
-  .kitgenix-nav-tabs.nav-tab-wrapper {
-    gap: 0;
-  }
+.kitgenix-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
 
-  .kitgenix-nav-tabs .nav-tab {
-    padding: 8px 11px;
-    font-size: 12px;
-  }
+.kitgenix-modal:not([hidden]) {
+  display: flex;
+}
 
-  .kitgenix-settings-header {
-    padding: 18px;
-  }
+.kitgenix-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 27, 58, 0.55);
+}
 
-  .kitgenix-admin-app > .kitgenix-settings-header {
-    margin: 20px 0 24px !important;
-    padding: 18px;
-  }
+.kitgenix-modal-dialog {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background: var(--kitgenix-bg-white);
+  border-radius: var(--kitgenix-radius-xl);
+  box-shadow: var(--kitgenix-shadow-lg);
+}
 
-  .kitgenix-modal.is-open {
-    padding: 0;
-    align-items: flex-end;
-  }
+.kitgenix-modal-dialog.kitgenix-modal-dialog-lg {
+  max-width: 720px;
+}
 
-  .kitgenix-modal__dialog {
-    max-height: 92vh;
-    border-radius: var(--kitgenix-radius) var(--kitgenix-radius) 0 0;
+.kitgenix-modal-dialog.kitgenix-modal-dialog-sm {
+  max-width: 400px;
+}
+
+.kitgenix-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--kitgenix-border-subtle);
+  flex-shrink: 0;
+}
+
+.kitgenix-modal-title {
+  margin: 0;
+  font-family: var(--kitgenix-font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-modal-close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: -4px -4px 0 0;
+  border: none;
+  background: transparent;
+  color: var(--kitgenix-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--kitgenix-radius-md);
+  transition: all var(--kitgenix-transition);
+}
+
+.kitgenix-modal-close:hover,
+.kitgenix-modal-close:focus-visible {
+  color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand-light);
+  outline: none;
+}
+
+.kitgenix-modal-body {
+  flex: 1 1 auto;
+  padding: 20px 24px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--kitgenix-border-subtle);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   SEARCH / FILTER BAR
+═══════════════════════════════════════ */
+
+.kitgenix-search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kitgenix-search-bar-input {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 200px;
+}
+
+.kitgenix-search-bar-input input {
+  width: 100%;
+  padding-left: 36px !important;
+  box-sizing: border-box;
+}
+
+.kitgenix-search-bar-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  color: var(--kitgenix-text-muted);
+  pointer-events: none;
+}
+
+.kitgenix-search-bar-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.kitgenix-search-bar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.kitgenix-search-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+@media screen and (max-width: 782px) {
+  .kitgenix-search-bar {
+    flex-direction: column;
+    align-items: stretch;
   }
+  .kitgenix-search-bar-filters,
+  .kitgenix-search-bar-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* ═══════════════════════════════════════
+   PAGINATION
+═══════════════════════════════════════ */
+
+.kitgenix-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.kitgenix-pagination-info {
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+}
+
+.kitgenix-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kitgenix-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--kitgenix-radius-sm);
+  border: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-bg-white);
+  color: var(--kitgenix-text-color);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--kitgenix-transition);
+}
+
+.kitgenix-pagination-btn:hover,
+.kitgenix-pagination-btn:focus-visible {
+  border-color: var(--kitgenix-brand);
+  color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand-light);
+  outline: none;
+}
+
+.kitgenix-pagination-btn.kitgenix-pagination-btn-active {
+  background: var(--kitgenix-brand);
+  border-color: var(--kitgenix-brand);
+  color: #ffffff;
+}
+
+.kitgenix-pagination-btn:disabled,
+.kitgenix-pagination-btn[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.kitgenix-pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 32px;
+  color: var(--kitgenix-text-muted);
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════ */
+
+.kitgenix-progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--kitgenix-bg-light);
+  border: 1px solid var(--kitgenix-border-subtle);
+}
+
+.kitgenix-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--kitgenix-brand);
+  transition: width 0.3s ease;
+}
+
+.kitgenix-progress.kitgenix-progress-success .kitgenix-progress-bar {
+  background: var(--kitgenix-success);
+}
+
+.kitgenix-progress.kitgenix-progress-warning .kitgenix-progress-bar {
+  background: var(--kitgenix-warning);
+}
+
+.kitgenix-progress.kitgenix-progress-danger .kitgenix-progress-bar {
+  background: var(--kitgenix-danger);
+}
+
+.kitgenix-progress.kitgenix-progress-indeterminate .kitgenix-progress-bar {
+  width: 40% !important;
+  animation: kitgenix-progress-indeterminate 1.2s ease-in-out infinite;
+}
+
+@keyframes kitgenix-progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+.kitgenix-progress-label {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+}
+
+/* ═══════════════════════════════════════
+   FILE DROPZONE
+═══════════════════════════════════════ */
+
+.kitgenix-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+  padding: 40px 24px;
+  border: 2px dashed var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-lg);
+  background: var(--kitgenix-bg-light);
+  cursor: pointer;
+  transition: all var(--kitgenix-transition);
+}
+
+.kitgenix-dropzone:hover,
+.kitgenix-dropzone:focus-within,
+.kitgenix-dropzone.kitgenix-dropzone-dragover {
+  border-color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand-light);
+}
+
+.kitgenix-dropzone-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kitgenix-dropzone-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  background: var(--kitgenix-bg-white);
+  color: var(--kitgenix-brand);
+  box-shadow: var(--kitgenix-shadow-sm);
+}
+
+.kitgenix-dropzone-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.kitgenix-dropzone-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-dropzone-desc {
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+}
+
+/* ═══════════════════════════════════════
+   BUTTON GROUP / INLINE ACTION ROW
+═══════════════════════════════════════ */
+
+.kitgenix-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: var(--kitgenix-space-6, 24px);
+}
+
+/* A button group that's the first thing in its container (e.g. the only
+   child of a .kitgenix-card-body) shouldn't double up on top spacing that
+   container already provides. */
+.kitgenix-button-group:first-child {
+  margin-top: 0;
+}
+
+.kitgenix-button-group-end {
+  justify-content: flex-end;
+}
+
+.kitgenix-button-group-split {
+  justify-content: space-between;
+}
+
+/* Stacks buttons full-width, one per row (e.g. the sidebar "Need Help?" card). */
+.kitgenix-button-group-stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.kitgenix-button-group-stack > .button {
+  width: 100%;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════
+   TOOLTIP
+   Pure-CSS hover/focus tooltip. Put the tip text in data-kitgenix-tooltip.
+═══════════════════════════════════════ */
+
+.kitgenix-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+}
+
+.kitgenix-tooltip::before,
+.kitgenix-tooltip::after {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translate(-50%, 4px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  z-index: 1200;
+}
+
+.kitgenix-tooltip::before {
+  content: attr(data-kitgenix-tooltip);
+  bottom: calc(100% + 8px);
+  width: max-content;
+  max-width: 220px;
+  padding: 6px 10px;
+  border-radius: var(--kitgenix-radius-sm);
+  background: var(--kitgenix-midnight);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: var(--kitgenix-shadow-md);
+}
+
+.kitgenix-tooltip::after {
+  content: '';
+  bottom: calc(100% + 3px);
+  border: 5px solid transparent;
+  border-top-color: var(--kitgenix-midnight);
+}
+
+.kitgenix-tooltip:hover::before,
+.kitgenix-tooltip:hover::after,
+.kitgenix-tooltip:focus-visible::before,
+.kitgenix-tooltip:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.kitgenix-tooltip.kitgenix-tooltip-bottom::before,
+.kitgenix-tooltip.kitgenix-tooltip-bottom::after {
+  bottom: auto;
+  top: calc(100% + 8px);
+  transform: translate(-50%, -4px);
+}
+
+.kitgenix-tooltip.kitgenix-tooltip-bottom:hover::before,
+.kitgenix-tooltip.kitgenix-tooltip-bottom:hover::after,
+.kitgenix-tooltip.kitgenix-tooltip-bottom:focus-visible::before,
+.kitgenix-tooltip.kitgenix-tooltip-bottom:focus-visible::after {
+  transform: translate(-50%, 0);
+}
+
+.kitgenix-tooltip.kitgenix-tooltip-bottom::after {
+  top: calc(100% + 3px);
+  border-top-color: transparent;
+  border-bottom-color: var(--kitgenix-midnight);
+}
+
+/* ═══════════════════════════════════════
+   TOAST / INLINE SAVE CONFIRMATION
+   Created and managed by window.KitgenixAdminUI.toast(message, type) in
+   kitgenix-admin-components.js – no markup needed, the region is injected
+   automatically on first use.
+═══════════════════════════════════════ */
+
+.kitgenix-toast-region {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 200000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 340px;
+  pointer-events: none;
+}
+
+.kitgenix-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--kitgenix-radius-md);
+  background: var(--kitgenix-bg-white);
+  border: 1px solid var(--kitgenix-border-color);
+  box-shadow: var(--kitgenix-shadow-lg);
+  color: var(--kitgenix-text-color);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.kitgenix-toast.kitgenix-toast-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.kitgenix-toast-success {
+  border-color: var(--kitgenix-success-border);
+  background: var(--kitgenix-success-light);
+}
+
+.kitgenix-toast-error {
+  border-color: var(--kitgenix-danger-border);
+  background: var(--kitgenix-danger-light);
+}
+
+.kitgenix-toast-warning {
+  border-color: var(--kitgenix-warning-border);
+  background: var(--kitgenix-warning-light);
+}
+
+.kitgenix-toast-info {
+  border-color: var(--kitgenix-info-border);
+  background: var(--kitgenix-info-light);
+}
+
+/* ═══════════════════════════════════════
+   SHARED GRID/TILE COMPONENTS
+   Chip grid and action-tile grid – reused by several tabs beyond Support
+   (stat summaries, "free ways to help" tiles, etc). Shared across every
+   Kitgenix plugin.
+═══════════════════════════════════════ */
+
+/* Chip grid – compact icon + label pills, replaces long bulleted lists. */
+.kitgenix-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.kitgenix-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--kitgenix-radius-pill);
+  border: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-bg-light);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--kitgenix-text-color);
+  transition: border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition), transform var(--kitgenix-transition);
+}
+
+.kitgenix-chip:hover {
+  border-color: var(--kitgenix-brand);
+  box-shadow: var(--kitgenix-focus-ring);
+  transform: translateY(-1px);
+}
+
+.kitgenix-chip svg {
+  width: 14px;
+  height: 14px;
+  color: var(--kitgenix-brand);
+  flex-shrink: 0;
+}
+
+/* Action-tile grid – the free ways to help (docs, reviews, community),
+   collapsed from several stacked cards into one grid of equal tiles. */
+.kitgenix-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.kitgenix-action-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--kitgenix-radius-lg);
+  border: 1px solid var(--kitgenix-border-color);
+  background: var(--kitgenix-bg-white);
+  color: var(--kitgenix-text-color);
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--kitgenix-transition), border-color var(--kitgenix-transition), box-shadow var(--kitgenix-transition);
+}
+
+.kitgenix-action-tile:hover,
+.kitgenix-action-tile:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--kitgenix-brand);
+  box-shadow: var(--kitgenix-shadow-md);
+  color: var(--kitgenix-text-color);
+  outline: none;
+}
+
+.kitgenix-action-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--kitgenix-radius-md);
+  background: var(--kitgenix-brand-light);
+  color: var(--kitgenix-brand);
+  flex-shrink: 0;
+}
+
+.kitgenix-action-tile-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ═══════════════════════════════════════
+   SUPPORT PAGE – HERO CARD
+   A centered "support us" hero: icon badge, eyebrow, heading, body copy,
+   one prominent donate button, and a reassurance caption – plus a slim,
+   centered row of free ways to help underneath. Shared markup across
+   every Kitgenix plugin.
+═══════════════════════════════════════ */
+
+.kitgenix-support-hero {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 48px 40px 36px;
+}
+
+.kitgenix-support-hero-inner {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.kitgenix-support-hero-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--kitgenix-danger-light);
+  color: var(--kitgenix-danger);
+  margin: 0 auto 18px;
+}
+
+.kitgenix-support-hero-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.kitgenix-support-hero-eyebrow {
+  font-family: var(--kitgenix-font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kitgenix-brand);
+  margin: 0 0 10px;
+}
+
+.kitgenix-support-hero h2 {
+  font-family: var(--kitgenix-font-heading);
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1.25;
+  color: var(--kitgenix-text-color);
+  margin: 0 0 14px;
+}
+
+.kitgenix-support-hero-body {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--kitgenix-text-muted);
+  margin: 0 auto 28px;
+  max-width: 94%;
+}
+
+.kitgenix-support-hero-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  box-sizing: border-box;
+  border-radius: var(--kitgenix-radius-md);
+  background: linear-gradient(135deg, var(--kitgenix-brand), var(--kitgenix-brand-dark));
+  color: #fff !important;
+  font-family: var(--kitgenix-font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--kitgenix-shadow-sm);
+  border: none;
+  cursor: pointer;
+  transition: filter var(--kitgenix-transition), box-shadow var(--kitgenix-transition), transform var(--kitgenix-transition);
+}
+
+.kitgenix-support-hero-button svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.kitgenix-support-hero-button:hover,
+.kitgenix-support-hero-button:focus-visible {
+  filter: brightness(1.08);
+  box-shadow: var(--kitgenix-shadow-md);
+  transform: translateY(-1px);
+  color: #fff !important;
+  outline: none;
+}
+
+.kitgenix-support-hero-caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--kitgenix-text-muted);
+  margin: 16px 0 0;
+}
+
+.kitgenix-support-hero-caption svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.kitgenix-support-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin-top: 36px;
+  padding-top: 22px;
+  border-top: 1px solid var(--kitgenix-border-subtle);
+  width: 100%;
+}
+
+.kitgenix-support-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--kitgenix-text-muted);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--kitgenix-transition);
+}
+
+.kitgenix-support-link svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.kitgenix-support-link:hover,
+.kitgenix-support-link:focus-visible {
+  color: var(--kitgenix-brand);
+  outline: none;
+}
+
+/* ═══════════════════════════════════════
+   PLAIN SECTION SUBHEADING
+   A quieter alternative to .kitgenix-card-head's icon+h2 pattern – a bold
+   label with a one-line .description underneath, no icon square. Used by
+   the Log tab across every Kitgenix plugin (originally CAPTCHA Turnstile's
+   diagnostic-section header style). Give the heading element BOTH an h2/h3
+   tag and this class – it isn't nested under .kitgenix-card-head-text, so
+   it never collides with that pattern's own heading rule.
+═══════════════════════════════════════ */
+
+.kitgenix-support-subheading {
+  margin: 0 0 6px;
+  font-family: var(--kitgenix-font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
 }

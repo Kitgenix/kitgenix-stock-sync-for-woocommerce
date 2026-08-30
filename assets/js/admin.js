@@ -1,4 +1,4 @@
-/* Kitgenix Stock Sync for WooCommerce — Admin UI */
+/* Kitgenix Stock Sync for WooCommerce – Admin UI */
 
 (function () {
 	'use strict';

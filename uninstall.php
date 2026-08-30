@@ -3,7 +3,15 @@
  * Uninstall handler for Kitgenix Stock Sync for WooCommerce.
  *
  * Removes plugin settings stored in the database. Does not remove WooCommerce
- * product/order meta or Action Scheduler records.
+ * product/order meta or Action Scheduler records – this intentionally
+ * includes the plugin's own product meta:
+ *   - _kitgenix_stock_sync_for_woocommerce_gid (stable cross-store identity)
+ *   - _kitgenix_stock_sync_for_woocommerce_version (authoritative version counter)
+ *   - _kitgenix_stock_sync_for_woocommerce_applied_version (staleness fencing)
+ * Removing these on every uninstall/reinstall cycle would force GID
+ * regeneration and reset version fencing, which the plugin's migration
+ * policy explicitly avoids (see Settings::ensure_defaults()). A site owner
+ * who wants them gone can delete them manually – see readme.txt.
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;

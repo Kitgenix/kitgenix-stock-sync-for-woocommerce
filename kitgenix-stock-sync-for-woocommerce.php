@@ -8,16 +8,16 @@
  * Author Support URI: https://kitgenix.com/plugins/kitgenix-stock-sync-for-woocommerce/support
  * Feature Request URI: https://kitgenix.com/plugins/kitgenix-stock-sync-for-woocommerce/feature-request
  * Description:       Sync WooCommerce stock between stores with secure master-child inventory updates and signed REST requests.
- * Version:           1.0.2
+ * Version:           2.0.0
  * Requires at least: 6.0
- * Tested up to:      7.0
+ * Tested up to:      7.1
  * Requires PHP:      8.1
  * Author:            Kitgenix
  * Author URI:        https://kitgenix.com/
- * Donate link:       https://donate.stripe.com/9B65kDgG3fTQ2Kzcmwf7i00
+ * Donate link:       https://www.paypal.com/donate/?hosted_button_id=KALF36K6JJ9B2
  * Requires Plugins:  woocommerce
- * WC requires at least: 7.0
- * WC tested up to:   10.0
+ * WC requires at least: 10.0
+ * WC tested up to:   11.0.1
  * License:           GPLv3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       kitgenix-stock-sync-for-woocommerce
@@ -26,7 +26,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION', '1.0.2');
+define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION', '2.0.0');
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_FILE', __FILE__);
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR', plugin_dir_path(__FILE__));
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL', plugin_dir_url(__FILE__));
@@ -39,8 +39,8 @@ if (!function_exists('kitgenix_get_admin_menu_icon')) {
 	function kitgenix_get_admin_menu_icon(string $plugin_file): string {
 		$plugin_dir = dirname($plugin_file) . '/';
 		$icon_paths = [
-			$plugin_dir . 'assets/images/logos/kitgenix-wordpress-admin-icon.svg',
-			$plugin_dir . 'assets/images/logos/kitgenix-custom-wordpress-admin-icon.svg',
+			$plugin_dir . 'assets/images/logos/kitgenix-wordpress-admin-menu-favicon.svg',
+			$plugin_dir . 'assets/images/logos/kitgenix-black-favicon.svg',
 		];
 
 		foreach ($icon_paths as $icon_path) {
@@ -406,11 +406,19 @@ if (!function_exists('kitgenix_render_admin_page')) {
 				'requires' => __('Sync WooCommerce stock between stores with secure master-child inventory updates and signed REST requests.', 'kitgenix-stock-sync-for-woocommerce'),
 			],
 			[
+				'id'       => 'image_optimizer',
+				'name'     => __('Image Optimizer', 'kitgenix-stock-sync-for-woocommerce'),
+				'slug'     => 'kitgenix-image-optimizer',
+				'file'     => 'kitgenix-image-optimizer/kitgenix-image-optimizer.php',
+				'page'     => 'kitgenix-image-optimizer',
+				'requires' => __('Optimize, compress, and resize images in your WordPress media library with automatic on-upload processing and bulk optimization tools.', 'kitgenix-stock-sync-for-woocommerce'),
+			],
+			[
 				'id'       => 'multistore',
-				'name'     => __('MultiStore Sync', 'kitgenix-stock-sync-for-woocommerce'),
-				'slug'     => 'kitgenix-multistore-sync',
-				'file'     => 'kitgenix-multistore-sync/kitgenix-multistore-sync.php',
-				'page'     => 'kitgenix-multistore-sync',
+				'name'     => __('MultiStore for WooCommerce', 'kitgenix-stock-sync-for-woocommerce'),
+				'slug'     => 'kitgenix-multistore-sync-for-woocommerce',
+				'file'     => 'kitgenix-multistore-sync-for-woocommerce/kitgenix-multistore-sync-for-woocommerce.php',
+				'page'     => 'kitgenix-multistore-sync-for-woocommerce',
 				'requires' => __('Sync WooCommerce products, prices, media, and metadata between multiple stores with a secure master-child architecture.', 'kitgenix-stock-sync-for-woocommerce'),
 			],
 			[
@@ -432,15 +440,35 @@ if (!function_exists('kitgenix_render_admin_page')) {
 		$wporg_active_installs = kitgenix_hub_get_wporg_active_installs($slugs);
 		$wporg_ratings = kitgenix_hub_get_wporg_ratings($slugs);
 		$wporg_media = kitgenix_hub_get_wporg_media($slugs);
-		$logo_url = plugins_url( 'assets/images/logos/kitgenix-favicon-purple.svg', __FILE__ );
 
-		echo '<div class="wrap plugin-install-php kitgenix-hub-wrap">'
-			. '<div class="kitgenix-hub">'
+		$plugin_count = count($plugins);
+		$installed_count = 0;
+		$active_count = 0;
+
+		foreach ($plugins as $plugin) {
+			$file = (string) $plugin['file'];
+			if (!isset($plugins_data[$file])) {
+				continue;
+			}
+
+			++$installed_count;
+
+			if (function_exists('is_plugin_active') && (is_plugin_active($file) || (function_exists('is_plugin_active_for_network') && is_plugin_active_for_network($file)))) {
+				++$active_count;
+			}
+		}
+
+		$logo_url = plugins_url( 'assets/images/logos/kitgenix-primary-favicon.svg', __FILE__ );
+
+		echo '<div class="wrap kitgenix-admin-app plugin-install-php">'
 			. '<div class="kitgenix-hub-header">'
 			. '<div class="kitgenix-hub-brand">'
-			. '<img class="kitgenix-hub-logo" src="' . esc_url($logo_url) . '" alt="' . esc_attr__('Kitgenix', 'kitgenix-stock-sync-for-woocommerce') . '" />'
+			. '<span class="kitgenix-topbar-brand">'
+			. '<img class="kitgenix-hub-logo" src="' . esc_url($logo_url) . '" alt="' . esc_attr__('Kitgenix', 'kitgenix-stock-sync-for-woocommerce') . '" width="30" height="30" />'
+			. '</span>'
+			. '<span class="kitgenix-topbar-divider" aria-hidden="true"></span>'
 			. '<div class="kitgenix-hub-brand-copy">'
-			. '<h1 class="kitgenix-hub-title">' . esc_html__('Discover and manage every Kitgenix plugin from one screen.', 'kitgenix-stock-sync-for-woocommerce') . '</h1>'
+			. '<h1 class="kitgenix-hub-title">' . esc_html__('Kitgenix', 'kitgenix-stock-sync-for-woocommerce') . '</h1>'
 			. '<p class="kitgenix-hub-description">' . esc_html__('Install, activate, open, and review Kitgenix plugins.', 'kitgenix-stock-sync-for-woocommerce') . '</p>'
 			. '</div>'
 			. '</div>'
@@ -453,10 +481,11 @@ if (!function_exists('kitgenix_render_admin_page')) {
 			. '<a href="https://www.reddit.com/r/Kitgenix/" target="_blank" rel="noopener noreferrer" aria-label="Reddit" title="Reddit"><img src="' . esc_url(plugins_url('assets/images/social-media/reddit-solid.svg', __FILE__)) . '" alt="" width="13" height="13" aria-hidden="true" /><span class="screen-reader-text">Reddit</span></a>'
 			. '<a href="https://www.linkedin.com/company/kitgenix" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn"><img src="' . esc_url(plugins_url('assets/images/social-media/linkedin-solid.svg', __FILE__)) . '" alt="" width="13" height="13" aria-hidden="true" /><span class="screen-reader-text">LinkedIn</span></a>'
 			. '<a href="https://x.com/kitgenix" target="_blank" rel="noopener noreferrer" aria-label="X" title="X"><img src="' . esc_url(plugins_url('assets/images/social-media/x-solid.svg', __FILE__)) . '" alt="" width="13" height="13" aria-hidden="true" /><span class="screen-reader-text">X</span></a>'
-			. '<a href="https://www.tiktok.com/@kitgenix" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><img src="' . esc_url(plugins_url('assets/images/social-media/tiktok-solid.svg', __FILE__)) . '" alt="" width="13" height="13" aria-hidden="true" /><span class="screen-reader-text">TikTok</span></a>'
 			. '<a href="https://github.com/kitgenix" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub"><img src="' . esc_url(plugins_url('assets/images/social-media/github-solid.svg', __FILE__)) . '" alt="" width="13" height="13" aria-hidden="true" /><span class="screen-reader-text">GitHub</span></a>'
 			. '</div>'
 			. '</div>'
+			. '<div class="kitgenix-hub-wrap">'
+			. '<div class="kitgenix-hub">'
 			. '<div class="kitgenix-hub-grid">';
 		foreach ($plugins as $p) {
 			$id = (string) $p['id'];
@@ -567,7 +596,7 @@ if (!function_exists('kitgenix_render_admin_page')) {
 				. '</div>';
 		}
 
-		echo '</div></div></div>';
+		echo '</div></div></div></div>';
 	}
 }
 
@@ -577,15 +606,15 @@ if (!function_exists('kitgenix_stock_sync_for_woocommerce_register_admin_ui_styl
 			return;
 		}
 
-		if (function_exists('wp_style_is') && wp_style_is('kitgenix-admin-ui', 'registered')) {
+		if (function_exists('wp_style_is') && wp_style_is('kitgenix-stock-sync-for-woocommerce-admin-ui', 'registered')) {
 			return;
 		}
 
-		$ver = defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '1.0.2';
+		$ver = defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.0.0';
 		$css_file = plugin_dir_path(__FILE__) . 'assets/css/kitgenix-admin-ui.css';
 		$css_ver = file_exists($css_file) ? (string) filemtime($css_file) : $ver;
 
-		wp_register_style('kitgenix-admin-ui', plugins_url('assets/css/kitgenix-admin-ui.css', __FILE__), [], $css_ver);
+		wp_register_style('kitgenix-stock-sync-for-woocommerce-admin-ui', plugins_url('assets/css/kitgenix-admin-ui.css', __FILE__), [], $css_ver);
 	}
 }
 add_action('admin_enqueue_scripts', 'kitgenix_stock_sync_for_woocommerce_register_admin_ui_style', 5);
@@ -622,12 +651,12 @@ function kitgenix_stock_sync_for_woocommerce_enqueue_hub_assets(string $hook_suf
 	wp_enqueue_style( 'kitgenix-hub' );
 
 	wp_register_style(
-		'kitgenix-admin-ui',
+		'kitgenix-stock-sync-for-woocommerce-admin-ui',
 		plugins_url('assets/css/kitgenix-admin-ui.css', __FILE__),
 		[],
 		$ver
 	);
-	wp_enqueue_style( 'kitgenix-admin-ui' );
+	wp_enqueue_style( 'kitgenix-stock-sync-for-woocommerce-admin-ui' );
 }
 add_action('admin_enqueue_scripts', 'kitgenix_stock_sync_for_woocommerce_enqueue_hub_assets');
 
@@ -640,6 +669,10 @@ require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-
 require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-rest.php';
 require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-sync.php';
 require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-admin.php';
+require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php';
+if (defined('WP_CLI') && WP_CLI) {
+	require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-cli.php';
+}
 
 register_activation_hook(__FILE__, function () {
 	if (!class_exists('WooCommerce')) {

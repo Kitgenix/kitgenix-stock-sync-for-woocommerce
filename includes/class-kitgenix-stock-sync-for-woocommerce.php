@@ -33,14 +33,35 @@ final class Kitgenix_Stock_Sync_For_WooCommerce {
 		$this->sync->hooks();
 		$this->admin->hooks();
 
-		// Action Scheduler hooks
-		add_action('kitgenix_stock_sync_for_woocommerce_process_event', [$this->sync, 'as_process_event'], 10, 2);
-		add_action('kitgenix_stock_sync_for_woocommerce_push_to_store', [$this->sync, 'as_push_to_store'], 10, 3);
-		add_action('kitgenix_stock_sync_for_woocommerce_retry_send_to_master', [$this->sync, 'as_retry_send_to_master'], 10, 2);
-		add_action('kitgenix_stock_sync_for_woocommerce_retry_push_to_store', [$this->sync, 'as_retry_push_to_store'], 10, 3);
-		add_action('kitgenix_stock_sync_for_woocommerce_reconcile_batch', [$this->sync, 'as_reconcile_batch'], 10, 2);
+		if (class_exists('Kitgenix_Stock_Sync_For_WooCommerce_Site_Health')) {
+			(new Kitgenix_Stock_Sync_For_WooCommerce_Site_Health($this->settings))->hooks();
+		}
 
-		// NEW: order processing sync (async)
+		if (defined('WP_CLI') && WP_CLI && class_exists('Kitgenix_Stock_Sync_For_WooCommerce_CLI')) {
+			Kitgenix_Stock_Sync_For_WooCommerce_CLI::register($this->settings, $this->sync);
+		}
+
+		// Action Scheduler hooks. push_to_store / send_to_master are used both for the
+		// initial async dispatch (attempt=1) and for scheduled retries (attempt>1) of the
+		// same logical delivery – see Sync::schedule_retry_*().
+		add_action('kitgenix_stock_sync_for_woocommerce_process_event', [$this->sync, 'as_process_event'], 10, 2);
+		add_action('kitgenix_stock_sync_for_woocommerce_push_to_store', [$this->sync, 'as_push_to_store'], 10, 4);
+		add_action('kitgenix_stock_sync_for_woocommerce_send_to_master', [$this->sync, 'as_send_to_master'], 10, 3);
+		add_action('kitgenix_stock_sync_for_woocommerce_reconcile_batch', [$this->sync, 'as_reconcile_batch'], 10, 2);
 		add_action('kitgenix_stock_sync_for_woocommerce_process_order_processing', [$this->sync, 'as_process_order_processing'], 10, 1);
+		add_action('kitgenix_stock_sync_for_woocommerce_health_ping', [$this->sync, 'as_health_ping'], 10, 0);
+
+		$this->maybe_schedule_health_ping();
+	}
+
+	/** Recurring per-store connection-health ping (~15 min), scheduled once. */
+	private function maybe_schedule_health_ping(): void {
+		if (!function_exists('as_next_scheduled_action') || !function_exists('as_schedule_recurring_action')) {
+			return;
+		}
+		if (as_next_scheduled_action('kitgenix_stock_sync_for_woocommerce_health_ping', [], 'kitgenix-stock-sync')) {
+			return;
+		}
+		as_schedule_recurring_action(time() + 300, 15 * MINUTE_IN_SECONDS, 'kitgenix_stock_sync_for_woocommerce_health_ping', [], 'kitgenix-stock-sync');
 	}
 }
