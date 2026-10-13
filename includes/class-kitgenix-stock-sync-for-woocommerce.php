@@ -50,8 +50,10 @@ final class Kitgenix_Stock_Sync_For_WooCommerce {
 		add_action('kitgenix_stock_sync_for_woocommerce_reconcile_batch', [$this->sync, 'as_reconcile_batch'], 10, 2);
 		add_action('kitgenix_stock_sync_for_woocommerce_process_order_processing', [$this->sync, 'as_process_order_processing'], 10, 1);
 		add_action('kitgenix_stock_sync_for_woocommerce_health_ping', [$this->sync, 'as_health_ping'], 10, 0);
+		add_action('kitgenix_stock_sync_for_woocommerce_prune_event_log', [$this->settings, 'prune_event_log'], 10, 0);
 
 		$this->maybe_schedule_health_ping();
+		$this->maybe_schedule_event_log_pruning();
 	}
 
 	/** Recurring per-store connection-health ping (~15 min), scheduled once. */
@@ -63,5 +65,16 @@ final class Kitgenix_Stock_Sync_For_WooCommerce {
 			return;
 		}
 		as_schedule_recurring_action(time() + 300, 15 * MINUTE_IN_SECONDS, 'kitgenix_stock_sync_for_woocommerce_health_ping', [], 'kitgenix-stock-sync');
+	}
+
+	/** Daily event_log housekeeping (age-based auto-delete), scheduled once. */
+	private function maybe_schedule_event_log_pruning(): void {
+		if (!function_exists('as_next_scheduled_action') || !function_exists('as_schedule_recurring_action')) {
+			return;
+		}
+		if (as_next_scheduled_action('kitgenix_stock_sync_for_woocommerce_prune_event_log', [], 'kitgenix-stock-sync')) {
+			return;
+		}
+		as_schedule_recurring_action(time() + 600, DAY_IN_SECONDS, 'kitgenix_stock_sync_for_woocommerce_prune_event_log', [], 'kitgenix-stock-sync');
 	}
 }

@@ -308,6 +308,71 @@
   }
 }
 
+/* Feature-request banner – sits below the plugin grid, links out to the
+   shared Kitgenix roadmap (https://roadmap.kitgenix.com). */
+.kitgenix-hub-feature-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--kitgenix-space-4);
+  margin-top: var(--kitgenix-space-6);
+  padding: var(--kitgenix-space-4) var(--kitgenix-space-6);
+  background: var(--kitgenix-bg-white);
+  border: 1px solid var(--kitgenix-border-color);
+  border-radius: var(--kitgenix-radius-lg);
+  box-shadow: var(--kitgenix-shadow-sm);
+}
+
+.kitgenix-hub-feature-banner-copy h2 {
+  margin: 0 0 4px 0;
+  font-family: var(--kitgenix-font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--kitgenix-text-color);
+}
+
+.kitgenix-hub-feature-banner-copy p {
+  margin: 0;
+  color: var(--kitgenix-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.kitgenix-hub-feature-banner .button {
+  flex: 0 0 auto;
+  min-width: 160px;
+  text-align: center;
+  border-radius: var(--kitgenix-radius-md);
+  font-family: var(--kitgenix-font-body);
+  font-weight: 600;
+  transition: all var(--kitgenix-transition);
+}
+
+.kitgenix-hub-feature-banner .button.button-primary {
+  border-color: var(--kitgenix-brand);
+  background: var(--kitgenix-brand);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(33, 75, 255, 0.25);
+}
+
+.kitgenix-hub-feature-banner .button.button-primary:hover,
+.kitgenix-hub-feature-banner .button.button-primary:focus-visible {
+  border-color: var(--kitgenix-brand-dark);
+  background: var(--kitgenix-brand-dark);
+  color: #ffffff;
+}
+
+@media screen and (max-width: 782px) {
+  .kitgenix-hub-feature-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .kitgenix-hub-feature-banner .button {
+    width: 100%;
+  }
+}
+
 /* ═══════════════════════════════════════
    DARK MODE
    The Hub page carries .kitgenix-admin-app for the shared full-bleed canvas
@@ -424,5 +489,27 @@
     border-color: #42B3FF;
     color: #42B3FF;
     background: #132A4D;
+  }
+
+  .kitgenix-hub-feature-banner {
+    background: #0F2242;
+    border-color: #1E3358;
+  }
+
+  .kitgenix-hub-feature-banner-copy p {
+    color: #93A2C2;
+  }
+
+  .kitgenix-hub-feature-banner .button.button-primary {
+    border-color: #42B3FF;
+    background: #42B3FF;
+    color: #071B3A;
+  }
+
+  .kitgenix-hub-feature-banner .button.button-primary:hover,
+  .kitgenix-hub-feature-banner .button.button-primary:focus-visible {
+    border-color: #6EC6FF;
+    background: #6EC6FF;
+    color: #071B3A;
   }
 }

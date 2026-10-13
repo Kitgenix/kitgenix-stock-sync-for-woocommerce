@@ -534,6 +534,14 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 			$this->redirect_to_tab('logs');
 		}
 
+		if (isset($_POST['kss_save_log_retention']) && check_admin_referer('kss_logs')) {
+			$days = $this->read_post_int('log_retention_days', 30);
+			$days = in_array($days, [7, 14, 30], true) ? $days : 30;
+			$this->settings->set_log_retention_days($days);
+			$this->settings->set_notice('success', 'Log auto-delete setting saved.');
+			$this->redirect_to_tab('logs');
+		}
+
 		if (isset($_POST['kss_clear_event_log']) && check_admin_referer('kss_logs')) {
 			$this->settings->clear_event_log();
 			$this->settings->set_notice('success', 'Event log cleared.');
@@ -1563,6 +1571,25 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 						</div>
 					</div>
 					<div class="kitgenix-card-body">
+						<div class="kitgenix-settings-group">
+							<form method="post">
+								<?php wp_nonce_field('kss_logs'); ?>
+								<div class="kitgenix-setting-row">
+									<div class="kitgenix-setting-row-label">
+										<label for="kss_log_retention_days"><?php echo esc_html__('Auto-delete logs after', 'kitgenix-stock-sync-for-woocommerce'); ?></label>
+										<p class="kitgenix-setting-row-desc"><?php echo esc_html__('Log entries older than the selected period are removed automatically.', 'kitgenix-stock-sync-for-woocommerce'); ?></p>
+									</div>
+									<div class="kitgenix-setting-row-control">
+										<select id="kss_log_retention_days" name="log_retention_days">
+											<option value="7" <?php selected($this->settings->get_log_retention_days(), 7); ?>><?php echo esc_html__('7 days', 'kitgenix-stock-sync-for-woocommerce'); ?></option>
+											<option value="14" <?php selected($this->settings->get_log_retention_days(), 14); ?>><?php echo esc_html__('14 days', 'kitgenix-stock-sync-for-woocommerce'); ?></option>
+											<option value="30" <?php selected($this->settings->get_log_retention_days(), 30); ?>><?php echo esc_html__('30 days', 'kitgenix-stock-sync-for-woocommerce'); ?></option>
+										</select>
+										<button type="submit" class="button" name="kss_save_log_retention" value="1"><?php echo esc_html__('Save', 'kitgenix-stock-sync-for-woocommerce'); ?></button>
+									</div>
+								</div>
+							</form>
+						</div>
 						<?php if (empty($event_log)): ?>
 							<div class="kitgenix-empty-state">
 								<span class="kitgenix-empty-state-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('logs'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
@@ -1806,6 +1833,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 					<div class="kitgenix-button-group kitgenix-button-group-stack">
 						<a class="button button-secondary" href="<?php echo esc_url('https://kitgenix.com/plugins/kitgenix-stock-sync-for-woocommerce/documentation/'); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__('Documentation', 'kitgenix-stock-sync-for-woocommerce'); ?></a>
 						<a class="button button-primary" href="<?php echo esc_url('https://kitgenix.com/plugins/kitgenix-stock-sync-for-woocommerce/support'); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__('Request Support', 'kitgenix-stock-sync-for-woocommerce'); ?></a>
+						<a class="button button-secondary" href="<?php echo esc_url('https://roadmap.kitgenix.com/?product=stock-sync-for-woocommerce'); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__('Request a Feature', 'kitgenix-stock-sync-for-woocommerce'); ?></a>
 					</div>
 				</div>
 			</div>

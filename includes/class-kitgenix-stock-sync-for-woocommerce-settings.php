@@ -11,6 +11,12 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Settings {
 	/** Default overlap window for a rotated secret before the old one stops working. */
 	private const SECRET_ROTATION_OVERLAP_DEFAULT = 86400; // 24 hours (HOUR_IN_SECONDS not yet available pre-init in all contexts)
 
+	/** Allowed values (days) for the event_log age-based auto-delete setting. */
+	private const LOG_RETENTION_ALLOWED_DAYS = [7, 14, 30];
+
+	/** Default retention period (days) for event_log entries. */
+	private const LOG_RETENTION_DEFAULT_DAYS = 30;
+
 	public static function default_health(): array {
 		return [
 			'last_inbound'          => 0,
@@ -101,6 +107,11 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Settings {
 
 		if (!isset($opt['event_log']) || !is_array($opt['event_log'])) {
 			$opt['event_log'] = [];
+			$changed = true;
+		}
+
+		if (!isset($opt['log_retention_days']) || !in_array((int) $opt['log_retention_days'], self::LOG_RETENTION_ALLOWED_DAYS, true)) {
+			$opt['log_retention_days'] = self::LOG_RETENTION_DEFAULT_DAYS;
 			$changed = true;
 		}
 
@@ -476,6 +487,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Settings {
 			'code' => $code,
 		];
 		$opt['event_log'] = array_slice($opt['event_log'], -250);
+		$opt['event_log'] = $this->prune_expired_event_log_entries($opt['event_log']);
 		$this->update_all($opt);
 	}
 
@@ -488,6 +500,42 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Settings {
 		$opt = $this->get_all();
 		$opt['event_log'] = [];
 		$this->update_all($opt);
+	}
+
+	/** Auto-delete period (days) for event_log entries. Always one of LOG_RETENTION_ALLOWED_DAYS. */
+	public function get_log_retention_days(): int {
+		$opt = $this->get_all();
+		$days = (int) ($opt['log_retention_days'] ?? self::LOG_RETENTION_DEFAULT_DAYS);
+		return in_array($days, self::LOG_RETENTION_ALLOWED_DAYS, true) ? $days : self::LOG_RETENTION_DEFAULT_DAYS;
+	}
+
+	/** Set the event_log auto-delete period (days). Invalid values fall back to the default. */
+	public function set_log_retention_days(int $days): void {
+		$days = in_array($days, self::LOG_RETENTION_ALLOWED_DAYS, true) ? $days : self::LOG_RETENTION_DEFAULT_DAYS;
+		$opt = $this->get_all();
+		$opt['log_retention_days'] = $days;
+		$this->update_all($opt);
+	}
+
+	/**
+	 * Daily housekeeping: prune event_log entries older than the configured
+	 * retention period even without new writes. Hooked to a recurring
+	 * Action Scheduler job (see maybe_schedule_event_log_pruning()). Does not
+	 * touch the backlog – those are pending retries, not historical logs.
+	 */
+	public function prune_event_log(): void {
+		$opt = $this->get_all();
+		$opt['event_log'] = is_array($opt['event_log'] ?? null) ? $opt['event_log'] : [];
+		$opt['event_log'] = $this->prune_expired_event_log_entries($opt['event_log']);
+		$this->update_all($opt);
+	}
+
+	/** Remove event_log rows older than the configured retention period. Applied in addition to the 250-entry count cap. */
+	private function prune_expired_event_log_entries(array $log): array {
+		$cutoff = time() - ($this->get_log_retention_days() * DAY_IN_SECONDS);
+		return array_values(array_filter($log, static function ($row) use ($cutoff) {
+			return is_array($row) && (int) ($row['time'] ?? 0) >= $cutoff;
+		}));
 	}
 
 	/**
