@@ -8,7 +8,7 @@
  * Author Support URI: https://kitgenix.com/plugins/kitgenix-stock-sync-for-woocommerce/support
  * Feature Request URI: https://kitgenix.com/plugins/kitgenix-stock-sync-for-woocommerce/feature-request
  * Description:       Sync WooCommerce stock between stores with secure master-child inventory updates and signed REST requests.
- * Version:           2.1.0
+ * Version:           2.1.2
  * Requires at least: 6.0
  * Tested up to:      7.1
  * Requires PHP:      8.1
@@ -26,7 +26,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION', '2.1.0');
+define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION', '2.1.2');
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_FILE', __FILE__);
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR', plugin_dir_path(__FILE__));
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL', plugin_dir_url(__FILE__));
