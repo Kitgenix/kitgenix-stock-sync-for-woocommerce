@@ -1,5 +1,40 @@
 # Changelog
 
+## 2.2.0 – 30 October 2026
+
+- **Fix:** Fixed a stock sync race that could oversell. Children previously sent their *absolute* stock quantity on every change, and the Master applied it with a plain overwrite. Two near-simultaneous sales – for example, a Master with 10 in stock, Child A selling one and reporting 9, then Child B independently selling one and also reporting 9 – could leave the Master at 9 instead of the correct 8, silently losing one of the two decrements (and a Master-side sale in that same window could be overwritten the same way). Children now send a **delta** for every order-driven stock change (a reduction or restoration tied to a specific order line, captured from WooCommerce's `woocommerce_reduce_order_stock` / `woocommerce_restore_order_stock` hooks so it is captured whatever status triggers it – processing, on-hold, or a pending order's held stock expiring), and the Master applies each one atomically with WooCommerce's own increase/decrease stock function instead of overwriting the quantity outright. Each delta carries an idempotency key (store, order, item and operation) so a retried or duplicate delivery of the same delta is never applied twice. Absolute updates are kept for deliberate admin edits, imports, and for stores not yet updated: the event's wire format still includes the resulting absolute quantity alongside the new delta information, so a store on the previous protocol version keeps working exactly as before (with the old oversell risk) until it is updated too. Event schema bumped to version 3.
+- **New:** Added a Site Health check that detects Kitgenix MultiStore Sync for WooCommerce running on the same site with its own inventory sync enabled. Running two Kitgenix inventory engines at once writes stock twice, with different protocols and identities, and can create a feedback loop between stores; the check flags this as critical and explains how to pick one engine.
+- **New:** Stock History per SKU. Each store records a versioned history of stock events per product (captured, authoritative, applied, SKU rename, stale update ignored). Look up a SKU on the Tools tab to see its current state on every connected store and one merged timeline, linked by event ID. Also available as `wp kitgenix-stock-sync history <sku>`.
+- **New:** SKU Mapping Repair Tool on the Conflicts tab. Scans for duplicate SKUs, duplicate GIDs and stock-managed products without a SKU. Duplicate SKUs and GIDs are held out of sync until repaired, so an ambiguous match cannot overwrite the wrong product. Assign a unique SKU or issue a new GID from the same screen; holds are released automatically once fixed, and the Master re-pushes released SKUs to every Child. Also available as `wp kitgenix-stock-sync identity`.
+- **New:** Failover Readiness Report on the Status tab. Explains what happens if the Master is unreachable for this store's exact settings – checkout behaviour, the retry window for queued changes, stock drift, the age of last-known-good stock snapshots, and recovery steps – with an overall verdict. On the Master it also lists every Child's readiness. Download it as Markdown or run `wp kitgenix-stock-sync failover-report`.
+- **Improved:** Products created with WooCommerce's "Duplicate" action no longer copy the original product's GID, version counters or stock history, which previously made both products share one sync identity.
+- **Fix:** When a Child matches a product by SKU but the product carries a different GID, it now resets that product's applied version as it adopts the Master's GID, so later updates are no longer ignored as stale.
+- **Fix:** A store promoted from Child to Master now continues each product's version counter from the version it last applied, so the other Children accept its updates instead of ignoring them as stale.
+- **Fix:** The shared "Kitgenix" admin menu was being registered immediately during `plugins_loaded`, instead of on the `admin_menu` hook, which could trigger a "translation loading triggered too early" notice on sites running other Kitgenix plugins. It is now only registered on `admin_menu`, as intended.
+- **Fix:** The health-ping and event-log-pruning cron schedules were set up during `plugins_loaded`, before Action Scheduler's data store is guaranteed to be ready, which could trigger "called before the Action Scheduler data store was initialized" notices. Scheduling is now deferred to `init`.
+- **Improved:** Raised the minimum PHP version to 8.2 (`Requires PHP: 8.2`).
+- **Improved:** Tested up to WordPress 7.4 and WooCommerce 11.2.1, and reviewed for compatibility with PHP 8.2 to 8.5. The full codebase passes syntax checks on PHP 8.5 and a PHPCompatibility scan for PHP 8.2–8.5, and uses no dynamic properties or functions deprecated in PHP 8.2–8.5.
+- **Improved:** Declared compatibility with the WooCommerce Cart and Checkout blocks (`cart_checkout_blocks`), so WooCommerce no longer lists the plugin as possibly incompatible in the Checkout block editor.
+- **Fix:** Strict checkout validation on Child stores now also runs on the WooCommerce Checkout block. It was hooked only to the classic checkout's `woocommerce_after_checkout_validation`, so stores using the Checkout block (the WooCommerce default) skipped the live Master stock check. The same check and failure strategies now run on Store API checkout via `woocommerce_store_api_checkout_update_order_from_request`, and failures are shown as a checkout error notice.
+- **Dev:** `/ping` on a Child now returns a `failover` readiness summary, and `/stock-state` accepts `include_history`. New filter `kitgenix_stock_sync_for_woocommerce_history_limit`, new diagnostic code `kss_sku_held`, settings schema version 3.
+- **Dev:** Uninstall now also removes the Stock History product meta and the snapshot index option.
+- **Security:** Store-to-store requests now carry an additional signature that also covers the HTTP method and REST route, so a captured request cannot be replayed against a different endpoint. Once a store has sent the new signature, requests from it without the new signature are rejected, while stores still running an older version keep syncing until they are updated.
+- **Security:** Request authentication now runs in each REST route's `permission_callback`, so WordPress enforces it before any endpoint code runs.
+- **Dev:** `Kitgenix_Stock_Sync_For_WooCommerce_Security::sign_headers()` now takes the target endpoint URL as a fourth argument.
+- **Dev:** Removed the PluginScore verification code from the readme, as Kitgenix Plugin Score has been discontinued.
+- **Dev:** Bumped the version to 2.2.0 across the plugin.
+- **Documentation:** Rewrote the readme's Description section as plain text and moved the feature list into Other Notes, so the plugin directory no longer truncates the Description for exceeding the 2,500-character limit.
+- **Documentation:** Regenerated the `.pot` translation template for 2.2.0.
+- **Documentation:** The readme changelog now lists only the current release. The full release history is in `CHANGELOG.md`.
+
+## 2.1.2 – 13 October 2026
+
+- **Fix:** Bump version to 2.1.2 across the plugin.
+
+## 2.1.1 – 13 October 2026
+
+- **Fix:** Updated PluginScore Verification code.
+
 ## 2.1.0 – 13 October 2026
 
 - **New:** Added a configurable log auto-delete setting (7/14/30 days) to automatically remove old event log entries.

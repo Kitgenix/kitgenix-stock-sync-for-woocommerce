@@ -96,10 +96,62 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Security {
 		return false;
 	}
 
-	public function sign_headers(string $secret, string $store_id, string $body): array {
+	/**
+	 * Reduce a full outbound URL (sender side) or a `WP_REST_Request::get_route()`
+	 * value (receiver side) to the same canonical form, e.g. "/kitgenix-stock-sync/v1/event",
+	 * so both sides sign/verify identical bytes regardless of host, scheme or
+	 * trailing slash.
+	 */
+	private static function canonical_route(string $endpoint_or_route): string {
+		$path = $endpoint_or_route;
+		if (str_contains($endpoint_or_route, '://')) {
+			$parts = wp_parse_url($endpoint_or_route);
+			$path  = is_array($parts) ? (string) ($parts['path'] ?? '') : '';
+		}
+
+		$marker = 'kitgenix-stock-sync/v1';
+		$pos    = strpos($path, $marker);
+		if ($pos !== false) {
+			$path = substr($path, $pos);
+		}
+
+		return '/' . trim($path, '/');
+	}
+
+	/** Option tracking which sender store IDs have sent the v2 (method+route-bound) signature at least once. */
+	private const V2_SENDERS_OPTION = 'kitgenix_stock_sync_for_woocommerce_v2_senders';
+
+	private static function has_sent_v2_signature(string $store_id): bool {
+		if ($store_id === '') {
+			return false;
+		}
+		$senders = get_option(self::V2_SENDERS_OPTION, []);
+		return is_array($senders) && !empty($senders[$store_id]);
+	}
+
+	private static function mark_v2_signature_seen(string $store_id): void {
+		if ($store_id === '') {
+			return;
+		}
+		$senders = get_option(self::V2_SENDERS_OPTION, []);
+		$senders = is_array($senders) ? $senders : [];
+		if (empty($senders[$store_id])) {
+			$senders[$store_id] = time();
+			update_option(self::V2_SENDERS_OPTION, $senders, false);
+		}
+	}
+
+	/**
+	 * $endpoint is the full destination URL the request is about to be sent
+	 * to. Binding the signature to the HTTP method and REST route (not just
+	 * timestamp/nonce/body) stops a validly-signed request captured for one
+	 * route (e.g. /ping) being replayed against another (e.g. /event).
+	 */
+	public function sign_headers(string $secret, string $store_id, string $body, string $endpoint): array {
 		$ts    = (string) time();
 		$nonce = wp_generate_password(16, false, false);
-		$base  = $ts . "\n" . $nonce . "\n" . $body;
+		$route = self::canonical_route($endpoint);
+		$base  = 'POST' . "\n" . $route . "\n" . $ts . "\n" . $nonce . "\n" . $body;
 		$sig   = hash_hmac('sha256', $base, $secret);
 
 		return [
@@ -160,15 +212,32 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Security {
 			return $generic();
 		}
 
-		$body = $request->get_body();
-		$base = $ts . "\n" . $nonce . "\n" . $body;
+		$body       = $request->get_body();
+		$route      = self::canonical_route((string) $request->get_route());
+		$base_v2    = strtoupper((string) $request->get_method()) . "\n" . $route . "\n" . $ts . "\n" . $nonce . "\n" . $body;
+		$has_sent_v2 = self::has_sent_v2_signature($store_id);
 
 		$verified = false;
 		foreach ($candidate_secrets as $secret) {
-			$calc = hash_hmac('sha256', $base, $secret);
-			if (hash_equals($calc, $sig)) {
+			if (hash_equals(hash_hmac('sha256', $base_v2, $secret), $sig)) {
 				$verified = true;
+				self::mark_v2_signature_seen($store_id);
 				break;
+			}
+		}
+
+		// Backward compatibility: a sender still running an older version signs
+		// only timestamp+nonce+body. Accept that scheme too, but only for a
+		// sender that has never sent the newer signature – once a store has
+		// upgraded, a request using the old scheme is rejected outright so a
+		// captured old-style signature can't be used to downgrade it back.
+		if (!$verified && !$has_sent_v2) {
+			$base_v1 = $ts . "\n" . $nonce . "\n" . $body;
+			foreach ($candidate_secrets as $secret) {
+				if (hash_equals(hash_hmac('sha256', $base_v1, $secret), $sig)) {
+					$verified = true;
+					break;
+				}
 			}
 		}
 

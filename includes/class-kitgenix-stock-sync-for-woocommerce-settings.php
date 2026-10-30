@@ -6,7 +6,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Settings {
 	public const OPTION_KEY = 'kitgenix_stock_sync_for_woocommerce_settings';
 
 	/** Current option schema version. Bump when ensure_defaults() adds new keys. */
-	public const SCHEMA_VERSION = 2;
+	public const SCHEMA_VERSION = 3;
 
 	/** Default overlap window for a rotated secret before the old one stops working. */
 	private const SECRET_ROTATION_OVERLAP_DEFAULT = 86400; // 24 hours (HOUR_IN_SECONDS not yet available pre-init in all contexts)
@@ -162,6 +162,16 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Settings {
 
 		if (!isset($opt['conflicts_report']) || !is_array($opt['conflicts_report'])) {
 			$opt['conflicts_report'] = ['generated_at' => 0, 'items' => []];
+			$changed = true;
+		}
+
+		if (!isset($opt['sku_holds']) || !is_array($opt['sku_holds'])) {
+			$opt['sku_holds'] = [];
+			$changed = true;
+		}
+
+		if (!isset($opt['identity_report']) || !is_array($opt['identity_report'])) {
+			$opt['identity_report'] = ['generated_at' => 0, 'items' => []];
 			$changed = true;
 		}
 
@@ -456,6 +466,60 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Settings {
 		return in_array($sku, $this->excluded_skus(), true);
 	}
 
+	/**
+	 * SKUs on a sync hold, set by the SKU Mapping Repair scan because their
+	 * identity is ambiguous (duplicate SKU or duplicate GID). A held SKU is
+	 * skipped by every inbound and outbound sync path until it is repaired or
+	 * released, so an ambiguous match can never overwrite the wrong product.
+	 *
+	 * @return array<string, array{reason: string, since: int, detail: string}>
+	 */
+	public function sku_holds(): array {
+		$opt = $this->get_all();
+		$holds = $opt['sku_holds'] ?? [];
+		return is_array($holds) ? $holds : [];
+	}
+
+	public function is_held_sku(string $sku): bool {
+		$sku = trim($sku);
+		if ($sku === '') return false;
+		return array_key_exists($sku, $this->sku_holds());
+	}
+
+	/** Replace the full hold list (bounded). */
+	public function set_sku_holds(array $holds): void {
+		$opt = $this->get_all();
+		$opt['sku_holds'] = array_slice($holds, 0, 500, true);
+		$this->update_all($opt);
+	}
+
+	public function release_sku_hold(string $sku): bool {
+		$holds = $this->sku_holds();
+		if (!array_key_exists($sku, $holds)) return false;
+		unset($holds[$sku]);
+		$this->set_sku_holds($holds);
+		return true;
+	}
+
+	public function get_identity_report(): array {
+		$opt = $this->get_all();
+		$r = is_array($opt['identity_report'] ?? null) ? $opt['identity_report'] : [];
+		return [
+			'generated_at' => (int) ($r['generated_at'] ?? 0),
+			'items' => is_array($r['items'] ?? null) ? $r['items'] : [],
+		];
+	}
+
+	/** Replace the stored SKU identity scan report (bounded). */
+	public function set_identity_report(array $items): void {
+		$opt = $this->get_all();
+		$opt['identity_report'] = [
+			'generated_at' => time(),
+			'items' => array_slice(array_values($items), 0, 500),
+		];
+		$this->update_all($opt);
+	}
+
 	public function set_notice(string $type, string $message): void {
 		$opt = $this->get_all();
 		$opt['notices'] = is_array($opt['notices'] ?? null) ? $opt['notices'] : [];
@@ -629,6 +693,10 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Settings {
 			'kss_stale_version' => [
 				'category' => __('Superseded update (ignored)', 'kitgenix-stock-sync-for-woocommerce'),
 				'note'     => __('An incoming stock update was older than the state already applied locally (a delayed, duplicate, or replayed event) and was safely ignored.', 'kitgenix-stock-sync-for-woocommerce'),
+			],
+			'kss_sku_held' => [
+				'category' => __('SKU on sync hold', 'kitgenix-stock-sync-for-woocommerce'),
+				'note'     => __('A stock update for this SKU was not sent or applied because the SKU is on a sync hold. Its identity is ambiguous (a duplicate SKU or duplicate GID) and must be repaired on the Conflicts tab before sync resumes.', 'kitgenix-stock-sync-for-woocommerce'),
 			],
 			'kss_insecure_url' => [
 				'category' => __('Insecure URL rejected', 'kitgenix-stock-sync-for-woocommerce'),

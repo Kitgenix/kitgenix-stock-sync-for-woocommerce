@@ -58,6 +58,56 @@
 }
 
 /* ----------------------------------------------------------------
+   Failover readiness, Stock History and SKU Mapping Repair cards
+----------------------------------------------------------------- */
+.kss-findings {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kss-findings li {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.kss-subheading {
+  margin: var(--kitgenix-space-6, 24px) 0 var(--kitgenix-space-3, 12px);
+  font-size: 14px;
+}
+
+.kss-recovery-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kss-recovery-steps li {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--kitgenix-text-muted);
+}
+
+.kss-inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.kss-inline-form .regular-text {
+  width: 14em;
+  max-width: 100%;
+}
+
+/* ----------------------------------------------------------------
    Accessibility
 ----------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {

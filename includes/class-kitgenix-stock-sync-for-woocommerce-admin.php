@@ -6,6 +6,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 	private Kitgenix_Stock_Sync_For_WooCommerce_Settings $settings;
 	private Kitgenix_Stock_Sync_For_WooCommerce_Security $security;
 	private Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync;
+	private Kitgenix_Stock_Sync_For_WooCommerce_Identity $identity;
+	private Kitgenix_Stock_Sync_For_WooCommerce_Failover $failover;
 
 	/** @var string|null */
 	private ?string $page_hook = null;
@@ -13,20 +15,48 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 	public function __construct(
 		Kitgenix_Stock_Sync_For_WooCommerce_Settings $settings,
 		Kitgenix_Stock_Sync_For_WooCommerce_Security $security,
-		Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync
+		Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync,
+		Kitgenix_Stock_Sync_For_WooCommerce_Identity $identity,
+		Kitgenix_Stock_Sync_For_WooCommerce_Failover $failover
 	) {
 		$this->settings = $settings;
 		$this->security = $security;
 		$this->sync     = $sync;
+		$this->identity = $identity;
+		$this->failover = $failover;
 	}
 
 	public function hooks(): void {
-		if (function_exists('\kitgenix_ensure_admin_menu')) {
-			\kitgenix_ensure_admin_menu();
-		}
+		// The shared top-level "Kitgenix" menu is registered on the admin_menu
+		// hook (see kitgenix_ensure_admin_menu() in the main plugin file) –
+		// calling it directly here ran it during plugins_loaded, before init,
+		// which is too early to call __() and triggered a "translation
+		// loading triggered too early" notice.
 		add_action('admin_menu', [$this, 'admin_menu'], 50);
 		add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 		add_action('admin_notices', [$this, 'admin_notices']);
+		add_action('admin_post_kitgenix_stock_sync_failover_report', [$this, 'download_failover_report']);
+	}
+
+	/**
+	 * Stream the Failover Readiness Report as a Markdown file. Runs on
+	 * admin-post.php (before any page output) so the download headers can be sent.
+	 */
+	public function download_failover_report(): void {
+		if (!current_user_can('manage_woocommerce')) {
+			wp_die(esc_html__('You do not have permission to download this report.', 'kitgenix-stock-sync-for-woocommerce'), 403);
+		}
+		check_admin_referer('kss_failover_report');
+
+		$markdown = $this->failover->to_markdown($this->failover->build());
+		$slug = sanitize_title($this->settings->this_store_name());
+		$filename = sanitize_file_name('failover-readiness-' . ($slug !== '' ? $slug : 'store') . '-' . gmdate('Y-m-d') . '.md');
+
+		nocache_headers();
+		header('Content-Type: text/markdown; charset=utf-8');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		echo $markdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plain-text Markdown file download, not HTML.
+		exit;
 	}
 
 	public function admin_menu(): void {
@@ -62,7 +92,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 		$css_file = defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR')
 			? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'assets/css/admin.css'
 			: '';
-		$ver = (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '1.0.1');
+		$ver = (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.2.0');
 		if ($css_file && file_exists($css_file)) {
 			$ver = (string) filemtime($css_file);
 		}
@@ -81,7 +111,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 		$js_file = defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR')
 			? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'assets/js/admin.js'
 			: '';
-		$js_ver = (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '1.0.1');
+		$js_ver = (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.2.0');
 		if ($js_file && file_exists($js_file)) {
 			$js_ver = (string) filemtime($js_file);
 			wp_enqueue_script(
@@ -323,6 +353,28 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 		return is_array($val) ? $val : null;
 	}
 
+	private function history_transient_key(): string {
+		$user_id = function_exists('get_current_user_id') ? (int) get_current_user_id() : 0;
+		return 'kitgenix_stock_sync_for_woocommerce_kss_history_result_' . max(0, $user_id);
+	}
+
+	/** Friendly name for a store ID seen in history/event data. */
+	private function store_label(string $store_id): string {
+		if ($store_id === '') return '–';
+		if ($store_id === $this->settings->this_store_id()) {
+			return $this->settings->this_store_name() . ' ' . __('(this store)', 'kitgenix-stock-sync-for-woocommerce');
+		}
+		$master = $this->settings->master_config();
+		if ($store_id === (string) ($master['store_id'] ?? '')) {
+			return __('Master', 'kitgenix-stock-sync-for-woocommerce');
+		}
+		$child = $this->settings->get_child_by_id($store_id);
+		if ($child && (string) ($child['name'] ?? '') !== '') {
+			return (string) $child['name'];
+		}
+		return substr($store_id, 0, 8) . '…';
+	}
+
 	/**
 	 * Render the admin settings page.
 	 *
@@ -508,6 +560,54 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 			$this->redirect_to_tab('tools');
 		}
 
+		if (isset($_POST['kss_stock_history']) && check_admin_referer('kss_tools')) {
+			$history_sku = $this->read_post_text('history_sku', '');
+			if ($history_sku === '') {
+				$this->settings->set_notice('error', 'Enter a SKU to look up its stock history.');
+			} else {
+				set_transient($this->history_transient_key(), $this->sync->stock_history_across_stores($history_sku), 10 * MINUTE_IN_SECONDS);
+			}
+			$this->redirect_to_tab('tools');
+		}
+
+		if (isset($_POST['kss_identity_scan']) && check_admin_referer('kss_identity')) {
+			$result = $this->identity->scan();
+			$this->settings->set_notice($result['held'] > 0 ? 'warning' : 'success', sprintf(
+				'SKU Mapping Repair scan completed: %d issue(s) found, %d SKU(s) on sync hold, %d hold(s) released.',
+				$result['issues'],
+				$result['held'],
+				count($result['released'])
+			));
+			$this->redirect_to_tab('conflicts');
+		}
+
+		if (isset($_POST['kss_identity_set_sku']) && check_admin_referer('kss_identity')) {
+			[$ok, $message] = $this->identity->set_sku($this->read_post_int('product_id', 0), $this->read_post_text('new_sku', ''));
+			$this->settings->set_notice($ok ? 'success' : 'error', $message);
+			$this->redirect_to_tab('conflicts');
+		}
+
+		if (isset($_POST['kss_identity_new_gid']) && check_admin_referer('kss_identity')) {
+			[$ok, $message] = $this->identity->reissue_gid($this->read_post_int('product_id', 0));
+			$this->settings->set_notice($ok ? 'success' : 'error', $message);
+			$this->redirect_to_tab('conflicts');
+		}
+
+		if (isset($_POST['kss_identity_release']) && check_admin_referer('kss_identity')) {
+			$ok = $this->identity->release($this->read_post_text('hold_sku', ''));
+			$this->settings->set_notice($ok ? 'success' : 'error', $ok ? 'Sync hold released.' : 'That SKU is not on a sync hold.');
+			$this->redirect_to_tab('conflicts');
+		}
+
+		if ($this->settings->is_master() && isset($_POST['kss_identity_push']) && check_admin_referer('kss_identity')) {
+			$push_sku = $this->read_post_text('push_sku', '');
+			if ($push_sku !== '') {
+				$this->sync->master_push_skus([$push_sku]);
+			}
+			$this->settings->set_notice('success', 'SKU pushed to children. Each Child adopts the Master GID when it applies the update – run the Audit again to confirm.');
+			$this->redirect_to_tab('conflicts');
+		}
+
 		if ($this->settings->is_master() && isset($_POST['kss_scan_conflicts']) && check_admin_referer('kss_conflicts')) {
 			$this->sync->scan_for_conflicts();
 			$this->settings->set_notice('success', 'Duplicate-SKU scan completed.');
@@ -564,7 +664,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 
 		$action_scheduler_url = admin_url('admin.php?page=wc-status&tab=action-scheduler');
 
-		$ver = defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '1.0.0';
+		$ver = defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.2.0';
 		$logo_url = (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL : plugin_dir_url(__FILE__)) . 'assets/images/logos/kitgenix-primary-favicon.svg';
 		$social_base = (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL : plugin_dir_url(__FILE__)) . 'assets/images/social-media/';
 		$social_base = (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL : plugin_dir_url(__FILE__)) . 'assets/images/social-media/';
@@ -636,7 +736,22 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 				$lec = (string) ($health['last_error_code'] ?? '');
 				$last_error_ts = (int) ($health['last_outbound_error'] ?? 0);
 				$last_error_recoverable = $lec !== '' && Kitgenix_Stock_Sync_For_WooCommerce_Settings::is_recoverable_code($lec);
+				$held_count = count($this->settings->sku_holds());
 				?>
+
+				<?php if ($held_count > 0): ?>
+					<div class="kitgenix-notice kitgenix-notice-warning" role="status">
+						<span class="kitgenix-notice-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('warning'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+						<div class="kitgenix-notice-body">
+							<p class="kitgenix-notice-title"><?php echo esc_html(sprintf(
+								/* translators: %d: number of SKUs */
+								_n('%d SKU is on a sync hold', '%d SKUs are on a sync hold', $held_count, 'kitgenix-stock-sync-for-woocommerce'),
+								$held_count
+							)); ?></p>
+							<p class="kitgenix-notice-text"><?php echo esc_html__('These SKUs do not sync until their duplicate SKU or GID is repaired.', 'kitgenix-stock-sync-for-woocommerce'); ?> <a href="<?php echo esc_url(add_query_arg(['page' => 'kitgenix-stock-sync-for-woocommerce', 'tab' => 'conflicts'], admin_url('admin.php')) . '#kss-sku-repair'); ?>"><?php echo esc_html__('Open SKU Mapping Repair', 'kitgenix-stock-sync-for-woocommerce'); ?></a></p>
+						</div>
+					</div>
+				<?php endif; ?>
 
 				<div class="kitgenix-card">
 					<div class="kitgenix-card-head">
@@ -784,6 +899,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 							<?php endif; ?>
 						</div>
 					</div>
+
+					<?php $this->render_failover_card(); ?>
 				</div>
 
 			<div<?php echo $active_tab === 'configuration' ? '' : ' hidden="hidden"'; ?> class="kitgenix-panel-stack" data-kitgenix-tab-panel="configuration">
@@ -1202,6 +1319,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 					</div>
 				</div>
 
+				<?php $this->render_stock_history_card(); ?>
+
 				<?php if ($this->settings->is_master()): ?>
 					<div class="kitgenix-card">
 						<div class="kitgenix-card-head">
@@ -1451,6 +1570,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 
 			<div<?php echo $active_tab === 'conflicts' ? '' : ' hidden="hidden"'; ?> class="kitgenix-panel-stack" data-kitgenix-tab-panel="conflicts">
 
+				<?php $this->render_identity_card(); ?>
+
 				<div class="kitgenix-card">
 					<div class="kitgenix-card-head">
 						<div class="kitgenix-card-head-main">
@@ -1666,6 +1787,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 										'http_5xx' => __('None – this will retry automatically. Check the remote store if it continues for a while.', 'kitgenix-stock-sync-for-woocommerce'),
 										'http_4xx_rejected' => __('Check the WooCommerce/Kitgenix Logs on the remote store for the exact rejection reason.', 'kitgenix-stock-sync-for-woocommerce'),
 										'config_error' => __('Go to Configuration/Stores and complete the missing fields, or check the Event Log above for the item that failed.', 'kitgenix-stock-sync-for-woocommerce'),
+										'kss_sku_held' => __('Open Conflicts → SKU Mapping Repair and give the products a unique SKU or GID. Sync for the SKU resumes once it is repaired.', 'kitgenix-stock-sync-for-woocommerce'),
 									];
 									foreach ($kss_code_reference as $kss_ref_code => $kss_ref_action):
 										$kss_ref_info = Kitgenix_Stock_Sync_For_WooCommerce_Settings::get_category_and_note($kss_ref_code);
@@ -1811,6 +1933,492 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 		<?php
 	}
 
+	/** Status tab: Failover Readiness Report. */
+	private function render_failover_card(): void {
+		$r = $this->failover->build();
+		$verdict_badge = ['ready' => 'success', 'at_risk' => 'warning', 'not_ready' => 'danger'];
+		$level_badge = ['ok' => 'success', 'warning' => 'warning', 'critical' => 'danger'];
+		$level_label = [
+			'ok' => __('OK', 'kitgenix-stock-sync-for-woocommerce'),
+			'warning' => __('Warning', 'kitgenix-stock-sync-for-woocommerce'),
+			'critical' => __('Critical', 'kitgenix-stock-sync-for-woocommerce'),
+		];
+		?>
+		<div class="kitgenix-card" id="kss-failover-readiness">
+			<div class="kitgenix-card-head">
+				<div class="kitgenix-card-head-main">
+					<span class="kitgenix-card-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('shield'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+					<div class="kitgenix-card-head-text">
+						<h2><?php echo esc_html__('Failover readiness', 'kitgenix-stock-sync-for-woocommerce'); ?></h2>
+						<p><?php echo esc_html__('What happens if the Master is unreachable, based on this store\'s live settings and connection health.', 'kitgenix-stock-sync-for-woocommerce'); ?></p>
+					</div>
+				</div>
+				<div class="kitgenix-card-head-actions">
+					<span class="kitgenix-badge <?php echo esc_attr($verdict_badge[$r['verdict']] ?? 'neutral'); ?>"><?php echo esc_html(Kitgenix_Stock_Sync_For_WooCommerce_Failover::verdict_label((string) $r['verdict'])); ?></span>
+					<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline;">
+						<input type="hidden" name="action" value="kitgenix_stock_sync_failover_report">
+						<?php wp_nonce_field('kss_failover_report'); ?>
+						<button type="submit" class="button"><?php echo esc_html__('Download report', 'kitgenix-stock-sync-for-woocommerce'); ?></button>
+					</form>
+				</div>
+			</div>
+			<div class="kitgenix-card-body">
+				<ul class="kss-findings">
+					<?php foreach ($r['findings'] as $finding): ?>
+						<li><span class="kitgenix-badge <?php echo esc_attr($level_badge[$finding['level']] ?? 'neutral'); ?>"><?php echo esc_html($level_label[$finding['level']] ?? $finding['level']); ?></span> <?php echo esc_html($finding['text']); ?></li>
+					<?php endforeach; ?>
+				</ul>
+
+				<h3 class="kss-subheading"><?php echo esc_html__('If the Master is unreachable', 'kitgenix-stock-sync-for-woocommerce'); ?></h3>
+				<div class="kitgenix-settings-group">
+					<?php foreach ($r['behaviour'] as $b): ?>
+						<div class="kitgenix-setting-row kitgenix-setting-row-stacked">
+							<div class="kitgenix-setting-row-label">
+								<label><?php echo esc_html($b['title']); ?></label>
+								<p class="kitgenix-setting-row-desc"><?php echo esc_html($b['text']); ?></p>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+
+				<?php if (!empty($r['snapshots']['oldest'])): ?>
+					<h3 class="kss-subheading"><?php echo esc_html__('Oldest last-known-good stock snapshots', 'kitgenix-stock-sync-for-woocommerce'); ?></h3>
+					<div class="kitgenix-table-wrap">
+						<table class="kitgenix-table">
+							<thead>
+								<tr>
+									<th><?php echo esc_html__('SKU', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Age', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Usable at checkout', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($r['snapshots']['oldest'] as $snap): ?>
+									<tr>
+										<td><code><?php echo esc_html((string) $snap['sku']); ?></code></td>
+										<td><?php echo esc_html($this->failover->duration((int) $snap['age'])); ?></td>
+										<td><span class="kitgenix-badge <?php echo esc_attr($snap['usable'] ? 'success' : 'muted'); ?>"><?php echo esc_html($snap['usable'] ? __('Yes', 'kitgenix-stock-sync-for-woocommerce') : __('Too old', 'kitgenix-stock-sync-for-woocommerce')); ?></span></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
+
+				<?php if (!empty($r['children'])): ?>
+					<h3 class="kss-subheading"><?php echo esc_html__('Child stores', 'kitgenix-stock-sync-for-woocommerce'); ?></h3>
+					<div class="kitgenix-table-wrap">
+						<table class="kitgenix-table">
+							<thead>
+								<tr>
+									<th><?php echo esc_html__('Store', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Last contact', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Checkout if Master unreachable', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Usable snapshots', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Oldest snapshot', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Backlog (pending / exhausted)', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($r['children'] as $c): $rem = $c['remote']; ?>
+									<tr>
+										<td><?php echo esc_html($c['name']); ?><?php if (!$c['enabled']): ?> <span class="kitgenix-badge muted"><?php echo esc_html__('Disabled', 'kitgenix-stock-sync-for-woocommerce'); ?></span><?php endif; ?></td>
+										<td><?php echo esc_html($this->fmt_time((int) $c['last_contact'])); ?></td>
+										<td>
+											<?php
+											if ($rem === null) {
+												echo '<span class="kitgenix-badge muted">' . esc_html__('Unknown', 'kitgenix-stock-sync-for-woocommerce') . '</span>';
+											} elseif (empty($rem['strict'])) {
+												echo '<span class="kitgenix-badge warning">' . esc_html__('Not checked', 'kitgenix-stock-sync-for-woocommerce') . '</span>';
+											} else {
+												$rem_strategy = (string) ($rem['strategy'] ?? '');
+												echo '<span class="kitgenix-badge ' . esc_attr($rem_strategy === 'fail_open' ? 'warning' : 'neutral') . '">' . esc_html(Kitgenix_Stock_Sync_For_WooCommerce_Failover::strategy_label($rem_strategy)) . '</span>';
+											}
+											?>
+										</td>
+										<td><?php echo $rem === null ? '–' : esc_html(sprintf('%d / %d', (int) ($rem['snapshots']['usable'] ?? 0), (int) ($rem['snapshots']['count'] ?? 0))); ?></td>
+										<td><?php echo ($rem === null || ($rem['snapshots']['oldest_age'] ?? null) === null) ? '–' : esc_html($this->failover->duration((int) $rem['snapshots']['oldest_age'])); ?></td>
+										<td><?php echo $rem === null ? '–' : esc_html(sprintf('%d / %d', (int) ($rem['backlog_pending'] ?? 0), (int) ($rem['backlog_exhausted'] ?? 0))); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
+
+				<h3 class="kss-subheading"><?php echo esc_html__('Recovery', 'kitgenix-stock-sync-for-woocommerce'); ?></h3>
+				<ol class="kss-recovery-steps">
+					<?php foreach ($r['recovery'] as $step): ?>
+						<li><?php echo esc_html($step); ?></li>
+					<?php endforeach; ?>
+				</ol>
+			</div>
+		</div>
+		<?php
+	}
+
+	/** Tools tab: Stock History per SKU lookup form and result. */
+	private function render_stock_history_card(): void {
+		$result = get_transient($this->history_transient_key());
+		$result = is_array($result) ? $result : null;
+		?>
+		<div class="kitgenix-card">
+			<div class="kitgenix-card-head">
+				<div class="kitgenix-card-head-main">
+					<span class="kitgenix-card-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('backlog'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+					<div class="kitgenix-card-head-text">
+						<h2><?php echo esc_html__('Stock History per SKU', 'kitgenix-stock-sync-for-woocommerce'); ?></h2>
+						<p><?php echo esc_html($this->settings->is_master()
+							? __('Inspect the versioned stock events for one product on this Master and on every enabled Child store.', 'kitgenix-stock-sync-for-woocommerce')
+							: __('Inspect the versioned stock events for one product on this store and on the Master.', 'kitgenix-stock-sync-for-woocommerce')); ?></p>
+					</div>
+				</div>
+			</div>
+			<div class="kitgenix-card-body">
+				<form method="post">
+					<?php wp_nonce_field('kss_tools'); ?>
+					<div class="kitgenix-settings-group">
+						<div class="kitgenix-setting-row">
+							<div class="kitgenix-setting-row-label">
+								<label for="kss_history_sku"><?php echo esc_html__('SKU', 'kitgenix-stock-sync-for-woocommerce'); ?></label>
+								<p class="kitgenix-setting-row-desc"><?php echo esc_html__('Each store keeps the most recent events per product. Events with the same Event ID are the same change seen on different stores.', 'kitgenix-stock-sync-for-woocommerce'); ?></p>
+							</div>
+							<div class="kitgenix-setting-row-control">
+								<input type="text" id="kss_history_sku" class="regular-text" name="history_sku" value="<?php echo esc_attr($result ? (string) $result['sku'] : ''); ?>">
+								<button type="submit" class="button" name="kss_stock_history" value="1"><?php echo esc_html__('Show History', 'kitgenix-stock-sync-for-woocommerce'); ?></button>
+							</div>
+						</div>
+					</div>
+				</form>
+
+				<?php if ($result): ?>
+					<h3 class="kss-subheading"><?php echo esc_html(sprintf(
+						/* translators: 1: SKU, 2: date/time */
+						__('Current state of %1$s (looked up %2$s)', 'kitgenix-stock-sync-for-woocommerce'),
+						(string) $result['sku'],
+						$this->fmt_time((int) ($result['generated_at'] ?? 0))
+					)); ?></h3>
+					<div class="kitgenix-table-wrap">
+						<table class="kitgenix-table">
+							<thead>
+								<tr>
+									<th><?php echo esc_html__('Store', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Stock', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Status', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Backorders', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Version', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('GID', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ((array) $result['stores'] as $store):
+									$st = is_array($store['state'] ?? null) ? $store['state'] : [];
+									$is_master_row = ($store['role'] ?? '') === 'master';
+								?>
+									<tr>
+										<td>
+											<?php echo esc_html((string) $store['name']); ?>
+											<span class="kitgenix-badge <?php echo esc_attr($is_master_row ? 'brand' : 'neutral'); ?>"><?php echo esc_html(ucfirst((string) $store['role'])); ?></span>
+										</td>
+										<?php if (($store['error'] ?? '') !== ''): ?>
+											<td colspan="5"><span class="kitgenix-badge danger"><?php echo esc_html__('Unreachable', 'kitgenix-stock-sync-for-woocommerce'); ?></span> <code><?php echo esc_html((string) $store['error']); ?></code></td>
+										<?php elseif (empty($st['exists'])): ?>
+											<td colspan="5"><span class="kitgenix-badge warning"><?php echo esc_html__('SKU not found on this store', 'kitgenix-stock-sync-for-woocommerce'); ?></span></td>
+										<?php else: ?>
+											<td><?php echo esc_html((string) ($st['stock_quantity'] ?? '')); ?></td>
+											<td><?php echo esc_html((string) ($st['stock_status'] ?? '')); ?></td>
+											<td><?php echo esc_html((string) ($st['backorders'] ?? '')); ?></td>
+											<td>
+												<?php
+												if (!array_key_exists('version', $st)) {
+													echo '–';
+												} elseif ($is_master_row) {
+													/* translators: %d: version number */
+													echo esc_html(sprintf(__('v%d (authoritative)', 'kitgenix-stock-sync-for-woocommerce'), (int) $st['version']));
+												} else {
+													/* translators: %d: version number */
+													echo esc_html(sprintf(__('v%d applied', 'kitgenix-stock-sync-for-woocommerce'), (int) ($st['applied_version'] ?? 0)));
+												}
+												?>
+											</td>
+											<td><code title="<?php echo esc_attr((string) ($st['gid'] ?? '')); ?>"><?php echo esc_html(($st['gid'] ?? '') !== '' ? substr((string) $st['gid'], 0, 8) . '…' : '–'); ?></code></td>
+										<?php endif; ?>
+									</tr>
+									<?php if (($store['error'] ?? '') === '' && !empty($st['exists']) && empty($store['history_supported'])): ?>
+										<tr><td colspan="6" class="description"><?php echo esc_html__('This store runs an older plugin version that does not keep stock history. Update it to 2.2.0 or later to include it here.', 'kitgenix-stock-sync-for-woocommerce'); ?></td></tr>
+									<?php endif; ?>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+
+					<h3 class="kss-subheading"><?php echo esc_html__('Event timeline (newest first)', 'kitgenix-stock-sync-for-woocommerce'); ?></h3>
+					<?php if (empty($result['timeline'])): ?>
+						<div class="kitgenix-empty-state">
+							<span class="kitgenix-empty-state-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('backlog'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+							<h3 class="kitgenix-empty-state-title"><?php echo esc_html__('No stock events recorded yet', 'kitgenix-stock-sync-for-woocommerce'); ?></h3>
+							<p class="kitgenix-empty-state-desc"><?php echo esc_html__('History is recorded from version 2.2.0 onwards, each time this product\'s stock is captured, stamped, or applied.', 'kitgenix-stock-sync-for-woocommerce'); ?></p>
+						</div>
+					<?php else: ?>
+						<div class="kitgenix-search-bar">
+							<div class="kitgenix-search-bar-input">
+								<span class="kitgenix-search-bar-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('search'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+								<input type="search" placeholder="<?php echo esc_attr__('Search events…', 'kitgenix-stock-sync-for-woocommerce'); ?>" data-kitgenix-table-search data-kitgenix-table-search-target="#kss-history-table" />
+							</div>
+						</div>
+						<div class="kitgenix-table-wrap" id="kss-history-table" data-kitgenix-table-paginate="25">
+							<table class="kitgenix-table">
+								<thead>
+									<tr>
+										<th><?php echo esc_html__('Time', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+										<th><?php echo esc_html__('Store', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+										<th><?php echo esc_html__('Event', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+										<th><?php echo esc_html__('Version', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+										<th><?php echo esc_html__('Stock', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+										<th><?php echo esc_html__('Status / backorders', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+										<th><?php echo esc_html__('Origin', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+										<th><?php echo esc_html__('Event ID', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+									$event_badge = ['captured' => 'info', 'authoritative' => 'brand', 'applied' => 'success', 'sku_rename' => 'neutral', 'skipped_stale' => 'muted'];
+									foreach ((array) $result['timeline'] as $e):
+										$etype = (string) ($e['type'] ?? '');
+										$eid = (string) ($e['event_id'] ?? '');
+										$status_parts = array_filter([(string) ($e['stock_status'] ?? ''), (string) ($e['backorders'] ?? '')]);
+									?>
+										<tr data-kitgenix-table-row>
+											<td><?php echo esc_html($this->fmt_time((int) ($e['time'] ?? 0))); ?></td>
+											<td><?php echo esc_html((string) ($e['at_store'] ?? '')); ?></td>
+											<td>
+												<span class="kitgenix-badge <?php echo esc_attr($event_badge[$etype] ?? 'neutral'); ?>"><?php echo esc_html(Kitgenix_Stock_Sync_For_WooCommerce_History::type_label($etype)); ?></span>
+												<?php if (($e['note'] ?? '') !== ''): ?><br><span class="description"><?php echo esc_html((string) $e['note']); ?></span><?php endif; ?>
+											</td>
+											<td><?php echo (int) ($e['version'] ?? 0) > 0 ? esc_html('v' . (int) $e['version']) : '–'; ?></td>
+											<td><?php echo ($e['stock_quantity'] ?? null) === null ? '–' : esc_html((string) (int) $e['stock_quantity']); ?></td>
+											<td><?php echo esc_html($status_parts ? implode(' / ', $status_parts) : '–'); ?></td>
+											<td>
+												<?php echo esc_html($this->store_label((string) ($e['store_id'] ?? ''))); ?>
+												<?php if (($e['context'] ?? '') !== ''): ?><br><code><?php echo esc_html((string) $e['context']); ?></code><?php endif; ?>
+											</td>
+											<td><?php echo $eid !== '' ? '<code title="' . esc_attr($eid) . '">' . esc_html(substr($eid, 0, 8)) . '</code>' : '–'; ?></td>
+										</tr>
+									<?php endforeach; ?>
+								</tbody>
+							</table>
+							<div class="kitgenix-empty-state" data-kitgenix-table-empty style="display:none;">
+								<p class="kitgenix-empty-state-title"><?php echo esc_html__('No matching events', 'kitgenix-stock-sync-for-woocommerce'); ?></p>
+							</div>
+						</div>
+					<?php endif; ?>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
+	/** Conflicts tab: SKU Mapping Repair Tool. */
+	private function render_identity_card(): void {
+		$report = $this->settings->get_identity_report();
+		$holds = $this->settings->sku_holds();
+		$remote = $this->identity->remote_issues();
+		$issue_labels = [
+			'duplicate_sku' => __('Duplicate SKU', 'kitgenix-stock-sync-for-woocommerce'),
+			'duplicate_gid' => __('Duplicate GID', 'kitgenix-stock-sync-for-woocommerce'),
+			'missing_sku' => __('Missing SKU', 'kitgenix-stock-sync-for-woocommerce'),
+			'gid_mismatch' => __('GID mismatch', 'kitgenix-stock-sync-for-woocommerce'),
+			'missing_product' => __('Missing on Child', 'kitgenix-stock-sync-for-woocommerce'),
+		];
+		?>
+		<div class="kitgenix-card" id="kss-sku-repair">
+			<div class="kitgenix-card-head">
+				<div class="kitgenix-card-head-main">
+					<span class="kitgenix-card-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('tools'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+					<div class="kitgenix-card-head-text">
+						<h2><?php echo esc_html__('SKU Mapping Repair', 'kitgenix-stock-sync-for-woocommerce'); ?></h2>
+						<p><?php echo esc_html__('Finds duplicate and missing SKU identities on this store. A SKU used by more than one product, or a GID shared by more than one product, is put on a sync hold – skipped by all sync – until it is repaired, so an ambiguous match can never overwrite the wrong product.', 'kitgenix-stock-sync-for-woocommerce'); ?></p>
+					</div>
+				</div>
+				<div class="kitgenix-card-head-actions">
+					<form method="post" style="display:inline;">
+						<?php wp_nonce_field('kss_identity'); ?>
+						<button type="submit" class="button" name="kss_identity_scan" value="1"><?php echo esc_html__('Scan SKU Identities', 'kitgenix-stock-sync-for-woocommerce'); ?></button>
+					</form>
+				</div>
+			</div>
+			<div class="kitgenix-card-body">
+				<?php if (!empty($holds)): ?>
+					<div class="kitgenix-notice kitgenix-notice-warning" role="status" style="margin-bottom:16px;">
+						<span class="kitgenix-notice-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('warning'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+						<div class="kitgenix-notice-body">
+							<p class="kitgenix-notice-title"><?php echo esc_html(sprintf(
+								/* translators: %d: number of SKUs */
+								_n('%d SKU is on a sync hold', '%d SKUs are on a sync hold', count($holds), 'kitgenix-stock-sync-for-woocommerce'),
+								count($holds)
+							)); ?></p>
+							<p class="kitgenix-notice-text"><?php echo esc_html($this->settings->is_master()
+								? __('Repair the products below. Holds are released automatically once the identity is unique, and the released SKUs are pushed to every Child so sync resumes.', 'kitgenix-stock-sync-for-woocommerce')
+								: __('Repair the products below. Holds are released automatically once the identity is unique; the next update from the Master then resumes sync. You can also run Manual SKU Sync on the Master.', 'kitgenix-stock-sync-for-woocommerce')); ?></p>
+						</div>
+					</div>
+					<div class="kitgenix-table-wrap" style="margin-bottom:16px;">
+						<table class="kitgenix-table">
+							<thead>
+								<tr>
+									<th><?php echo esc_html__('Held SKU', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Reason', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Held since', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th class="kitgenix-table-actions-col"><?php echo esc_html__('Actions', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($holds as $hold_sku => $hold): ?>
+									<tr>
+										<td><code><?php echo esc_html((string) $hold_sku); ?></code></td>
+										<td><span class="kitgenix-badge danger"><?php echo esc_html($issue_labels[$hold['reason'] ?? ''] ?? (string) ($hold['reason'] ?? '')); ?></span> <?php echo esc_html((string) ($hold['detail'] ?? '')); ?></td>
+										<td><?php echo esc_html($this->fmt_time((int) ($hold['since'] ?? 0))); ?></td>
+										<td>
+											<form method="post" style="display:inline;" onsubmit="return confirm('<?php echo esc_js(__('Release this hold without repairing it? Sync will use whichever product WooCommerce matches first. The next scan holds it again if it is still ambiguous.', 'kitgenix-stock-sync-for-woocommerce')); ?>');">
+												<?php wp_nonce_field('kss_identity'); ?>
+												<input type="hidden" name="hold_sku" value="<?php echo esc_attr((string) $hold_sku); ?>">
+												<button type="submit" class="kitgenix-table-action-btn kitgenix-table-action-danger" name="kss_identity_release" value="1"><?php echo esc_html__('Release', 'kitgenix-stock-sync-for-woocommerce'); ?></button>
+											</form>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
+
+				<?php if ((int) $report['generated_at'] === 0): ?>
+					<div class="kitgenix-empty-state">
+						<span class="kitgenix-empty-state-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('search'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+						<h3 class="kitgenix-empty-state-title"><?php echo esc_html__('Not scanned yet', 'kitgenix-stock-sync-for-woocommerce'); ?></h3>
+						<p class="kitgenix-empty-state-desc"><?php echo esc_html__('Run Scan SKU Identities to check this store for duplicate SKUs, shared GIDs, and stock-managed products without a SKU.', 'kitgenix-stock-sync-for-woocommerce'); ?></p>
+					</div>
+				<?php elseif (empty($report['items'])): ?>
+					<div class="kitgenix-notice kitgenix-notice-success" role="status">
+						<span class="kitgenix-notice-icon" aria-hidden="true"><?php echo Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon('check'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped, static trusted SVG markup from Kitgenix_Stock_Sync_For_WooCommerce_Admin::icon(). ?></span>
+						<div class="kitgenix-notice-body">
+							<p class="kitgenix-notice-text"><?php echo esc_html(sprintf(
+								/* translators: %s: date/time */
+								__('No SKU identity problems found on this store (scanned %s).', 'kitgenix-stock-sync-for-woocommerce'),
+								$this->fmt_time((int) $report['generated_at'])
+							)); ?></p>
+						</div>
+					</div>
+				<?php else: ?>
+					<p class="description" style="margin-bottom:12px;"><?php echo esc_html(sprintf(
+						/* translators: %s: date/time */
+						__('Last scanned: %s. Assigning a SKU here is not sent to other stores as a rename, because with a duplicate SKU there is no way to tell which Child product matches the renamed one.', 'kitgenix-stock-sync-for-woocommerce'),
+						$this->fmt_time((int) $report['generated_at'])
+					)); ?></p>
+					<div class="kitgenix-table-wrap">
+						<table class="kitgenix-table">
+							<thead>
+								<tr>
+									<th><?php echo esc_html__('Issue', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Product', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('SKU', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('GID', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Repair', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($report['items'] as $item):
+									if (!is_array($item)) continue;
+									$itype = (string) ($item['type'] ?? '');
+									foreach ((array) ($item['products'] ?? []) as $pi => $p):
+										$pid = (int) ($p['id'] ?? 0);
+								?>
+									<tr>
+										<td>
+											<?php if ($pi === 0): ?>
+												<span class="kitgenix-badge <?php echo esc_attr(!empty($item['blocking']) ? 'danger' : 'warning'); ?>"><?php echo esc_html($issue_labels[$itype] ?? $itype); ?></span>
+												<br><span class="description"><?php echo esc_html((string) ($item['detail'] ?? '')); ?></span>
+											<?php endif; ?>
+										</td>
+										<td>
+											<?php if (($p['edit_url'] ?? '') !== ''): ?>
+												<a href="<?php echo esc_url((string) $p['edit_url']); ?>"><?php echo esc_html((string) ($p['name'] ?? '')); ?></a>
+											<?php else: ?>
+												<?php echo esc_html((string) ($p['name'] ?? '')); ?>
+											<?php endif; ?>
+											<br><span class="description"><?php echo esc_html('#' . $pid . ' · ' . (string) ($p['type'] ?? '')); ?></span>
+											<?php if ($pi === 0 && in_array($itype, ['duplicate_sku', 'duplicate_gid'], true)): ?>
+												<span class="kitgenix-badge neutral"><?php echo esc_html__('Oldest', 'kitgenix-stock-sync-for-woocommerce'); ?></span>
+											<?php endif; ?>
+										</td>
+										<td><?php echo ($p['sku'] ?? '') !== '' ? '<code>' . esc_html((string) $p['sku']) . '</code>' : '–'; ?></td>
+										<td><?php echo ($p['gid'] ?? '') !== '' ? '<code title="' . esc_attr((string) $p['gid']) . '">' . esc_html(substr((string) $p['gid'], 0, 8)) . '…</code>' : '–'; ?></td>
+										<td>
+											<?php if ($itype === 'duplicate_sku' || $itype === 'missing_sku'): ?>
+												<form method="post" class="kss-inline-form">
+													<?php wp_nonce_field('kss_identity'); ?>
+													<input type="hidden" name="product_id" value="<?php echo esc_attr((string) $pid); ?>">
+													<input type="text" name="new_sku" class="regular-text" placeholder="<?php echo esc_attr__('New unique SKU', 'kitgenix-stock-sync-for-woocommerce'); ?>" aria-label="<?php echo esc_attr__('New unique SKU', 'kitgenix-stock-sync-for-woocommerce'); ?>" required>
+													<button type="submit" class="button" name="kss_identity_set_sku" value="1"><?php echo esc_html__('Assign SKU', 'kitgenix-stock-sync-for-woocommerce'); ?></button>
+												</form>
+											<?php elseif ($itype === 'duplicate_gid' && $pi > 0): ?>
+												<form method="post" class="kss-inline-form">
+													<?php wp_nonce_field('kss_identity'); ?>
+													<input type="hidden" name="product_id" value="<?php echo esc_attr((string) $pid); ?>">
+													<button type="submit" class="button" name="kss_identity_new_gid" value="1"><?php echo esc_html($this->settings->is_master() ? __('Issue new GID', 'kitgenix-stock-sync-for-woocommerce') : __('Clear GID', 'kitgenix-stock-sync-for-woocommerce')); ?></button>
+												</form>
+											<?php elseif ($itype === 'duplicate_gid'): ?>
+												<span class="description"><?php echo esc_html__('Keeps this GID', 'kitgenix-stock-sync-for-woocommerce'); ?></span>
+											<?php endif; ?>
+										</td>
+									</tr>
+								<?php endforeach; endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
+
+				<?php if (!empty($remote)): ?>
+					<h3 class="kss-subheading"><?php echo esc_html__('Identity problems on Child stores', 'kitgenix-stock-sync-for-woocommerce'); ?></h3>
+					<p class="description" style="margin-bottom:12px;"><?php echo esc_html__('From the latest Audit or Reconcile. A pushed update makes the Child adopt the Master\'s GID (the Child must run 2.2.0 or later). These do not put SKUs on hold.', 'kitgenix-stock-sync-for-woocommerce'); ?></p>
+					<div class="kitgenix-table-wrap">
+						<table class="kitgenix-table">
+							<thead>
+								<tr>
+									<th><?php echo esc_html__('Issue', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('SKU', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Child', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+									<th><?php echo esc_html__('Repair', 'kitgenix-stock-sync-for-woocommerce'); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($remote as $row): $rtype = (string) ($row['type'] ?? ''); ?>
+									<tr>
+										<td><span class="kitgenix-badge warning"><?php echo esc_html($issue_labels[$rtype] ?? $rtype); ?></span></td>
+										<td><code><?php echo esc_html((string) ($row['sku'] ?? '')); ?></code></td>
+										<td><?php echo esc_html((string) ($row['child_name'] ?? '')); ?></td>
+										<td>
+											<?php if ($rtype === 'gid_mismatch'): ?>
+												<form method="post" class="kss-inline-form">
+													<?php wp_nonce_field('kss_identity'); ?>
+													<input type="hidden" name="push_sku" value="<?php echo esc_attr((string) ($row['sku'] ?? '')); ?>">
+													<button type="submit" class="button" name="kss_identity_push" value="1"><?php echo esc_html__('Push Master GID', 'kitgenix-stock-sync-for-woocommerce'); ?></button>
+												</form>
+											<?php else: ?>
+												<span class="description"><?php echo esc_html__('Create a product with this SKU on the Child, or add the SKU to Excluded SKUs.', 'kitgenix-stock-sync-for-woocommerce'); ?></span>
+											<?php endif; ?>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
 	private function render_sidebar(): void {
 		$social_base = (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL : plugin_dir_url(__FILE__)) . 'assets/images/social-media/';
 		$social_links = [
@@ -1876,7 +2484,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 			$endpoint = $url . '/wp-json/kitgenix-stock-sync/v1/ping';
 			$body = wp_json_encode(['ping' => true]);
 
-			$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body);
+			$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body, $endpoint);
 
 			$res = wp_remote_post($endpoint, [
 				'timeout' => 15,
@@ -1901,7 +2509,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Admin {
 
 		$endpoint = $url . '/wp-json/kitgenix-stock-sync/v1/ping';
 		$body = wp_json_encode(['ping' => true]);
-		$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body);
+		$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body, $endpoint);
 
 		$res = wp_remote_post($endpoint, [
 			'timeout' => 15,

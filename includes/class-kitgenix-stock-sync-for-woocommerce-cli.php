@@ -9,15 +9,29 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_CLI {
 
 	private Kitgenix_Stock_Sync_For_WooCommerce_Settings $settings;
 	private Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync;
+	private Kitgenix_Stock_Sync_For_WooCommerce_Identity $identity;
+	private Kitgenix_Stock_Sync_For_WooCommerce_Failover $failover;
 
-	public static function register(Kitgenix_Stock_Sync_For_WooCommerce_Settings $settings, Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync): void {
-		$instance = new self($settings, $sync);
+	public static function register(
+		Kitgenix_Stock_Sync_For_WooCommerce_Settings $settings,
+		Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync,
+		Kitgenix_Stock_Sync_For_WooCommerce_Identity $identity,
+		Kitgenix_Stock_Sync_For_WooCommerce_Failover $failover
+	): void {
+		$instance = new self($settings, $sync, $identity, $failover);
 		\WP_CLI::add_command('kitgenix-stock-sync', $instance);
 	}
 
-	public function __construct(Kitgenix_Stock_Sync_For_WooCommerce_Settings $settings, Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync) {
+	public function __construct(
+		Kitgenix_Stock_Sync_For_WooCommerce_Settings $settings,
+		Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync,
+		Kitgenix_Stock_Sync_For_WooCommerce_Identity $identity,
+		Kitgenix_Stock_Sync_For_WooCommerce_Failover $failover
+	) {
 		$this->settings = $settings;
 		$this->sync = $sync;
+		$this->identity = $identity;
+		$this->failover = $failover;
 	}
 
 	/**
@@ -335,6 +349,187 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_CLI {
 		}
 
 		\WP_CLI\Utils\format_items((string) ($assoc_args['format'] ?? 'table'), $report['items'], ['type', 'sku', 'child_name', 'master_value', 'child_value', 'detail']);
+	}
+
+	/**
+	 * Show the versioned stock history for one SKU on this store and on connected stores.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <sku>
+	 * : The SKU to look up.
+	 *
+	 * [--local]
+	 * : Only show this store's history (no requests to other stores).
+	 *
+	 * [--format=<format>]
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - json
+	 *   - csv
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp kitgenix-stock-sync history SKU1
+	 *     wp kitgenix-stock-sync history SKU1 --local --format=json
+	 */
+	public function history(array $args, array $assoc_args): void {
+		$sku = trim((string) ($args[0] ?? ''));
+		if ($sku === '') {
+			\WP_CLI::error('Provide a SKU.');
+		}
+
+		if (isset($assoc_args['local'])) {
+			$state = $this->sync->local_stock_lookup([['sku' => $sku]], true)[$sku] ?? ['exists' => false];
+			$result = ['stores' => [['name' => $this->settings->this_store_name(), 'error' => '', 'state' => $state]], 'timeline' => []];
+			foreach ((array) ($state['history'] ?? []) as $entry) {
+				$result['timeline'][] = $entry + ['at_store' => $this->settings->this_store_name()];
+			}
+			$result['timeline'] = array_reverse($result['timeline']);
+		} else {
+			$result = $this->sync->stock_history_across_stores($sku);
+		}
+
+		foreach ($result['stores'] as $store) {
+			if (($store['error'] ?? '') !== '') {
+				\WP_CLI::warning(sprintf('%s: %s', $store['name'], $store['error']));
+			} elseif (empty($store['state']['exists'])) {
+				\WP_CLI::warning(sprintf('%s: SKU not found.', $store['name']));
+			}
+		}
+
+		if (empty($result['timeline'])) {
+			\WP_CLI::success('No stock events recorded for this SKU.');
+			return;
+		}
+
+		$rows = array_map(fn($e) => [
+			'time' => $this->fmt((int) ($e['time'] ?? 0)),
+			'store' => (string) ($e['at_store'] ?? ''),
+			'event' => (string) ($e['type'] ?? ''),
+			'version' => (int) ($e['version'] ?? 0),
+			'stock' => ($e['stock_quantity'] ?? null) === null ? '' : (int) $e['stock_quantity'],
+			'status' => (string) ($e['stock_status'] ?? ''),
+			'backorders' => (string) ($e['backorders'] ?? ''),
+			'context' => (string) ($e['context'] ?? ''),
+			'origin_store_id' => (string) ($e['store_id'] ?? ''),
+			'event_id' => (string) ($e['event_id'] ?? ''),
+			'note' => (string) ($e['note'] ?? ''),
+		], $result['timeline']);
+
+		\WP_CLI\Utils\format_items((string) ($assoc_args['format'] ?? 'table'), $rows, ['time', 'store', 'event', 'version', 'stock', 'status', 'backorders', 'context', 'origin_store_id', 'event_id', 'note']);
+	}
+
+	/**
+	 * SKU Mapping Repair: scan for duplicate/missing SKU identities, list holds, or release a hold.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <action>
+	 * : One of: scan, list, holds, release
+	 *
+	 * [<sku>]
+	 * : SKU to release (for release).
+	 *
+	 * [--format=<format>]
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - json
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp kitgenix-stock-sync identity scan
+	 *     wp kitgenix-stock-sync identity holds
+	 *     wp kitgenix-stock-sync identity release SKU1
+	 */
+	public function identity(array $args, array $assoc_args): void {
+		$action = (string) array_shift($args);
+		$format = (string) ($assoc_args['format'] ?? 'table');
+
+		if ($action === 'scan') {
+			$result = $this->identity->scan();
+			\WP_CLI::success(sprintf('%d issue(s) found, %d SKU(s) on sync hold, %d hold(s) released.', $result['issues'], $result['held'], count($result['released'])));
+			$action = 'list';
+		}
+
+		if ($action === 'list') {
+			$rows = [];
+			foreach ($this->settings->get_identity_report()['items'] as $item) {
+				foreach ((array) ($item['products'] ?? []) as $p) {
+					$rows[] = [
+						'type' => (string) ($item['type'] ?? ''),
+						'blocking' => !empty($item['blocking']) ? 'yes' : 'no',
+						'product_id' => (int) ($p['id'] ?? 0),
+						'name' => (string) ($p['name'] ?? ''),
+						'sku' => (string) ($p['sku'] ?? ''),
+						'gid' => (string) ($p['gid'] ?? ''),
+					];
+				}
+			}
+			if (empty($rows)) {
+				\WP_CLI::success('No SKU identity problems in the last scan.');
+				return;
+			}
+			\WP_CLI\Utils\format_items($format, $rows, ['type', 'blocking', 'product_id', 'name', 'sku', 'gid']);
+			return;
+		}
+
+		if ($action === 'holds') {
+			$rows = [];
+			foreach ($this->settings->sku_holds() as $sku => $hold) {
+				$rows[] = ['sku' => (string) $sku, 'reason' => (string) ($hold['reason'] ?? ''), 'since' => $this->fmt((int) ($hold['since'] ?? 0)), 'detail' => (string) ($hold['detail'] ?? '')];
+			}
+			if (empty($rows)) {
+				\WP_CLI::success('No SKUs are on a sync hold.');
+				return;
+			}
+			\WP_CLI\Utils\format_items($format, $rows, ['sku', 'reason', 'since', 'detail']);
+			return;
+		}
+
+		if ($action === 'release') {
+			$sku = trim((string) array_shift($args));
+			if ($sku === '') \WP_CLI::error('Provide the SKU to release.');
+			$this->identity->release($sku) ? \WP_CLI::success('Sync hold released.') : \WP_CLI::error('That SKU is not on a sync hold.');
+			return;
+		}
+
+		\WP_CLI::error('Usage: wp kitgenix-stock-sync identity <scan|list|holds|release> [<sku>]');
+	}
+
+	/**
+	 * Print the Failover Readiness Report: what happens if the Master is unreachable.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--format=<format>]
+	 * ---
+	 * default: markdown
+	 * options:
+	 *   - markdown
+	 *   - json
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp kitgenix-stock-sync failover-report
+	 *     wp kitgenix-stock-sync failover-report --format=json > failover.json
+	 *
+	 * @subcommand failover-report
+	 */
+	public function failover_report(array $args, array $assoc_args): void {
+		$report = $this->failover->build();
+		if (($assoc_args['format'] ?? 'markdown') === 'json') {
+			\WP_CLI::line((string) wp_json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+			return;
+		}
+		\WP_CLI::line($this->failover->to_markdown($report));
 	}
 
 	private function fmt($ts, bool $future = false): string {

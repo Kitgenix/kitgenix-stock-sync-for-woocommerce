@@ -11,6 +11,20 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 	/** @var array<int,array<int,string>> product_id => context tags touched during this request */
 	private static array $dirty = [];
 
+	/**
+	 * Order-driven stock deltas captured this request, keyed by idempotency
+	 * key (store:order:item:op), each: ['product_id'=>int,'op'=>'increase'|'decrease','qty'=>int,'key'=>string].
+	 * Flushed into the matching product's outbound item in flush_dirty_products()
+	 * (see S1 in ROADMAP.md): these ride alongside the existing absolute
+	 * stock_quantity snapshot so a receiving store that doesn't yet understand
+	 * deltas still gets a correct value, while one that does applies the
+	 * delta atomically instead of trusting a (possibly already stale) absolute
+	 * number.
+	 *
+	 * @var array<string,array{product_id:int,op:string,qty:int,key:string}>
+	 */
+	private static array $pending_deltas = [];
+
 	public const META_GID = '_kitgenix_stock_sync_for_woocommerce_gid';
 
 	/** Master-authoritative monotonic version counter, bumped every authoritative capture. */
@@ -24,6 +38,18 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 	private const DIRTY_FLUSH_CHUNK = 500;
 	private const RETRY_DELAYS = [60, 300, 900, 3600, 21600];
 	private const MAX_DELIVERY_ATTEMPTS = 8;
+
+	/**
+	 * Index of last-known-good stock snapshots (sku => cached_at), so the
+	 * Failover Readiness Report can show their age. The snapshots themselves
+	 * are transients, which cannot be listed when an object cache is in use.
+	 */
+	public const SNAPSHOT_INDEX_OPTION = 'kitgenix_stock_sync_for_woocommerce_snapshot_index';
+	private const SNAPSHOT_INDEX_CAP = 1000;
+	private const SNAPSHOT_TTL = DAY_IN_SECONDS;
+
+	/** @var array<string,int> snapshot index updates buffered for this request */
+	private static array $snapshot_index_pending = [];
 
 	public function __construct(
 		Kitgenix_Stock_Sync_For_WooCommerce_Settings $settings,
@@ -51,17 +77,79 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		add_action('woocommerce_order_status_processing', [$this, 'on_order_status_processing'], 10, 1);
 		add_action('woocommerce_restore_order_stock', [$this, 'on_restore_order_stock_after'], 10, 1);
 
+		// The actual delta source for S1 (oversell fix): these fire once per
+		// order, whatever status triggered the reduction/restoration (processing,
+		// on-hold, a pending order's held stock expiring, a failed-order
+		// restock...), after WooCommerce has already written the real local
+		// change. Capture the per-line quantity so the event we send carries a
+		// delta the Master can apply atomically, not just the resulting
+		// absolute number.
+		add_action('woocommerce_reduce_order_stock', [$this, 'on_reduce_order_stock'], 20, 1);
+		add_action('woocommerce_restore_order_stock', [$this, 'on_capture_restore_order_stock_delta'], 5, 1);
+
 		add_action('updated_post_meta', [$this, 'on_updated_post_meta'], 10, 4);
 
 		add_filter('update_post_metadata', [$this, 'capture_old_sku_before_update'], 10, 5);
 		add_action('updated_post_meta', [$this, 'on_sku_updated_post_meta'], 10, 4);
 
 		add_action('woocommerce_after_checkout_validation', [$this, 'child_checkout_validation'], 10, 2);
+		// The Checkout block bypasses woocommerce_after_checkout_validation, so run the same check on Store API checkout.
+		add_action('woocommerce_store_api_checkout_update_order_from_request', [$this, 'child_blocks_checkout_validation'], 10, 2);
 
 		// Coalesce every product touched during this request into one event, sent once
 		// the request is otherwise finished. See flush_dirty_products().
 		add_action('shutdown', [$this, 'flush_dirty_products'], 20);
+		add_action('shutdown', [$this, 'flush_snapshot_index'], 30);
+
+		// A product made with WooCommerce's "Duplicate" action must get its own
+		// sync identity, not a copy of the original's (a shared GID routes
+		// updates to the wrong product – see the SKU Mapping Repair Tool).
+		add_filter('woocommerce_duplicate_product_exclude_meta', [$this, 'exclude_identity_meta_from_duplicate']);
 	}
+
+	public function exclude_identity_meta_from_duplicate($meta_keys): array {
+		$meta_keys = is_array($meta_keys) ? $meta_keys : [];
+		return array_merge($meta_keys, [
+			self::META_GID,
+			self::META_VERSION,
+			self::META_APPLIED_VERSION,
+			Kitgenix_Stock_Sync_For_WooCommerce_History::META_KEY,
+		]);
+	}
+
+	/**
+	 * Run $fn with outbound capture suppressed, so writes it makes (e.g. a
+	 * SKU Mapping Repair) are not broadcast as stock or SKU-rename events.
+	 */
+	public function with_outbound_suppressed(callable $fn): mixed {
+		$previous = self::$suppress_outbound;
+		self::$suppress_outbound = true;
+		try {
+			return $fn();
+		} finally {
+			self::$suppress_outbound = $previous;
+		}
+	}
+
+	/**
+	 * Delays (seconds) before each automatic retry of a failed delivery. The
+	 * first attempt is immediate, so retries are attempts 2..MAX_DELIVERY_ATTEMPTS.
+	 *
+	 * @return int[]
+	 */
+	public static function retry_schedule(): array {
+		$delays = [];
+		for ($attempt = 2; $attempt <= self::MAX_DELIVERY_ATTEMPTS; $attempt++) {
+			$delays[] = (int) self::retry_delay_for_attempt($attempt);
+		}
+		return $delays;
+	}
+
+	/** Total seconds a failed delivery keeps retrying before it is marked exhausted. */
+	public static function retry_window_seconds(): int {
+		return array_sum(self::retry_schedule());
+	}
+
 
 	private function logger(): WC_Logger {
 		return wc_get_logger();
@@ -198,6 +286,113 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		}
 	}
 
+	/**
+	 * S1 delta capture (decrease side). Fires once per order, after
+	 * WooCommerce has reduced stock for every line item via its own atomic
+	 * wc_update_product_stock(..., 'decrease'), whatever order status
+	 * triggered the reduction. `_reduced_stock` is the exact quantity
+	 * WooCommerce itself just deducted for that item (it sets this meta
+	 * specifically so a later restore knows how much to put back), so it is
+	 * the correct delta to propagate – not a value we recompute ourselves.
+	 */
+	public function on_reduce_order_stock($order): void {
+		if (self::$suppress_outbound) return;
+		if (!($order instanceof WC_Order)) return;
+
+		$order_id = (int) $order->get_id();
+
+		foreach ($order->get_items() as $item) {
+			if (!($item instanceof WC_Order_Item_Product)) continue;
+
+			$product = $item->get_product();
+			if (!($product instanceof WC_Product)) continue;
+			if (!$this->is_stock_syncable_product($product)) continue;
+			// Only for a product/variation that manages its own stock directly.
+			// A variation inheriting from its parent ('parent') actually has
+			// its parent's stock reduced, not the line item's own product
+			// object, and attributing the delta to the wrong post would be
+			// worse than the bug this fixes – effective_manage_stock() is the
+			// same helper this class already uses to handle that case faithfully.
+			if ($this->effective_manage_stock($product) !== true) continue;
+
+			$reduced = (int) $item->get_meta('_reduced_stock');
+			if ($reduced <= 0) continue; // nothing was actually reduced for this line
+
+			$this->queue_delta((int) $product->get_id(), $order_id, (int) $item->get_id(), 'decrease', $reduced);
+			$this->mark_dirty((int) $product->get_id(), 'order_processing');
+		}
+	}
+
+	/**
+	 * S1 delta capture (increase side). WooCommerce clears each item's
+	 * `_reduced_stock` meta as part of the same restore pass that fires this
+	 * action, so by the time it reaches us that meta may already read zero –
+	 * unlike the reduce side, we use the order line's own quantity, which is
+	 * exactly what wc_maybe_increase_stock_levels() itself restores by.
+	 */
+	public function on_capture_restore_order_stock_delta($order): void {
+		if (self::$suppress_outbound) return;
+		if (!($order instanceof WC_Order)) return;
+
+		$order_id = (int) $order->get_id();
+
+		foreach ($order->get_items() as $item) {
+			if (!($item instanceof WC_Order_Item_Product)) continue;
+
+			$product = $item->get_product();
+			if (!($product instanceof WC_Product)) continue;
+			if (!$this->is_stock_syncable_product($product)) continue;
+			if ($this->effective_manage_stock($product) !== true) continue;
+
+			$qty = (int) apply_filters('woocommerce_order_item_quantity', $item->get_quantity(), $order, $item);
+			if ($qty <= 0) continue;
+
+			$this->queue_delta((int) $product->get_id(), $order_id, (int) $item->get_id(), 'increase', $qty);
+		}
+	}
+
+	/** Buffer one order-line delta for this request; merged into the matching product's outbound item in maybe_send_stock_state(). */
+	private function queue_delta(int $product_id, int $order_id, int $item_id, string $op, int $qty): void {
+		if ($product_id <= 0 || $qty <= 0) return;
+		if (!in_array($op, ['increase', 'decrease'], true)) return;
+
+		$key = $this->settings->this_store_id() . ':' . $order_id . ':' . $item_id . ':' . $op;
+		self::$pending_deltas[$key] = [
+			'product_id' => $product_id,
+			'op'         => $op,
+			'qty'        => $qty,
+			'key'        => $key,
+		];
+	}
+
+	/** Every pending delta captured this request for one product, in wire-item shape. */
+	private function collect_pending_deltas(int $product_id): array {
+		$out = [];
+		foreach (self::$pending_deltas as $d) {
+			if ((int) ($d['product_id'] ?? 0) !== $product_id) continue;
+			$out[] = ['key' => (string) $d['key'], 'op' => (string) $d['op'], 'qty' => (int) $d['qty']];
+		}
+		return $out;
+	}
+
+	private function delta_seen_key(string $key): string {
+		return 'kitgenix_stock_sync_for_woocommerce_kss_delta_' . md5($key);
+	}
+
+	/** Has this exact (store, order, item, op) delta already been applied here? Guards against a retried/duplicate delivery double-decrementing or double-incrementing stock. */
+	private function is_duplicate_delta(string $key): bool {
+		if ($key === '') return false;
+		return (bool) get_transient($this->delta_seen_key($key));
+	}
+
+	private function mark_delta_seen(string $key): void {
+		if ($key === '') return;
+		// Comfortably longer than the full retry window (~7.4h today - see
+		// RETRY_DELAYS/retry_window_seconds()), so a delta stays protected for
+		// every automatic retry attempt and any reasonable manual retry.
+		set_transient($this->delta_seen_key($key), 1, 7 * DAY_IN_SECONDS);
+	}
+
 	public function on_updated_post_meta($meta_id, $post_id, $meta_key, $meta_value): void {
 		if (self::$suppress_outbound) return;
 
@@ -320,13 +515,19 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 			if ($product instanceof WC_Product) $products[] = $product;
 		}
 
-		if (empty($products)) return;
+		if (empty($products)) {
+			self::$pending_deltas = [];
+			return;
+		}
 
 		$this->maybe_send_stock_state($products, implode('+', array_keys($contexts)) ?: 'stock_change');
+		self::$pending_deltas = [];
 	}
 
 	private function maybe_send_stock_state(array $products, string $context, array $extra = []): void {
 		$items = [];
+		$product_ids = [];
+		$held = [];
 
 		foreach ($products as $product) {
 			if (!($product instanceof WC_Product)) continue;
@@ -334,14 +535,43 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 			$sku = (string) $product->get_sku();
 			if ($sku === '') continue;
 			if ($this->settings->is_excluded_sku($sku)) continue;
+			if ($this->settings->is_held_sku($sku)) {
+				$held[] = $sku;
+				continue;
+			}
 
 			$item = $this->product_to_state($product, false);
-			if ($item) $items[] = $item;
+			if ($item) {
+				$pid = (int) $product->get_id();
+				$deltas = $this->collect_pending_deltas($pid);
+				if (!empty($deltas)) {
+					$item['deltas'] = $deltas;
+				}
+				$items[] = $item;
+				$product_ids[] = $pid;
+			}
+		}
+
+		if (!empty($held)) {
+			$this->log('warning', 'Local stock change not sent: SKU is on a sync hold until its identity is repaired.', ['skus' => implode(', ', $held), 'context' => $context], 'kss_sku_held');
 		}
 
 		if (empty($items)) return;
 
 		$payload = $this->build_stock_state_payload($items, $context, $extra);
+
+		// On the Master the authoritative entry (stamped in master_process_event)
+		// already records this change, so only a Child records the raw capture.
+		if ($this->settings->is_child()) {
+			foreach ($items as $i => $item) {
+				Kitgenix_Stock_Sync_For_WooCommerce_History::record($product_ids[$i], 'captured', $item, [
+					'context' => $context,
+					'store_id' => $this->settings->this_store_id(),
+					'event_id' => (string) $payload['event_id'],
+				]);
+			}
+		}
+
 		$this->send_event($payload);
 	}
 
@@ -408,7 +638,11 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		// phpcs:enable
 
 		if ((int) $affected < 1) {
-			add_post_meta($product_id, self::META_VERSION, 1, true);
+			// First authoritative stamp on this store. Continue from the last
+			// version it applied (if it was a Child promoted to Master after a
+			// failover); starting again at 1 would make every Child ignore its
+			// updates as stale.
+			add_post_meta($product_id, self::META_VERSION, $this->get_applied_version($product_id) + 1, true);
 		}
 
 		wp_cache_delete($product_id, 'post_meta');
@@ -459,8 +693,11 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 	 * an audit comparison) gets the current stored version for reference
 	 * without bumping it – Master always re-derives and stamps the real
 	 * authoritative version centrally in master_rebuild_authoritative_stock_payload().
+	 *
+	 * $history (context/store_id/event_id) records the stamped version in
+	 * the product's Stock History when the state is authoritative.
 	 */
-	private function product_to_state(WC_Product $product, bool $authoritative = false): ?array {
+	private function product_to_state(WC_Product $product, bool $authoritative = false, ?array $history = null): ?array {
 		$sku = (string) $product->get_sku();
 		if ($sku === '') return null;
 
@@ -483,6 +720,9 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		if ($authoritative && $this->settings->is_master()) {
 			$state['version'] = $this->bump_and_get_version((int) $product->get_id());
 			$state['updated_at'] = time();
+			if ($history !== null) {
+				Kitgenix_Stock_Sync_For_WooCommerce_History::record((int) $product->get_id(), 'authoritative', $state, $history);
+			}
 		} else {
 			$existing_version = (int) $product->get_meta(self::META_VERSION);
 			if ($existing_version > 0) {
@@ -510,7 +750,13 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		if (!isset($payload['delivery_attempt'])) {
 			$payload['delivery_attempt'] = 1;
 		}
-		$payload['schema_version'] = 2;
+		// Bumped to 3 for S1 (delta-based stock events, see ROADMAP.md): a
+		// stock_state item may now carry a 'deltas' array. A store still on
+		// schema 2 simply ignores that key and applies the absolute
+		// 'stock_quantity' field exactly as before, so a mixed-version
+		// network keeps syncing (with 2's oversell risk) until every store
+		// upgrades.
+		$payload['schema_version'] = 3;
 	}
 
 	private function build_stock_state_payload(array $items, string $context, array $extra = []): array {
@@ -601,13 +847,13 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 
 		$endpoint = $url . '/wp-json/kitgenix-stock-sync/v1/event';
 		$body     = wp_json_encode($payload);
-		$headers  = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body);
+		$headers  = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body, $endpoint);
 
 		$response = wp_remote_post($endpoint, [
 			'timeout' => 8,
 			'headers' => $headers,
 			'body'    => $body,
-			'user-agent' => 'KitgenixStockSync/' . (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.0.0'),
+			'user-agent' => 'KitgenixStockSync/' . (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.2.0'),
 		]);
 
 		if (is_wp_error($response)) {
@@ -714,8 +960,15 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		$items = isset($payload['items']) && is_array($payload['items']) ? $payload['items'] : [];
 		if (empty($items)) return;
 
-		// Apply incoming to Master
-		$this->apply_to_local_store($payload);
+		// Apply incoming to Master. A self-originated event (the Master's own
+		// local change, looped back through the same pipeline a Child uses)
+		// has already been written to the DB by WooCommerce itself before our
+		// hooks even ran, so re-applying its 'deltas' here a second time would
+		// double-decrement/double-increment stock. Absolute fields are still
+		// safe to re-apply (setting a value to itself is a no-op), so only the
+		// deltas sub-step is skipped for a self-originated event.
+		$is_self_originated = ($sender_store_id === $this->settings->this_store_id());
+		$this->apply_to_local_store($payload, $is_self_originated);
 
 		// CRITICAL: Master must push AUTHORITATIVE state rebuilt from its own DB.
 		// This guarantees backorders notify + low stock threshold + GIDs + version
@@ -746,6 +999,11 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 	private function master_rebuild_authoritative_stock_payload(array $payload): array {
 		$items = isset($payload['items']) && is_array($payload['items']) ? $payload['items'] : [];
 		$auth_items = [];
+		$history = [
+			'context' => (string) ($payload['context'] ?? ''),
+			'store_id' => (string) ($payload['origin_store_id'] ?? ''),
+			'event_id' => (string) ($payload['event_id'] ?? ''),
+		];
 
 		foreach ($items as $it) {
 			if (!is_array($it)) continue;
@@ -762,8 +1020,9 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 
 			$product = $this->get_fresh_product($product_id);
 			if (!($product instanceof WC_Product)) continue;
+			if ($this->settings->is_held_sku((string) $product->get_sku())) continue;
 
-			$state = $this->product_to_state($product, true); // authoritative: bumps version, ensures GID
+			$state = $this->product_to_state($product, true, $history); // authoritative: bumps version, ensures GID
 			if ($state) $auth_items[] = $state;
 		}
 
@@ -786,13 +1045,13 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 
 		$endpoint = rtrim($store_url, '/') . '/wp-json/kitgenix-stock-sync/v1/event';
 		$body     = wp_json_encode($payload);
-		$headers  = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body);
+		$headers  = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body, $endpoint);
 
 		$response = wp_remote_post($endpoint, [
 			'timeout' => 8,
 			'headers' => $headers,
 			'body'    => $body,
-			'user-agent' => 'KitgenixStockSync/' . (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.0.0'),
+			'user-agent' => 'KitgenixStockSync/' . (defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.2.0'),
 		]);
 
 		if (is_wp_error($response)) {
@@ -901,10 +1160,19 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 	 * Apply stock/SKU locally
 	 * ----------------------------- */
 
-	private function apply_to_local_store(array $payload): void {
+	private function apply_to_local_store(array $payload, bool $skip_deltas = false): void {
 		$event_type = (string) ($payload['event_type'] ?? '');
 		$items      = isset($payload['items']) && is_array($payload['items']) ? $payload['items'] : [];
 		if (empty($items)) return;
+
+		$history_meta = [
+			'context' => (string) ($payload['context'] ?? ''),
+			'store_id' => (string) ($payload['origin_store_id'] ?? ''),
+			'event_id' => (string) ($payload['event_id'] ?? ''),
+		];
+		// The Master re-applies its own local changes to itself (a no-op); that
+		// is already recorded as the authoritative entry, so don't record it twice.
+		$record_history = !($this->settings->is_master() && $history_meta['store_id'] === $this->settings->this_store_id());
 
 		self::$suppress_outbound = true;
 
@@ -917,6 +1185,13 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 				$old_sku = trim((string) ($it['old_sku'] ?? ''));
 
 				if ($sku !== '' && $this->settings->is_excluded_sku($sku)) continue;
+
+				if ($this->settings->is_held_sku($sku) || $this->settings->is_held_sku($old_sku)) {
+					$this->log('warning', 'Incoming update not applied: SKU is on a sync hold until its identity is repaired.', [
+						'sku' => $sku, 'old_sku' => $old_sku, 'event_type' => $event_type,
+					], 'kss_sku_held');
+					continue;
+				}
 
 				$product_id = 0;
 
@@ -939,6 +1214,22 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 					continue;
 				}
 
+				// Matched by SKU although the product holds a different GID: the
+				// mapping is being re-established (e.g. after a SKU Mapping Repair).
+				// Its applied version belongs to the old identity, so reset it –
+				// otherwise genuine updates could be skipped as stale forever.
+				if ($gid !== '' && !$this->settings->is_master()) {
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- single meta lookup by post ID
+					$existing_gid = (string) get_post_meta($product_id, self::META_GID, true);
+					if ($existing_gid !== '' && $existing_gid !== $gid) {
+						$this->set_applied_version($product_id, 0);
+						$this->forget_gid_lookup($existing_gid);
+						$this->log('info', 'Product re-mapped to the Master GID; applied version reset.', [
+							'sku' => $sku, 'old_gid' => $existing_gid, 'gid' => $gid,
+						]);
+					}
+				}
+
 				// Versioned staleness fencing: an item carrying a version that is <= what
 				// we've already applied for this product is a delayed, duplicate, replayed,
 				// or out-of-order event. Skip it rather than regress already-current stock.
@@ -951,6 +1242,11 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 						$this->log('info', 'Stale stock update ignored (a newer or equal version was already applied).', [
 							'sku' => $sku, 'gid' => $gid, 'incoming_version' => $incoming_version, 'applied_version' => $applied_version,
 						], 'kss_stale_version');
+						if ($record_history) {
+							Kitgenix_Stock_Sync_For_WooCommerce_History::record($product_id, 'skipped_stale', $it, $history_meta + [
+								'note' => sprintf('Already applied version %d.', $applied_version),
+							]);
+						}
 						continue;
 					}
 				}
@@ -972,6 +1268,11 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 						try {
 							$product->set_sku($sku);
 							$product->save();
+							if ($record_history) {
+								Kitgenix_Stock_Sync_For_WooCommerce_History::record($product_id, 'sku_rename', [], $history_meta + [
+									'note' => $old_sku . ' → ' . $sku,
+								]);
+							}
 						} catch (\Throwable $e) {
 							$this->log('error', 'SKU rename failed. Skipping item.', [
 								'sku' => $sku, 'old_sku' => $old_sku, 'product_id' => $product_id, 'err' => $e->getMessage()
@@ -1004,13 +1305,65 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 						$product->save();
 					} else {
 						$product->set_manage_stock((bool) $incoming_manage_stock);
-
 						if (isset($it['backorders'])) $product->set_backorders((string) $it['backorders']);
-						if (isset($it['stock_status'])) $product->set_stock_status((string) $it['stock_status']);
-						if (array_key_exists('stock_quantity', $it)) $product->set_stock_quantity((int) $it['stock_quantity']);
 						if (isset($it['low_stock_amount'])) $product->set_low_stock_amount((int) $it['low_stock_amount']);
 
-						$product->save();
+						// S1 (oversell fix): an item carrying 'deltas' came from a
+						// store sending order-driven reduce/restore amounts instead
+						// of an absolute snapshot. Apply each one atomically via
+						// WooCommerce's own increase/decrease stock function – the
+						// same direct, row-locked write WooCommerce itself uses –
+						// instead of overwriting stock_quantity outright, so a
+						// second concurrent sale (from this store, another Child, or
+						// the Master itself) in the same sync window is never lost.
+						$deltas = (!$skip_deltas && isset($it['deltas']) && is_array($it['deltas'])) ? $it['deltas'] : [];
+						$applied_delta = false;
+
+						if (!empty($deltas)) {
+							// Persist manage_stock/backorders/low_stock_amount first;
+							// wc_update_product_stock() re-fetches the product below.
+							$product->save();
+
+							foreach ($deltas as $d) {
+								if (!is_array($d)) continue;
+								$dkey = (string) ($d['key'] ?? '');
+								$dop  = (string) ($d['op'] ?? '');
+								$dqty = (int) ($d['qty'] ?? 0);
+								if ($dkey === '' || $dqty <= 0 || !in_array($dop, ['increase', 'decrease'], true)) continue;
+
+								if ($this->is_duplicate_delta($dkey)) {
+									$this->log('info', 'Duplicate stock delta ignored (already applied).', [
+										'sku' => $sku, 'key' => $dkey,
+									], 'kss_duplicate_delta');
+									continue;
+								}
+
+								wc_update_product_stock($product, $dqty, $dop);
+								$this->mark_delta_seen($dkey);
+								$applied_delta = true;
+							}
+
+							if ($applied_delta) {
+								$fresh = $this->get_fresh_product($product_id);
+								if ($fresh instanceof WC_Product) $product = $fresh;
+							}
+
+							// Recompute status from the product's own fresh, post-delta
+							// quantity rather than trusting the sender's $it['stock_status']
+							// – that value was computed before the sender knew about this
+							// (or any other concurrent) delta, so trusting it here could
+							// reintroduce the same staleness S1 fixes for quantity.
+							if ($incoming_manage_stock !== 'parent') {
+								$qty = (int) ($product->get_stock_quantity() ?? 0);
+								$backorders = (string) $product->get_backorders();
+								$product->set_stock_status($qty > 0 ? 'instock' : ($backorders !== 'no' ? 'onbackorder' : 'outofstock'));
+							}
+							$product->save();
+						} else {
+							if (isset($it['stock_status'])) $product->set_stock_status((string) $it['stock_status']);
+							if (array_key_exists('stock_quantity', $it)) $product->set_stock_quantity((int) $it['stock_quantity']);
+							$product->save();
+						}
 
 						if (!$this->settings->is_master()) {
 							$this->cache_stock_snapshot([$sku => [
@@ -1024,6 +1377,17 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 
 					if ($event_type === 'stock_state' && array_key_exists('version', $it)) {
 						$this->set_applied_version($product_id, (int) $it['version']);
+					}
+
+					if ($record_history) {
+						Kitgenix_Stock_Sync_For_WooCommerce_History::record($product_id, 'applied', [
+							'version' => (int) ($it['version'] ?? 0),
+							'stock_quantity' => $product->get_stock_quantity(),
+							'stock_status' => (string) $product->get_stock_status(),
+							'backorders' => (string) $product->get_backorders(),
+						], $history_meta + [
+							'note' => $incoming_manage_stock === 'parent' ? 'Stock managed by parent product.' : '',
+						]);
 					}
 				} catch (\Throwable $e) {
 					$this->log('error', 'Stock apply failed. Skipping item.', [
@@ -1040,13 +1404,23 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		}
 	}
 
+	private function gid_cache_key(string $gid): string {
+		return 'kitgenix_stock_sync_for_woocommerce_kss_gid_' . md5(trim($gid));
+	}
+
+	/** Drop the cached GID → product lookup, e.g. after a GID is reissued. */
+	public function forget_gid_lookup(string $gid): void {
+		if (trim($gid) === '') return;
+		wp_cache_delete($this->gid_cache_key($gid), 'kitgenix_stock_sync');
+	}
+
 	private function find_product_id_by_gid(string $gid): int {
 		global $wpdb;
 		/* phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value, WordPress.DB.SlowDBQuery.slow_db_query_meta_query */
 		$gid = trim($gid);
 		if ($gid === '') return 0;
 
-		$cache_key = 'kitgenix_stock_sync_for_woocommerce_kss_gid_' . md5($gid);
+		$cache_key = $this->gid_cache_key($gid);
 		$cached = wp_cache_get($cache_key, 'kitgenix_stock_sync');
 		if ($cached !== false) {
 			return (int) $cached;
@@ -1116,7 +1490,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 			$body = wp_json_encode([
 				'items' => array_map(fn($sku) => ['sku' => $sku], array_keys($needs)),
 			]);
-			$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body);
+			$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body, $endpoint);
 
 			$response = wp_remote_post($endpoint, [
 				'timeout' => 15,
@@ -1187,6 +1561,26 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		}
 	}
 
+	/**
+	 * Strict checkout validation for the Checkout block (Store API). Reuses
+	 * child_checkout_validation() and rejects the request with a RouteException,
+	 * which the Store API returns to the block as a checkout error notice.
+	 */
+	public function child_blocks_checkout_validation($order, $request): void {
+		if (!($request instanceof WP_REST_Request) || $request->get_method() !== 'POST') return;
+		if (!class_exists('\\Automattic\\WooCommerce\\StoreApi\\Exceptions\\RouteException')) return;
+
+		$errors = new WP_Error();
+		$this->child_checkout_validation([], $errors);
+		if (!$errors->has_errors()) return;
+
+		throw new \Automattic\WooCommerce\StoreApi\Exceptions\RouteException(
+			'kitgenix_stock_sync_checkout_validation',
+			implode(' ', $errors->get_error_messages()), // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Store API JSON error message; SKUs are already esc_html()'d by child_checkout_validation().
+			409
+		);
+	}
+
 	/** Cache a last-known-good stock snapshot per SKU for the `stale_cache` checkout strategy. */
 	private function cache_stock_snapshot(array $items_by_sku): void {
 		foreach ($items_by_sku as $sku => $info) {
@@ -1194,9 +1588,68 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 			set_transient(
 				'kitgenix_stock_sync_for_woocommerce_kss_stockcache_' . md5((string) $sku),
 				array_merge($info, ['cached_at' => time()]),
-				DAY_IN_SECONDS
+				self::SNAPSHOT_TTL
 			);
+			self::$snapshot_index_pending[(string) $sku] = time();
 		}
+	}
+
+	/**
+	 * Persist this request's snapshot index updates in one option write
+	 * (on shutdown), rather than one write per applied item.
+	 */
+	public function flush_snapshot_index(): void {
+		if (empty(self::$snapshot_index_pending)) return;
+
+		$index = get_option(self::SNAPSHOT_INDEX_OPTION, []);
+		$index = is_array($index) ? $index : [];
+		foreach (self::$snapshot_index_pending as $sku => $time) {
+			unset($index[$sku]); // re-append so the newest stay at the end
+			$index[$sku] = $time;
+		}
+		self::$snapshot_index_pending = [];
+
+		$cutoff = time() - self::SNAPSHOT_TTL;
+		$index = array_filter($index, static fn($t) => (int) $t >= $cutoff);
+		$index = array_slice($index, -self::SNAPSHOT_INDEX_CAP, null, true);
+
+		update_option(self::SNAPSHOT_INDEX_OPTION, $index, false);
+	}
+
+	/**
+	 * Age summary of the last-known-good stock snapshots, for the Failover
+	 * Readiness Report. A snapshot is "usable" by the stale_cache checkout
+	 * strategy while it is younger than checkout_stale_cache_minutes.
+	 */
+	public function stock_snapshot_summary(int $list_limit = 10): array {
+		$index = get_option(self::SNAPSHOT_INDEX_OPTION, []);
+		$index = is_array($index) ? $index : [];
+
+		$now = time();
+		$max_age = $this->settings->checkout_stale_cache_minutes() * 60;
+		$ages = [];
+		foreach ($index as $sku => $cached_at) {
+			$age = $now - (int) $cached_at;
+			if ($age > self::SNAPSHOT_TTL) continue; // transient has expired
+			$ages[(string) $sku] = max(0, $age);
+		}
+		arsort($ages);
+
+		$usable = count(array_filter($ages, static fn($a) => $a <= $max_age));
+		$oldest = [];
+		foreach (array_slice($ages, 0, max(0, $list_limit), true) as $sku => $age) {
+			$oldest[] = ['sku' => (string) $sku, 'age' => $age, 'usable' => $age <= $max_age];
+		}
+
+		return [
+			'count' => count($ages),
+			'usable' => $usable,
+			'expired_for_checkout' => count($ages) - $usable,
+			'max_age' => $max_age,
+			'newest_age' => empty($ages) ? null : min($ages),
+			'oldest_age' => empty($ages) ? null : max($ages),
+			'oldest' => $oldest,
+		];
 	}
 
 	private function stale_cache_snapshot(array $skus): array {
@@ -1249,7 +1702,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 	/** -----------------------------
 	 * Local stock lookup (any store) for audit/conflict comparisons
 	 * ----------------------------- */
-	public function local_stock_lookup(array $items): array {
+	public function local_stock_lookup(array $items, bool $include_history = false): array {
 		$out = [];
 
 		foreach ($items as $it) {
@@ -1278,9 +1731,85 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 				'low_stock_amount' => (int) ($product->get_low_stock_amount() ?? 0),
 				'manage_stock' => $this->effective_manage_stock($product),
 			];
+
+			if ($include_history) {
+				$out[$sku]['version'] = (int) $product->get_meta(self::META_VERSION);
+				$out[$sku]['applied_version'] = $this->get_applied_version($id);
+				$out[$sku]['history'] = Kitgenix_Stock_Sync_For_WooCommerce_History::get($id);
+			}
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Stock History per SKU across connected stores: this store's own
+	 * history and current state, plus the same from every counterpart this
+	 * store talks to (each enabled Child from the Master; the Master from a
+	 * Child), fetched over the signed /stock-state route. Stores running a
+	 * plugin version without history support return state only.
+	 */
+	public function stock_history_across_stores(string $sku): array {
+		$sku = trim($sku);
+		$stores = [];
+
+		$local = $this->local_stock_lookup([['sku' => $sku]], true)[$sku] ?? ['exists' => false];
+		$stores[] = [
+			'store_id' => $this->settings->this_store_id(),
+			'name' => $this->settings->this_store_name(),
+			'role' => $this->settings->role(),
+			'local' => true,
+			'error' => '',
+			'state' => $local,
+			'history_supported' => true,
+		];
+
+		$targets = [];
+		if ($this->settings->is_master()) {
+			foreach ($this->settings->children() as $child) {
+				if (!is_array($child) || !($child['enabled'] ?? true)) continue;
+				$targets[] = ['config' => $child, 'store_id' => (string) ($child['id'] ?? ''), 'name' => (string) ($child['name'] ?? ''), 'role' => 'child'];
+			}
+		} else {
+			$master = $this->settings->master_config();
+			if (!empty($master['url'])) {
+				$targets[] = ['config' => $master, 'store_id' => (string) ($master['store_id'] ?? ''), 'name' => __('Master', 'kitgenix-stock-sync-for-woocommerce'), 'role' => 'master'];
+			}
+		}
+
+		foreach ($targets as $t) {
+			[$items, $error] = $this->fetch_child_stock_state($t['config'], [$sku], ['include_history' => true]);
+			$state = $error === '' ? ($items[$sku] ?? ['exists' => false]) : [];
+			$stores[] = [
+				'store_id' => $t['store_id'],
+				'name' => $t['name'] !== '' ? $t['name'] : $t['store_id'],
+				'role' => $t['role'],
+				'local' => false,
+				'error' => $error,
+				'state' => $state,
+				'history_supported' => is_array($state['history'] ?? null),
+			];
+		}
+
+		// One merged timeline, newest first, so the same event_id can be followed
+		// from the store that captured it to every store that applied it.
+		$timeline = [];
+		foreach ($stores as $store) {
+			foreach ((array) ($store['state']['history'] ?? []) as $entry) {
+				if (!is_array($entry)) continue;
+				$entry['at_store'] = $store['name'];
+				$entry['at_store_id'] = $store['store_id'];
+				$timeline[] = $entry;
+			}
+		}
+		usort($timeline, static fn($a, $b) => ((int) ($b['time'] ?? 0)) <=> ((int) ($a['time'] ?? 0)));
+
+		return [
+			'sku' => $sku,
+			'generated_at' => time(),
+			'stores' => $stores,
+			'timeline' => $timeline,
+		];
 	}
 
 	/** -----------------------------
@@ -1292,15 +1821,15 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 	 *
 	 * @return array{0: array<string,array>, 1: string} [items_by_sku, error_message]
 	 */
-	private function fetch_child_stock_state(array $child, array $skus): array {
+	private function fetch_child_stock_state(array $child, array $skus, array $extra = []): array {
 		$url = rtrim((string) ($child['url'] ?? ''), '/');
 		$secret = (string) ($child['secret'] ?? '');
 		$cid = (string) ($child['id'] ?? '');
 		if ($url === '' || $secret === '') return [[], 'Store not fully configured.'];
 
 		$endpoint = $url . '/wp-json/kitgenix-stock-sync/v1/stock-state';
-		$body = wp_json_encode(['items' => array_map(fn($s) => ['sku' => $s], array_values(array_unique($skus)))]);
-		$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body);
+		$body = wp_json_encode(array_merge($extra, ['items' => array_map(fn($s) => ['sku' => $s], array_values(array_unique($skus)))]));
+		$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body, $endpoint);
 
 		$res = wp_remote_post($endpoint, ['timeout' => 10, 'headers' => $headers, 'body' => $body]);
 
@@ -1384,6 +1913,31 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 			 HAVING COUNT(*) > 1
 			 ORDER BY cnt DESC
 			 LIMIT %d",
+			$limit
+		), ARRAY_A);
+		/* phpcs:enable */
+		return is_array($rows) ? $rows : [];
+	}
+
+	/**
+	 * GIDs carried by more than one product/variation – typically left behind
+	 * by WooCommerce's "Duplicate" product action or an import, both of which
+	 * copy postmeta. Same bounded GROUP BY shape as find_duplicate_skus().
+	 */
+	public function find_duplicate_gids(int $limit = 200): array {
+		global $wpdb;
+		/* phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key */
+		$rows = $wpdb->get_results($wpdb->prepare(
+			"SELECT pm.meta_value AS gid, COUNT(*) AS cnt
+			 FROM {$wpdb->postmeta} pm
+			 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			 WHERE pm.meta_key = %s AND pm.meta_value <> '' AND p.post_status <> 'trash'
+			   AND p.post_type IN ('product','product_variation')
+			 GROUP BY pm.meta_value
+			 HAVING COUNT(*) > 1
+			 ORDER BY cnt DESC
+			 LIMIT %d",
+			self::META_GID,
 			$limit
 		), ARRAY_A);
 		/* phpcs:enable */
@@ -1601,14 +2155,15 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		}
 
 		$items = [];
+		$history = ['context' => $dry_run ? 'reconcile_dry_run' : 'reconcile', 'store_id' => $this->settings->this_store_id()];
 		if ($mode === 'selected') {
 			foreach ($batch_skus as $sku) {
-				if ($sku === '' || $this->settings->is_excluded_sku($sku)) continue;
+				if ($sku === '' || $this->settings->is_excluded_sku($sku) || $this->settings->is_held_sku($sku)) continue;
 				$id = (int) wc_get_product_id_by_sku($sku);
 				if ($id <= 0) continue;
 				$product = $this->get_fresh_product($id);
 				if (!($product instanceof WC_Product)) continue;
-				$st = $this->product_to_state($product, true);
+				$st = $this->product_to_state($product, true, $history);
 				if ($st) $items[] = $st;
 			}
 			$processed_count = count($batch_skus);
@@ -1617,8 +2172,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 				$product = wc_get_product((int) $id);
 				if (!($product instanceof WC_Product)) continue;
 				$sku = (string) $product->get_sku();
-				if ($sku === '' || $this->settings->is_excluded_sku($sku)) continue;
-				$st = $this->product_to_state($product, true);
+				if ($sku === '' || $this->settings->is_excluded_sku($sku) || $this->settings->is_held_sku($sku)) continue;
+				$st = $this->product_to_state($product, true, $history);
 				if ($st) $items[] = $st;
 			}
 			$processed_count = count($ids);
@@ -1690,8 +2245,13 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 		if (empty($skus)) return;
 
 		$items = [];
+		$history = ['context' => 'manual_sku_sync', 'store_id' => $this->settings->this_store_id()];
 		foreach ($skus as $sku) {
 			if ($sku === '' || $this->settings->is_excluded_sku($sku)) continue;
+			if ($this->settings->is_held_sku($sku)) {
+				$this->log('warning', 'Manual sync skipped: SKU is on a sync hold until its identity is repaired.', ['sku' => $sku], 'kss_sku_held');
+				continue;
+			}
 
 			$id = (int) wc_get_product_id_by_sku($sku);
 			if ($id <= 0) {
@@ -1702,7 +2262,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 			$product = $this->get_fresh_product($id);
 			if (!($product instanceof WC_Product)) continue;
 
-			$st = $this->product_to_state($product, true);
+			$st = $this->product_to_state($product, true, $history);
 			if ($st) $items[] = $st;
 		}
 
@@ -1747,7 +2307,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 
 		$endpoint = $url . '/wp-json/kitgenix-stock-sync/v1/ping';
 		$body = wp_json_encode(['ping' => true]);
-		$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body);
+		$headers = $this->security->sign_headers($secret, $this->settings->this_store_id(), $body, $endpoint);
 
 		$res = wp_remote_post($endpoint, ['timeout' => 8, 'headers' => $headers, 'body' => $body]);
 
@@ -1769,6 +2329,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Sync {
 			'last_ping' => time(),
 			'remote_wc_version' => is_array($decoded) ? (string) ($decoded['wc_version'] ?? '') : '',
 			'remote_plugin_version' => is_array($decoded) ? (string) ($decoded['plugin_version'] ?? '') : '',
+			// Child's failover readiness summary (2.2.0+), for the Master's report.
+			'remote_failover' => is_array($decoded) && is_array($decoded['failover'] ?? null) ? $decoded['failover'] : null,
 		];
 		$is_master_target ? $this->settings->set_master_health($patch) : $this->settings->set_child_health($cid, $patch);
 	}

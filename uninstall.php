@@ -12,6 +12,9 @@
  * regeneration and reset version fencing, which the plugin's migration
  * policy explicitly avoids (see Settings::ensure_defaults()). A site owner
  * who wants them gone can delete them manually – see readme.txt.
+ *
+ * The Stock History meta (_kitgenix_stock_sync_for_woocommerce_history) is
+ * diagnostic only – sync never reads it – so it is removed.
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
@@ -62,7 +65,12 @@ function kitgenix_stock_sync_for_woocommerce_delete_transients_by_prefix( string
 
 // Plugin settings.
 delete_option( 'kitgenix_stock_sync_for_woocommerce_settings' );
+delete_option( 'kitgenix_stock_sync_for_woocommerce_v2_senders' );
+delete_option( 'kitgenix_stock_sync_for_woocommerce_snapshot_index' );
 delete_site_option( 'kitgenix_stock_sync_for_woocommerce_settings' );
+
+// Stock History per SKU (diagnostic product meta).
+delete_post_meta_by_key( '_kitgenix_stock_sync_for_woocommerce_history' );
 
 // Plugin-only transients (including dynamic keys).
 kitgenix_stock_sync_for_woocommerce_delete_transients_by_prefix( 'kitgenix_stock_sync_for_woocommerce_' );
@@ -74,6 +82,9 @@ if ( is_multisite() && function_exists( 'get_sites' ) ) {
 	foreach ( (array) $kitgenix_sites as $kitgenix_site_id ) {
 		switch_to_blog( (int) $kitgenix_site_id );
 		delete_option( 'kitgenix_stock_sync_for_woocommerce_settings' );
+		delete_option( 'kitgenix_stock_sync_for_woocommerce_v2_senders' );
+		delete_option( 'kitgenix_stock_sync_for_woocommerce_snapshot_index' );
+		delete_post_meta_by_key( '_kitgenix_stock_sync_for_woocommerce_history' );
 		kitgenix_stock_sync_for_woocommerce_delete_transients_by_prefix( 'kitgenix_stock_sync_for_woocommerce_' );
 		kitgenix_stock_sync_for_woocommerce_delete_transients_by_prefix( 'kss_' );
 		restore_current_blog();

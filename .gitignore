@@ -55,3 +55,7 @@ wp-content/backups/
 # Database exports and archive files
 *.sql
 *.zip
+
+# Kitgenix - Internal Documentation
+/ROADMAP.md
+/YOUTUBE-SCRIPT.md

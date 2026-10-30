@@ -72,6 +72,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Site_Health {
 				'last_reconcile' => ['label' => __('Last reconcile completed', 'kitgenix-stock-sync-for-woocommerce'), 'value' => $this->fmt((int) ($health['last_reconcile_complete'] ?? 0))],
 				'backlog_size' => ['label' => __('Backlog items', 'kitgenix-stock-sync-for-woocommerce'), 'value' => (string) count($backlog)],
 				'backlog_exhausted' => ['label' => __('Backlog items needing manual attention', 'kitgenix-stock-sync-for-woocommerce'), 'value' => (string) $exhausted],
+				'sku_holds' => ['label' => __('SKUs on sync hold', 'kitgenix-stock-sync-for-woocommerce'), 'value' => (string) count($this->settings->sku_holds())],
 				'action_scheduler' => ['label' => __('Action Scheduler available', 'kitgenix-stock-sync-for-woocommerce'), 'value' => function_exists('as_schedule_single_action') ? __('Yes', 'kitgenix-stock-sync-for-woocommerce') : __('No', 'kitgenix-stock-sync-for-woocommerce')],
 			],
 		];
@@ -96,7 +97,41 @@ final class Kitgenix_Stock_Sync_For_WooCommerce_Site_Health {
 			'label' => __('Kitgenix Stock Sync: Action Scheduler', 'kitgenix-stock-sync-for-woocommerce'),
 			'test' => [$this, 'test_action_scheduler'],
 		];
+		$tests['direct']['kitgenix_stock_sync_coexistence'] = [
+			'label' => __('Kitgenix Stock Sync: inventory engine conflict', 'kitgenix-stock-sync-for-woocommerce'),
+			'test' => [$this, 'test_coexistence'],
+		];
 		return $tests;
+	}
+
+	/**
+	 * P0 coexistence guard: Kitgenix MultiStore Sync for WooCommerce also
+	 * syncs inventory, with a different protocol, secrets, and identity
+	 * scheme. If both are active and both are writing stock, they double-write
+	 * and can feed each other in a loop. Detected without a hard dependency –
+	 * only this plugin's own constant (defined by its main file only while
+	 * active) and its own options row are read.
+	 */
+	public function test_coexistence(): array {
+		$result = $this->base_result(__('No conflicting Kitgenix inventory engine detected', 'kitgenix-stock-sync-for-woocommerce'));
+
+		if (!defined('KITGENIX_MULTISTORE_SYNC_FOR_WOOCOMMERCE_VERSION')) {
+			return $result;
+		}
+
+		$ms_settings = get_option('kitgenix_multistore_sync_for_woocommerce_settings', []);
+		$ms_sync_inventory = is_array($ms_settings) ? (string) ($ms_settings['sync_inventory'] ?? 'yes') : 'yes';
+
+		if ($ms_sync_inventory === 'no') {
+			return $result;
+		}
+
+		$result['status'] = 'critical';
+		$result['label'] = __('Kitgenix Stock Sync: two Kitgenix plugins are syncing inventory at once', 'kitgenix-stock-sync-for-woocommerce');
+		$result['description'] = '<p>' . esc_html__('Kitgenix MultiStore Sync for WooCommerce is also active on this site with its own inventory sync enabled. Both plugins write stock independently, using different protocols and identities, which can cause double-written stock and feedback loops between stores.', 'kitgenix-stock-sync-for-woocommerce') . '</p><p>' . esc_html__('Choose one inventory engine for this network: either disable "Sync Inventory" in Kitgenix MultiStore Sync\'s settings and keep using Kitgenix Stock Sync, or deactivate Kitgenix Stock Sync and rely on MultiStore\'s inventory sync instead.', 'kitgenix-stock-sync-for-woocommerce') . '</p>';
+		$result['badge']['color'] = 'red';
+
+		return $result;
 	}
 
 	private function base_result(string $label): array {

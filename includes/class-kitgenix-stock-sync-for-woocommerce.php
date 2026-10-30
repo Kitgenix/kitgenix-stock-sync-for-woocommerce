@@ -10,6 +10,8 @@ final class Kitgenix_Stock_Sync_For_WooCommerce {
 	public Kitgenix_Stock_Sync_For_WooCommerce_REST $rest;
 	public Kitgenix_Stock_Sync_For_WooCommerce_Sync $sync;
 	public Kitgenix_Stock_Sync_For_WooCommerce_Admin $admin;
+	public Kitgenix_Stock_Sync_For_WooCommerce_Identity $identity;
+	public Kitgenix_Stock_Sync_For_WooCommerce_Failover $failover;
 
 	public static function instance(): self {
 		if (self::$instance === null) {
@@ -26,8 +28,10 @@ final class Kitgenix_Stock_Sync_For_WooCommerce {
 		$this->settings = new Kitgenix_Stock_Sync_For_WooCommerce_Settings();
 		$this->security = new Kitgenix_Stock_Sync_For_WooCommerce_Security($this->settings);
 		$this->sync     = new Kitgenix_Stock_Sync_For_WooCommerce_Sync($this->settings, $this->security);
-		$this->rest     = new Kitgenix_Stock_Sync_For_WooCommerce_REST($this->settings, $this->security, $this->sync);
-		$this->admin    = new Kitgenix_Stock_Sync_For_WooCommerce_Admin($this->settings, $this->security, $this->sync);
+		$this->identity = new Kitgenix_Stock_Sync_For_WooCommerce_Identity($this->settings, $this->sync);
+		$this->failover = new Kitgenix_Stock_Sync_For_WooCommerce_Failover($this->settings, $this->sync);
+		$this->rest     = new Kitgenix_Stock_Sync_For_WooCommerce_REST($this->settings, $this->security, $this->sync, $this->failover);
+		$this->admin    = new Kitgenix_Stock_Sync_For_WooCommerce_Admin($this->settings, $this->security, $this->sync, $this->identity, $this->failover);
 
 		$this->rest->hooks();
 		$this->sync->hooks();
@@ -38,7 +42,7 @@ final class Kitgenix_Stock_Sync_For_WooCommerce {
 		}
 
 		if (defined('WP_CLI') && WP_CLI && class_exists('Kitgenix_Stock_Sync_For_WooCommerce_CLI')) {
-			Kitgenix_Stock_Sync_For_WooCommerce_CLI::register($this->settings, $this->sync);
+			Kitgenix_Stock_Sync_For_WooCommerce_CLI::register($this->settings, $this->sync, $this->identity, $this->failover);
 		}
 
 		// Action Scheduler hooks. push_to_store / send_to_master are used both for the
@@ -52,8 +56,15 @@ final class Kitgenix_Stock_Sync_For_WooCommerce {
 		add_action('kitgenix_stock_sync_for_woocommerce_health_ping', [$this->sync, 'as_health_ping'], 10, 0);
 		add_action('kitgenix_stock_sync_for_woocommerce_prune_event_log', [$this->settings, 'prune_event_log'], 10, 0);
 
-		$this->maybe_schedule_health_ping();
-		$this->maybe_schedule_event_log_pruning();
+		// Action Scheduler's data store isn't guaranteed to be ready yet at
+		// plugins_loaded time (where this init() runs) – calling as_*()
+		// functions here triggered a "called before the Action Scheduler
+		// data store was initialized" notice. Defer to init, as Action
+		// Scheduler's own documentation recommends.
+		add_action('init', function (): void {
+			$this->maybe_schedule_health_ping();
+			$this->maybe_schedule_event_log_pruning();
+		});
 	}
 
 	/** Recurring per-store connection-health ping (~15 min), scheduled once. */

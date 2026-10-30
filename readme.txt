@@ -3,51 +3,46 @@ Contributors: kitgenix
 Donate link: https://www.paypal.com/donate/?hosted_button_id=KALF36K6JJ9B2
 Tags: woocommerce, stock sync, inventory sync, multistore, backorders
 Requires at least: 6.0
-Tested up to: 7.1
-Requires PHP: 8.1
-Stable tag: 2.1.2
+Tested up to: 7.4
+Requires PHP: 8.2
+Stable tag: 2.2.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
-PluginScore Verification: pluginscore-verify-beb760043bceded81a709b492b94d2c3
 
 Synchronize WooCommerce stock quantity, status and backorders between a master store and connected child stores.
 
 == Description ==
 
-**Kitgenix Stock Sync for WooCommerce** synchronizes inventory between WooCommerce stores using a Master/Child architecture. The Master store acts as the authoritative inventory source while Child stores send stock-changing events back to the Master and receive the resulting authoritative stock state.
+Kitgenix Stock Sync for WooCommerce synchronizes inventory between WooCommerce stores using a Master/Child architecture. The Master store acts as the authoritative inventory source while Child stores send stock-changing events back to the Master and receive the resulting authoritative stock state.
 
-The plugin is built for merchants who sell the same physical inventory through several WooCommerce storefronts and need stock quantity, stock status and backorder behaviour to converge without manually exporting/importing inventory files.
+The plugin is built for merchants who sell the same physical inventory through several WooCommerce storefronts and need stock quantity, stock status and backorder behaviour to converge without manually exporting or importing inventory files.
 
 Stores communicate directly over signed REST requests; there is no Kitgenix cloud stock relay. Background delivery uses WooCommerce Action Scheduler where available, with retries and backlog handling for temporary failures.
 
-Learn more about Kitgenix at [Kitgenix](https://kitgenix.com/).
+Key capabilities include one Master store with one or more Child stores, SKU and global-ID based matching, synchronization of stock quantity, status, backorders and low-stock amount, asynchronous event delivery with retries and duplicate-event protection, conflict scanning and reconciliation, a Stock History log per SKU, a SKU Mapping Repair Tool, a Failover Readiness Report, strict checkout validation, shared-secret rotation, signed REST authentication, Site Health integration and WP-CLI tooling.
+
+See the Other Notes section below for full details on each feature area, and the FAQ for common questions.
+
+== Other Notes ==
 
 = WooCommerce Stock Sync Features =
 
 * One authoritative Master store with one or more Child stores.
 * SKU-based product/variation matching plus plugin global IDs for stable identity.
-* Synchronization of stock quantity.
-* Synchronization of stock status.
-* Synchronization of backorder setting.
-* Synchronization of low-stock amount.
+* Synchronization of stock quantity, status, backorder setting and low-stock amount.
 * Effective stock-management mode handling, including variation inheritance from a parent product.
-* Automatic capture of WooCommerce stock-change hooks.
-* Order-processing and stock-restoration handling.
-* Asynchronous event delivery with retries/backoff.
-* Per-event version numbers to reject stale updates.
-* Duplicate-event detection.
+* Automatic capture of WooCommerce stock-change hooks, order processing and stock restoration.
+* Asynchronous event delivery with retries/backoff, per-event versioning and duplicate-event detection.
 * Persistent backlog for recoverable failed deliveries.
 * Conflict scanning and reconciliation tools.
-* Strict Child-store checkout validation option.
-* Cached stock snapshot/failure strategy options for Master reachability problems.
-* SKU rename tracking.
-* Product/SKU exclusions.
-* Shared-secret rotation with overlap window.
-* Signed REST authentication and replay protection.
-* Scheduled health checks and connection status.
-* WordPress Site Health integration.
-* Event log and diagnostic code reference.
-* WP-CLI status, audit/reconcile, SKU and backlog tooling.
+* Stock History per SKU: versioned stock events for one product across connected stores.
+* SKU Mapping Repair Tool: find and fix duplicate or missing SKU identities, with sync held for ambiguous SKUs until they are repaired.
+* Failover Readiness Report: what happens if the Master is unreachable, including the age of last-known-good stock snapshots.
+* Strict Child-store checkout validation option, with cached-snapshot/failure strategy options.
+* SKU rename tracking and product/SKU exclusions.
+* Shared-secret rotation, signed REST authentication and replay protection.
+* Scheduled health checks, connection status and WordPress Site Health integration.
+* Event log, diagnostic code reference and WP-CLI tooling.
 * WooCommerce HPOS compatibility handling.
 
 = Master and Child Architecture =
@@ -99,6 +94,30 @@ Because the Master can be temporarily unreachable, the plugin includes configura
 = SKU Rename Handling =
 
 The plugin observes SKU metadata changes so identity can remain consistent when a product's SKU is edited. Global plugin IDs provide another stable identifier used by the sync process, reducing dependence on the assumption that a SKU can never change.
+
+= Stock History per SKU =
+
+Each store keeps a short, versioned history of stock events for every product it syncs: local changes captured on a Child, authoritative versions stamped by the Master, updates applied on each store, SKU renames, and stale updates that were safely ignored. Every entry records the stock quantity, stock status, backorder setting, version, context (for example an order or a reconcile), the originating store, and the event ID.
+
+Look up a SKU on the Tools tab to see its current state on every connected store side by side, plus one merged timeline. Entries with the same event ID are the same change seen on different stores, so you can follow a sale from the store where it happened, through the Master, to every Child that applied it. The Master shows every enabled Child; a Child shows itself and the Master. The same lookup is available from WP-CLI.
+
+= SKU Mapping Repair Tool =
+
+Sync matches products between stores by a plugin GID and by SKU, so both must identify exactly one product. The SKU Mapping Repair Tool (Conflicts tab) scans a store for:
+
+* Duplicate SKUs – one SKU used by more than one product or variation.
+* Duplicate GIDs – one GID shared by more than one product, usually left behind by a product duplicate or import that copied product meta.
+* Missing SKUs – stock-managed products and variations with no SKU, which can never sync.
+
+Duplicate SKUs and duplicate GIDs are put on a sync hold: the SKU is skipped by every inbound and outbound sync path until it is repaired, so an ambiguous match can never overwrite the wrong product's stock. Repair from the same screen by assigning a unique SKU or issuing a new GID. Holds are released automatically once the identity is unique again, and on the Master the released SKUs are pushed to every Child so sync resumes. A hold can also be released manually.
+
+On the Master, the tool also lists GID mismatches and missing products found on Child stores by the latest Audit or Reconcile, with a one-click push that makes the Child adopt the Master's GID.
+
+= Failover Readiness Report =
+
+The Status tab includes a Failover Readiness Report that explains, from the store's live settings and health, what happens if the Master is unreachable: whether customers can still check out, how long queued stock changes keep retrying before they need attention, how stock drifts while stores are disconnected, how many last-known-good stock snapshots are stored and how old they are, and the steps to recover – including promoting a Child to Master. Each finding is graded and the report gives an overall verdict (Ready, At risk, Not ready).
+
+On the Master, the report also lists every Child's checkout fallback, snapshot freshness and backlog, reported by each Child during the regular health ping. The report can be downloaded as a Markdown file or printed with WP-CLI.
 
 = Exclusions =
 
@@ -161,7 +180,7 @@ The plugin makes signed REST API requests directly between the WordPress/WooComm
 
 * **What is sent:** product SKUs; stock state (quantity, stock status, backorders, low stock amount, effective stock-management mode); a per-product monotonic version counter and timestamp (see How Stock Sync Works); and, only via the `/ping` health-check route, the sending store's name and its WooCommerce/plugin version. Strict checkout validation additionally sends the SKUs currently in a Child's cart to the Master for a live stock check.
 * **When it happens:** automatically, in real time, whenever WooCommerce itself changes a product's stock (an order, refund, cancellation, REST edit, CSV import, or a compatible integration such as WooCommerce Square) – dispatched asynchronously via Action Scheduler. There is no polling interval to configure. A recurring health-check ping additionally runs roughly every 15 minutes per configured store, and Reconcile/Audit/Manual SKU Sync send requests on demand when you trigger them.
-* **Authentication:** every request carries `X-Kitgenix-Store-Id`, `X-Kitgenix-Timestamp`, `X-Kitgenix-Nonce`, and an `X-Kitgenix-Signature` HMAC-SHA256 header computed from a shared secret you configure on both sides – see Developer Reference below for the full scheme.
+* **Authentication:** every request carries `X-Kitgenix-Store-Id`, `X-Kitgenix-Timestamp`, `X-Kitgenix-Nonce`, and HMAC-SHA256 `X-Kitgenix-Signature` / `X-Kitgenix-Signature-V2` headers computed from a shared secret you configure on both sides – see Developer Reference below for the full scheme.
 * **Caching:** a last-known-good stock snapshot per SKU is cached (transient, 24 hours) on Child stores solely to support the optional "use last-known stock" checkout failure strategy; a GID → product ID lookup is cached in the object cache (~1 hour) if a persistent object cache is active.
 
 **2. WordPress.org Plugins API (admin screen only, not part of stock sync)**
@@ -178,8 +197,9 @@ No other third-party services, SaaS platforms, or analytics/tracking endpoints a
 Text domain:
 `kitgenix-stock-sync-for-woocommerce`
 
-Option key:
+Option keys:
 * `kitgenix_stock_sync_for_woocommerce_settings`
+* `kitgenix_stock_sync_for_woocommerce_snapshot_index` (2.2.0+) – `{sku: cached_at}` index of last-known-good stock snapshots (capped at 1,000, entries older than 24 hours dropped), used by the Failover Readiness Report
 
 Option schema (high-level):
 * `this_store_id`, `this_store_name`, `role`, `strict_checkout_validation`, `schema_version`
@@ -188,29 +208,36 @@ Option schema (high-level):
 * `children` (master config): entries with `id`, `name`, `url`, `secret`, `secret_previous`, `secret_previous_expires_at`, `enabled`, `health`
 * `exclusions.skus`
 * `conflicts_report`: `{generated_at, items[]}` – each item has `type`, `sku`, `gid`, `child_id`, `child_name`, `master_value`, `child_value`, `detail`
+* `sku_holds` (2.2.0+): `{sku: {reason, since, detail}}` – SKUs held out of sync by the SKU Mapping Repair Tool
+* `identity_report` (2.2.0+): `{generated_at, items[]}` – each item has `type` (`duplicate_sku` | `duplicate_gid` | `missing_sku`), `sku`, `gid`, `blocking`, `hold_skus`, `products[]`, `detail`
 * Diagnostics/admin UI state: `notices`, `event_log`, `backlog` (v2: `id`, `type`, `store_id`, `attempt`, `status`, `next_retry_at`, `payload`, `payload_meta`, `error`, `code`), `reconcile` (v2: `mode`, `dry_run`, `differences_only`, `selected_skus`, `processed`, `total_estimate`, `differences_found`, `pushed_count`, `started_at`, `finished_at`, `last_batch_at`), `health` (this store's own global health, retained alongside the newer per-store `master`/`children[].health`)
 
 Product/variation meta keys:
 * `_kitgenix_stock_sync_for_woocommerce_gid` – stable cross-store identity, survives SKU renames. Never regenerated once set.
 * `_kitgenix_stock_sync_for_woocommerce_version` – Master-authoritative monotonic version counter, bumped on every authoritative capture.
 * `_kitgenix_stock_sync_for_woocommerce_applied_version` – last version a receiving store actually applied; the staleness-fencing guard.
+* `_kitgenix_stock_sync_for_woocommerce_history` (2.2.0+) – Stock History per SKU: the most recent stock events for this product (default 20), each with `time`, `type` (`captured` | `authoritative` | `applied` | `sku_rename` | `skipped_stale`), `version`, `stock_quantity`, `stock_status`, `backorders`, `context`, `store_id`, `event_id`, `note`. Diagnostic only; sync never reads it.
+
+WooCommerce's "Duplicate" product action does not copy these keys to the new product (2.2.0+).
 
 REST API routes (POST):
-* `/wp-json/kitgenix-stock-sync/v1/ping` – returns `wc_version` and `plugin_version`
+* `/wp-json/kitgenix-stock-sync/v1/ping` – returns `wc_version` and `plugin_version`; on a Child (2.2.0+) also `failover`, a non-secret readiness summary (checkout strategy, snapshot counts/ages, backlog counts) for the Master's Failover Readiness Report
 * `/wp-json/kitgenix-stock-sync/v1/event`
 * `/wp-json/kitgenix-stock-sync/v1/stock` (master only; used by strict checkout validation)
-* `/wp-json/kitgenix-stock-sync/v1/stock-state` (used by audit/reconcile/conflict comparisons; returns `gid` and effective `manage_stock`)
+* `/wp-json/kitgenix-stock-sync/v1/stock-state` (used by audit/reconcile/conflict comparisons; returns `gid` and effective `manage_stock`; with `"include_history": true` (2.2.0+) also `version`, `applied_version` and `history` per SKU)
 
-All four routes register with `permission_callback => __return_true` and perform authentication inside the callback via the signed-request headers below – this is intentional (a signed server-to-server webhook has no WordPress user/cookie/application-password to authenticate against) and not a missing-permission-callback oversight.
+All four routes authenticate in their `permission_callback` using the signed-request headers below (a signed server-to-server webhook has no WordPress user/cookie/application-password to authenticate against), so WordPress rejects an unauthenticated request before any endpoint code runs.
 
 Authentication headers:
 * `X-Kitgenix-Store-Id`
 * `X-Kitgenix-Timestamp`
 * `X-Kitgenix-Nonce`
 * `X-Kitgenix-Signature`
+* `X-Kitgenix-Signature-V2` (2.2.0+)
 
 Signatures:
-* HMAC SHA-256 over: `timestamp + "\n" + nonce + "\n" + request_body`
+* v2 (2.2.0+): HMAC SHA-256 over `"v2\n" + METHOD + "\n" + route + "\n" + timestamp + "\n" + nonce + "\n" + sha256(request_body)`, where `route` is the REST route, e.g. `/kitgenix-stock-sync/v1/event`. Binding the method and route means a captured request cannot be replayed against a different endpoint.
+* Legacy v1: HMAC SHA-256 over `timestamp + "\n" + nonce + "\n" + request_body`. Senders include both for compatibility with stores on older versions. When `X-Kitgenix-Signature-V2` is present it is the only signature checked, and once a store has sent a valid v2 signature, requests from it without one are rejected (no downgrade).
 * Timing-safe comparison (`hash_equals`)
 * Timestamp skew allowed: 5 minutes
 * Nonce replay protection stored via transients; a nonce is only consumed once a request is confirmed authentic, so a wrong signature can't burn a legitimate nonce slot
@@ -239,11 +266,14 @@ Admin nonces:
 * `kss_tools`
 * `kss_conflicts`
 * `kss_logs`
+* `kss_identity` (2.2.0+, SKU Mapping Repair)
+* `kss_failover_report` (2.2.0+, report download via `admin-post.php?action=kitgenix_stock_sync_failover_report`)
 
 Filters:
 * `kitgenix_stock_sync_for_woocommerce_parent_menu_slug` (change the parent menu slug; default: `kitgenix`)
 * `kitgenix_stock_sync_for_woocommerce_secret_rotation_overlap` (seconds a rotated-out secret keeps working; default 86400, clamped to 1 hour–7 days)
 * `kitgenix_stock_sync_for_woocommerce_allow_insecure_url` (return `true` to allow `http://` for `localhost`/`.local`/`.test` hosts only – never for a real remote host)
+* `kitgenix_stock_sync_for_woocommerce_history_limit` (2.2.0+; Stock History entries kept per product; default 20, clamped to 0–100; `0` disables recording)
 
 Transients (dynamic keys):
 * `kitgenix_stock_sync_for_woocommerce_do_activation_redirect` (30 seconds)
@@ -252,6 +282,7 @@ Transients (dynamic keys):
 * `kitgenix_stock_sync_for_woocommerce_kss_debounce_{md5(key)}` (debounce, ~2 seconds)
 * `kitgenix_stock_sync_for_woocommerce_kss_old_sku_{post_id}` (SKU rename helper, 60 seconds)
 * `kitgenix_stock_sync_for_woocommerce_kss_audit_result_{user_id}` (stores last audit result in wp-admin, 10 minutes)
+* `kitgenix_stock_sync_for_woocommerce_kss_history_result_{user_id}` (stores the last Stock History lookup in wp-admin, 10 minutes)
 * `kitgenix_stock_sync_for_woocommerce_kss_stockcache_{md5(sku)}` (last-known-good stock snapshot for the `stale_cache` checkout strategy, 24 hours; a per-item `cached_at` timestamp – not the transient TTL – enforces the merchant-configured max age)
 * `kitgenix_stock_sync_for_woocommerce_kss_authfail_{md5(identity)}` / `..._kss_lockout_{md5(identity)}` (brute-force throttle)
 
@@ -281,6 +312,15 @@ Inspect and manage the backlog. `discard`/`discard-all` prompt for confirmation 
 
 `wp kitgenix-stock-sync conflicts [--rescan] [--format=<table|json>]`
 Print the current Conflict Dashboard report; `--rescan` runs a fresh duplicate-SKU scan first (Master only).
+
+`wp kitgenix-stock-sync history <sku> [--local] [--format=<table|json|csv>]`
+Stock History per SKU across connected stores, newest first. `--local` skips requests to other stores.
+
+`wp kitgenix-stock-sync identity scan|list|holds|release <sku> [--format=<table|json>]`
+SKU Mapping Repair: scan for duplicate/missing SKU identities (and update sync holds), list the last scan, list holds, or release a hold.
+
+`wp kitgenix-stock-sync failover-report [--format=<markdown|json>]`
+Print the Failover Readiness Report.
 
 == Frequently Asked Questions ==
 
@@ -329,6 +369,15 @@ Failed pushes are recorded in the Backlog (with reason, attempt count, and next 
 = What happens if the Master is unreachable during checkout validation? =
 Depends on the configured failure strategy (Configuration tab): fail-open (default, allows checkout), fail-closed (blocks checkout), or use last-known stock (applies a recent cached snapshot if it's fresh enough, otherwise falls back to fail-open). A definitive out-of-stock/insufficient response from a *reachable* Master always blocks checkout, regardless of this setting.
 
+= Can I see the history of stock changes for one product? =
+Yes. Enter a SKU under Tools → Stock History per SKU (or run `wp kitgenix-stock-sync history <sku>`). You see the product's current stock on every connected store and a timeline of its recent stock events, including each event's version, origin, and event ID. History is recorded from 2.2.0 onwards, and a store must run 2.2.0 or later to include its history.
+
+= What is a sync hold? =
+When the SKU Mapping Repair Tool finds a SKU used by more than one product, or a GID shared by more than one product, it holds that SKU out of sync. Sync cannot tell which product an update belongs to, and guessing could overwrite the wrong product's stock. Give the products a unique SKU or a new GID on the Conflicts tab and the hold is released automatically.
+
+= What happens if the Master store goes down? =
+Children keep selling from their own stock, their changes queue and retry for about 25 hours, and checkout follows each Child's "If Master cannot be verified at checkout" setting. The Failover Readiness Report on the Status tab spells this out for your exact settings, shows how old each store's last-known-good stock snapshots are, and lists the recovery steps.
+
 = Where can I view the sync logs? =
 * WooCommerce → Status → Logs (source: `kitgenix-stock-sync-for-woocommerce`)
 * Kitgenix → Stock Sync → Logs tab (Event Log + Backlog)
@@ -349,7 +398,7 @@ Yes. When Square changes a product's stock on a WooCommerce store, it does so th
 Yes. Use "Rotate Secret" on the Stores tab (this is an admin-UI action; there is no WP-CLI equivalent). The old secret keeps working for a short overlap window (default 24 hours, filterable) so you can update the other store before it expires.
 
 = Does this plugin support WP-CLI? =
-Yes – see the developer reference above for the full command list (`wp kitgenix-stock-sync status|audit|reconcile|sku|backlog|conflicts`).
+Yes – see the developer reference above for the full command list (`wp kitgenix-stock-sync status|audit|reconcile|sku|backlog|conflicts|history|identity|failover-report`).
 
 = Does this add any WordPress Site Health checks? =
 Yes. Site Health → Status includes checks for role/connection configuration, connection health, backlog items needing attention, and Action Scheduler availability. Site Health → Info includes a non-secret diagnostic section (role, store ID, counts, timestamps) – shared secrets and store URLs' credentials are never included.
@@ -384,6 +433,8 @@ This plugin removes its settings and plugin-only transients on uninstall. It doe
 Removed on uninstall:
 * Option: `kitgenix_stock_sync_for_woocommerce_settings`
 * Site option: `kitgenix_stock_sync_for_woocommerce_settings`
+* Option: `kitgenix_stock_sync_for_woocommerce_snapshot_index`
+* Product meta: `_kitgenix_stock_sync_for_woocommerce_history` (Stock History is diagnostic only, so it is removed)
 * Transients by prefix: `kitgenix_stock_sync_for_woocommerce_` and `kss_` (covers dynamic keys such as nonce/seen/debounce/stock-cache/auth-throttle helpers)
 
 Multisite:
@@ -403,77 +454,36 @@ Built with ❤︎ by @kitgenix - https://kitgenix.com
 
 == Upgrade Notice ==
 
-= 2.1.2 =
-Version 2.1.2 is recommended for all sites.
+= 2.2.0 =
+Fixes a stock sync race that could oversell under concurrent sales, strengthens store-to-store request signing, and adds a check that warns if MultiStore Sync's own inventory sync is also enabled, plus Stock History per SKU, the SKU Mapping Repair Tool and the Failover Readiness Report. Update the master store and all child stores to 2.2.0. Stores still on an older version keep syncing in the meantime.
 
 == Changelog ==
 
-= 2.1.2 (13 October 2026) =
+= 2.2.0 (30 October 2026) =
 
-* Fix: Bump version to 2.1.2 across the plugin.
+* Fix: Fixed a stock sync race that could oversell. Children previously sent their absolute stock quantity on every change, and the Master applied it with a plain overwrite, so two near-simultaneous sales across stores could lose one of the two decrements. Children now send a delta for every order-driven stock change, with an idempotency key so a retried delivery is never applied twice, and the Master applies each one atomically instead of overwriting the quantity outright. Stores not yet updated keep working as before via the same absolute quantity, still included alongside the new delta information.
+* New: Added a Site Health check that detects Kitgenix MultiStore Sync for WooCommerce running with its own inventory sync enabled, which would otherwise write stock twice and can create a feedback loop between stores.
+* New: Stock History per SKU. Each store records a versioned history of stock events per product (captured, authoritative, applied, SKU rename, stale update ignored). Look up a SKU on the Tools tab to see its current state on every connected store and one merged timeline, linked by event ID. Also available as `wp kitgenix-stock-sync history <sku>`.
+* New: SKU Mapping Repair Tool on the Conflicts tab. Scans for duplicate SKUs, duplicate GIDs and stock-managed products without a SKU. Duplicate SKUs and GIDs are held out of sync until repaired, so an ambiguous match cannot overwrite the wrong product. Assign a unique SKU or issue a new GID from the same screen; holds are released automatically once fixed, and the Master re-pushes released SKUs to every Child. Also available as `wp kitgenix-stock-sync identity`.
+* New: Failover Readiness Report on the Status tab. Explains what happens if the Master is unreachable for this store's exact settings – checkout behaviour, the retry window for queued changes, stock drift, the age of last-known-good stock snapshots, and recovery steps – with an overall verdict. On the Master it also lists every Child's readiness. Download it as Markdown or run `wp kitgenix-stock-sync failover-report`.
+* Improved: Products created with WooCommerce's "Duplicate" action no longer copy the original product's GID, version counters or stock history, which previously made both products share one sync identity.
+* Fix: When a Child matches a product by SKU but the product carries a different GID, it now resets that product's applied version as it adopts the Master's GID, so later updates are no longer ignored as stale.
+* Fix: A store promoted from Child to Master now continues each product's version counter from the version it last applied, so the other Children accept its updates instead of ignoring them as stale.
+* Fix: The shared "Kitgenix" admin menu was being registered immediately during `plugins_loaded`, instead of on the `admin_menu` hook, which could trigger a "translation loading triggered too early" notice on sites running other Kitgenix plugins. It is now only registered on `admin_menu`, as intended.
+* Fix: The health-ping and event-log-pruning cron schedules were set up during `plugins_loaded`, before Action Scheduler's data store is guaranteed to be ready, which could trigger "called before the Action Scheduler data store was initialized" notices. Scheduling is now deferred to `init`.
+* Improved: Raised the minimum PHP version to 8.2 (`Requires PHP: 8.2`).
+* Improved: Tested up to WordPress 7.4 and WooCommerce 11.2.1, and reviewed for compatibility with PHP 8.2 to 8.5. The full codebase passes syntax checks on PHP 8.5 and a PHPCompatibility scan for PHP 8.2–8.5, and uses no dynamic properties or functions deprecated in PHP 8.2–8.5.
+* Improved: Declared compatibility with the WooCommerce Cart and Checkout blocks (`cart_checkout_blocks`), so WooCommerce no longer lists the plugin as possibly incompatible in the Checkout block editor.
+* Fix: Strict checkout validation on Child stores now also runs on the WooCommerce Checkout block. It was hooked only to the classic checkout's `woocommerce_after_checkout_validation`, so stores using the Checkout block (the WooCommerce default) skipped the live Master stock check. The same check and failure strategies now run on Store API checkout via `woocommerce_store_api_checkout_update_order_from_request`, and failures are shown as a checkout error notice.
+* Dev: `/ping` on a Child now returns a `failover` readiness summary, and `/stock-state` accepts `include_history`. New filter `kitgenix_stock_sync_for_woocommerce_history_limit`, new diagnostic code `kss_sku_held`, settings schema version 3.
+* Dev: Uninstall now also removes the Stock History product meta and the snapshot index option.
+* Security: Store-to-store requests now carry an additional signature that also covers the HTTP method and REST route, so a captured request cannot be replayed against a different endpoint. Once a store has sent the new signature, requests from it without the new signature are rejected, while stores still running an older version keep syncing until they are updated.
+* Security: Request authentication now runs in each REST route's `permission_callback`, so WordPress enforces it before any endpoint code runs.
+* Dev: `Kitgenix_Stock_Sync_For_WooCommerce_Security::sign_headers()` now takes the target endpoint URL as a fourth argument.
+* Dev: Removed the PluginScore verification code from the readme, as Kitgenix Plugin Score has been discontinued.
+* Dev: Bumped the version to 2.2.0 across the plugin.
+* Documentation: Rewrote the readme's Description section as plain text and moved the feature list into Other Notes, so the plugin directory no longer truncates the Description for exceeding the 2,500-character limit.
+* Documentation: Regenerated the `.pot` translation template for 2.2.0.
+* Documentation: The readme changelog now lists only the current release. The full release history is in `CHANGELOG.md`.
 
-= 2.1.1 (13 October 2026) =
-
-* Fix: Updated PluginScore Verification code.
-
-= 2.1.0 (13 October 2026) =
-
-* New: Added a configurable log auto-delete setting (7/14/30 days) to automatically remove old event log entries.
-* New: Added a "Request a Feature" button to the Need Help? sidebar, linking directly to this plugin's page on the Kitgenix roadmap (https://roadmap.kitgenix.com).
-* New: Added a "Request a Feature" banner below the plugin grid on the Kitgenix Hub page, linking to the shared Kitgenix roadmap.
-
-= 2.0.0 (31 August 2026) =
-
-* New: Redesigned the entire admin settings screen around the shared Kitgenix design system – card-based sections, stat tiles, status badges, and toggle switches replace the old WordPress form tables and status tables.
-* New: Added a sticky topbar with the Kitgenix brand, plugin name/version, tab navigation, a link to the Kitgenix Hub, and a mobile hamburger menu, replacing the previous nav-tab bar and static page header.
-* New: Added an in-page settings search (topbar search panel with "/" and Cmd/Ctrl+K shortcuts) that filters cards and rows on the active tab as you type.
-* New: Added a light/dark theme toggle for the admin UI; the chosen theme is remembered in the browser.
-* New: Editing or removing a Child store on the Stores tab now opens an accessible modal dialog instead of an inline form and a JavaScript confirm() prompt.
-* New: Event Log and Backlog tables on the Logs tab now support live search/filtering, colour-coded status badges, and empty-state messaging.
-* New: Event Log and Backlog tables are now paginated (25 rows per page) so a busy store's history doesn't turn into one long scroll.
-* New: Added a diagnostic code reference table to the Logs tab explaining what each recorded category means and whether it needs action.
-* New: Added versioned stock state. Every authoritative item now carries a monotonically increasing per-product version; a receiving store records the last version it applied and ignores anything arriving with an equal or older version. Delayed, duplicated, retried, and out-of-order events can no longer overwrite already-current stock.
-* New: Added an event envelope. Every sync event now has a stable unique ID plus origin store, creation time, delivery-attempt count, and a schema version – carried through retries rather than regenerated per attempt.
-* New: Added a Conflict Dashboard tab covering missing products, missing or duplicate SKUs, GID mismatches, quantity/backorder/stock-status mismatches, Child stores being offline, and authentication errors.
-* New: Conflict Dashboard results can now be populated by Audit, Reconcile dry-runs/difference checks, and a dedicated duplicate-SKU scan.
-* New: Reconcile now supports selected SKUs instead of requiring all products to be processed.
-* New: Added Reconcile dry-run mode so differences can be reviewed without changing stock.
-* New: Added a push-differences-only mode to Reconcile.
-* New: Added Reconcile run summaries showing processed products, detected differences, and pushed updates.
-* New: Added Resume and Cancel controls for in-progress Reconcile runs.
-* New: Added Backlog v2. Failed push/send attempts now retain their complete payload, stable event ID, status, and next-retry time so queued events can be resent correctly.
-* New: Added per-item manual Retry controls to the Backlog.
-* New: Added per-item Discard controls with confirmation to the Backlog.
-* New: Added a bounded retry policy so deliveries that exhaust their retry budget are marked for manual attention instead of retrying indefinitely.
-* New: Added per-store Connection Health tracking, replacing the previous single global set of health fields regardless of how many Child stores were configured.
-* New: Connection Health now records last inbound communication, last outbound communication, last successful communication, last error, remote WooCommerce version, remote plugin version, and a derived connection status.
-* New: Added a recurring health-check ping to keep per-store connection status current.
-* New: Added merchant-configurable strict checkout validation failure strategies – fail open, fail closed, or use a last-known-good stock snapshot with a configurable maximum age.
-* New: Added safe shared-secret rotation from the Stores tab, including a configurable overlap window so both sides of a store pairing can be updated without interrupting synchronisation.
-* New: Added WP-CLI commands for server administrators: `wp kitgenix-stock-sync status`, `audit`, `reconcile`, `sku`, `backlog`, and `conflicts`.
-* New: Added WordPress Site Health Status checks for role/connection configuration, connection health, backlog items requiring attention, and Action Scheduler availability.
-* New: Added a non-secret Kitgenix Stock Sync diagnostic section to WordPress Site Health → Info.
-* Improved: Authentication rejections between stores – including missing signatures, bad timestamps, clock drift, replayed requests, and invalid signatures – are now recorded in the Event Log, with clock drift and replayed requests flagged as routine rather than genuine security concerns.
-* Improved: Sync failures between stores now distinguish temporary network or connection issues from genuine rejections such as bad configuration or hard errors in both the Event Log and the Status tab's health indicator.
-* Improved: The Support tab is now three focused cards – a donate card with a collapsible monthly-amount picker, a "what your support funds" summary, and a single "get involved" panel for reviews, plugin links, and community – replacing the previous stack of donate/trust/community cards and sidebar.
-* Improved: Audit Children results are now grouped into collapsible per-child cards instead of one long flat list.
-* Improved: The Kitgenix Hub page now shares the same topbar and card design system as the plugin settings screens and shows installed/active plugin counts alongside each listing.
-* Improved: Added the Image Optimizer plugin to the Kitgenix Hub's plugin list and updated the MultiStore Sync entry to the renamed "MultiStore for WooCommerce" plugin with its new slug and page.
-* Improved: Refreshed the Kitgenix brand logo and favicon assets with new primary, dark, white, and black variants, including tagline versions, and updated the admin menu icon.
-* Improved: Outbound stock changes are now coalesced per request, so every product touched by a single operation – such as one order's line items – is sent as a single event instead of generating one network request per WooCommerce hook.
-* Improved: The Master's real-time push to Child stores now dispatches asynchronously through Action Scheduler instead of blocking the request that triggered the stock change, matching the behaviour already used by bulk tools.
-* Improved: The Master no longer echoes an incoming event back to the Child store that sent it, eliminating an unnecessary round trip and preventing integrations such as WooCommerce Square from creating stock-sync feedback loops when driving a Child store's local inventory.
-* Improved: Variations that inherit stock management from their parent using WooCommerce's "parent" stock-management mode are now synchronised and applied faithfully instead of being forced into independently managed stock.
-* Improved: Strict checkout validation continues to block checkout in every failure strategy when a reachable Master definitively reports that an item is out of stock or has insufficient quantity.
-* Fix: The settings sidebar now sticks flush beneath the topbar based on its real measured height instead of a fixed guessed offset, preventing overlap when the topbar wraps to two lines on narrower screens.
-* Fix: Number inputs across the settings screens are no longer cramped to a fixed 50px width.
-* Fix: Corrected order stock-reduction/restoration handling where the suppression flag was previously being set after WooCommerce had already fired the per-item stock hooks it was intended to suppress.
-* Fix: Replaced the previous order-level suppression workaround with request-scoped stock-change coalescing, removing the dependency on WooCommerce hook ordering entirely.
-* Security: Verified compatibility with WooCommerce 11.0 failed-order stock restoration. WooCommerce's `wc_maybe_increase_stock_levels()` now also runs on `woocommerce_order_status_failed`, guarded by WooCommerce's own stock-reduced flag, and Kitgenix Stock Sync correctly synchronises the resulting WooCommerce stock state without reimplementing order-status arithmetic.
-* Security: Request bodies larger than 2MB are now rejected before HMAC verification.
-* Security: Malformed JSON requests now return a clean error instead of falling through into further request processing.
-* Security: Repeated authentication failures from the same sender now trigger a temporary lockout.
-* Security: Authentication failure responses now use a single generic message so callers cannot enumerate configured store pairings.
-* Security: Master and Child store URLs must now use HTTPS, with a filtered exception available for local development environments.
-* Dev: Added a new shared `kitgenix-admin-components.js` script providing modals, collapsible cards, copy-to-clipboard controls, live table search, and toast-style save confirmations.
-* Dev: Substantially expanded `kitgenix-admin-tabs.js` to drive the new topbar, mobile menu, dropdowns, and dynamic sticky-offset behaviour.
+Full release history is available in the plugin's `CHANGELOG.md` file.

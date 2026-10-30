@@ -3,7 +3,7 @@
 - **Suggested video title:** Stop Overselling Across Multiple WooCommerce Stores – Real-Time Stock Sync (Kitgenix Stock Sync)
 - **Alternative title:** How to Share One Inventory Between WooCommerce Stores (Master/Child Stock Sync)
 - **Estimated runtime:** about 12–13 minutes at a brisk presenting pace (around 2,350 spoken words). To bring it down to 10 minutes, shorten section 10 to a single line and leave out the version-number paragraph in section 6.
-- **Plugin version covered:** 2.1.0 (requires WordPress 6.0+, PHP 8.1+, WooCommerce 10.0+)
+- **Plugin version covered:** 2.2.0 (requires WordPress 6.0+, PHP 8.2+, WooCommerce 10.0+)
 - **Recording note:** You'll need at least two WooCommerce test sites on HTTPS (three is better for the real-world example in section 11). The plugin only allows plain `http://` for `localhost`, `.local` or `.test` hosts, and only when a developer filter turns it on.
 
 ---

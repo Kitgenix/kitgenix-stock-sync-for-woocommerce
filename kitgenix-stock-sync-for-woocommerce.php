@@ -8,16 +8,16 @@
  * Author Support URI: https://kitgenix.com/plugins/kitgenix-stock-sync-for-woocommerce/support
  * Feature Request URI: https://kitgenix.com/plugins/kitgenix-stock-sync-for-woocommerce/feature-request
  * Description:       Sync WooCommerce stock between stores with secure master-child inventory updates and signed REST requests.
- * Version:           2.1.2
+ * Version:           2.2.0
  * Requires at least: 6.0
- * Tested up to:      7.1
- * Requires PHP:      8.1
+ * Tested up to:      7.4
+ * Requires PHP:      8.2
  * Author:            Kitgenix
  * Author URI:        https://kitgenix.com/
  * Donate link:       https://www.paypal.com/donate/?hosted_button_id=KALF36K6JJ9B2
  * Requires Plugins:  woocommerce
  * WC requires at least: 10.0
- * WC tested up to:   11.0.1
+ * WC tested up to:   11.2.1
  * License:           GPLv3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       kitgenix-stock-sync-for-woocommerce
@@ -26,7 +26,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION', '2.1.2');
+define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION', '2.2.0');
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_FILE', __FILE__);
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR', plugin_dir_path(__FILE__));
 define('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_URL', plugin_dir_url(__FILE__));
@@ -628,7 +628,7 @@ if (!function_exists('kitgenix_stock_sync_for_woocommerce_register_admin_ui_styl
 			return;
 		}
 
-		$ver = defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.0.0';
+		$ver = defined('KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION') ? (string) KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_VERSION : '2.2.0';
 		$css_file = plugin_dir_path(__FILE__) . 'assets/css/kitgenix-admin-ui.css';
 		$css_ver = file_exists($css_file) ? (string) filemtime($css_file) : $ver;
 
@@ -686,6 +686,9 @@ require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-
 require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-security.php';
 require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-rest.php';
 require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-sync.php';
+require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-history.php';
+require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-identity.php';
+require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-failover.php';
 require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-admin.php';
 require_once KITGENIX_STOCK_SYNC_FOR_WOOCOMMERCE_DIR . 'includes/class-kitgenix-stock-sync-for-woocommerce-site-health.php';
 if (defined('WP_CLI') && WP_CLI) {
@@ -741,6 +744,7 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), function (array $
 add_action('before_woocommerce_init', function () {
 	if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
 		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
 	}
 });
 
